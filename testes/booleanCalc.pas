@@ -7,7 +7,8 @@ var
 
 begin
   read(op);
-  read(a, b);
+  read(a);
+  read(b);
 
   if a <> 0 then begin
     aBoolean := true;

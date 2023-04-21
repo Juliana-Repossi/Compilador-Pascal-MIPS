@@ -1,5 +1,8 @@
 program recursive_factorial;
 
+var
+  n: integer;
+
 function factorial(const n: integer) : integer;
 begin
   if (n = 0) or (n = 1) then 
@@ -11,9 +14,6 @@ begin
     factorial := n * factorial(n - 1);
   end;
 end;
-
-var
-  n: integer;
 
 begin
   readln(n);

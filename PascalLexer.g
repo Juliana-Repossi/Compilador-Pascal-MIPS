@@ -1,4 +1,4 @@
-lexer grammar Pascal;
+lexer grammar PascalLexer;
 
 fragment INT_VALUE  : [0-9]+ ;
 fragment REAL_VALUE : INT_VALUE '.' INT_VALUE ;

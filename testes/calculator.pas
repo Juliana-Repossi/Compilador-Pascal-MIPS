@@ -1,6 +1,6 @@
 program calculator;
 var
-  a, b, result: integer;
+  a, b, result: real;
   op, space: char;
 
 begin
@@ -24,7 +24,7 @@ begin
       end
       else
       begin
-        if op = '/' then;
+        if op = '/' then
         begin
           result := a / b;
         end;

@@ -11,5 +11,5 @@ begin
   else begin
     write(num);
     write(' is even!');
-  end
+  end;
 end.

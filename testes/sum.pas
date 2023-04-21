@@ -3,7 +3,7 @@ var
     X, Y : real;
 
 const
-    _const_1 = 10.5;
+    const_1 = 10.5;
 begin
     write('This program operates with 2 numbers!');
 

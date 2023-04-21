@@ -24,7 +24,7 @@ begin
 
       j := j + 1;
     end;
-    writeln();
+    //writeln();
     
     low := low - 1;
     high := high + 1;
