@@ -13,7 +13,12 @@ program:
 ;
 
 program_pascal:
-    const_section? var_section? const_section? (procedure | function)* block+          
+    const_var_section* (procedure | function)* block+          
+;
+
+const_var_section:
+    const_section
+|   var_section
 ;
 
 const_section:
@@ -26,31 +31,31 @@ var_section:
 
 var:
     (ID)(COMMA ID)* COLON type
-|   array
 ;
 
 constant:
-    CONST ID COLON type
-;
-
-array:
-    ID COLON ARRAY LBRACK INT_VAL RANGE INT_VAL RBRACK OF type
-;
-
-acess_array:
-    ID LBRACK (INT_VAL | ID ) RBRACK
+    CONST ID COLON type_simple
 ;
 
 procedure:
-    PROCEDURE ID LPAR (var|constant)* RPAR SEMICOLON const_section? var_section? const_section? block SEMICOLON
+    PROCEDURE ID parameter_list SEMICOLON const_var_section* block SEMICOLON
 ;
 
 function:
-    FUNCTION ID LPAR (var|constant)* RPAR COLON (type | array) SEMICOLON const_section? var_section? block SEMICOLON
+    FUNCTION ID parameter_list COLON type SEMICOLON const_var_section* block SEMICOLON
+;
+
+parameter_list:
+    LPAR (var|constant)* RPAR
 ;
 
 block:
     BEGIN (statement SEMICOLON)* END
+;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+acess_array:
+    ID LBRACK (INT_VAL | ID ) RBRACK
 ;
 
 statement:
@@ -115,17 +120,31 @@ read_io:
     READ LPAR (ID | acess_array) RPAR 
 ;
 
-type: 
-    (INTEGER | REAL | BOOLEAN | STRING | CHAR )
+type:
+    type_simple 
+|   array_type
+;
+
+type_simple: 
+    INTEGER 
+|   REAL 
+|   BOOLEAN 
+|   STRING
+|   CHAR 
+;
+
+array_type:
+   ARRAY LBRACK INT_VAL RANGE INT_VAL RBRACK OF type_simple
 ;
 
 val:
-    (INT_VAL | REAL_VAL | STRING_VAL | BOOLEAN_VAL | CHAR_VAL)
+    (INT_VAL | REAL_VAL | STRING_VAL | BOOLEAN_VAL | CHAR_VAL )
 ;
 
 // PERGUNTAR SOBRE PASSAR PARAMETRO PARA FUNÇÃO
-// PERGUNTAR SOBRE VERIFCAÇÃO DE TIPOS
 //operacoes de array
-//perguntar sobre parametros no read
-//perguntar sobre expressoes no if e wuile nao booleanas
-// perguntar sobre comparação de string op = 'and' 
+
+
+//Limitações
+// constantes só podem receber valores hard coded 
+// constante so pode ser type simples

@@ -2,6 +2,7 @@ lexer grammar PascalLexer;
 
 fragment INT_VALUE  : [0-9]+ ;
 fragment REAL_VALUE : INT_VALUE '.' INT_VALUE ;
+fragment SIGN       : [+\-]? ;
 fragment BOOLEAN_VALUE : (('true') | ('false'));
 fragment ID_VALUE   : [A-Za-z][A-Za-z0-9_]* ;
 fragment STR_VALUE  : ['] ~[']* ['] ;
@@ -73,8 +74,10 @@ READ        : 'read' ;
 WRITE       : 'write' ;
 WRITELN     : 'writeln' ;
 
-INT_VAL     : INT_VALUE ;
-REAL_VAL    : REAL_VALUE ;
+
+
+INT_VAL     : SIGN INT_VALUE ;
+REAL_VAL    : SIGN REAL_VALUE ;
 STRING_VAL  : STR_VALUE ;
 BOOLEAN_VAL : BOOLEAN_VALUE ;
 
