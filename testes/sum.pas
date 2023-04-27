@@ -1,6 +1,6 @@
 program sum;
 var 
-    X, Y : real;
+    X, Y, A: real;
 
 const
     const_1 = 10.5;
@@ -13,14 +13,37 @@ begin
     write('Please, type the another one: ');
     read(Y);
 
-    writeln('X + Y =  ' , X + Y);
-    writeln('X - Y =  ' , X - Y);
-    writeln('X * Y =  ' , X * Y);
-    writeln('X / Y =  ' , X / Y);
-    writeln('X > Y =  ' , X > Y);
-    writeln('X >= Y =  ' , X >= Y);
-    writeln('X < Y =  ' , X < Y);
-    writeln('X <= Y =  ' , X <= Y);
+    A := X + Y;
+    write('X + Y =  ');
+    writeln(A);
+
+    A := X - Y;
+    write('X - Y =  ');
+    writeln(A);
+
+    A := X * Y;
+    write('X * Y =  ');
+    writeln(A);
+
+    A := X / Y;
+    write('X / Y =  ');
+    writeln(A);
+
+    A := X > Y;
+    write('X > Y =  ');
+    writeln(A);
+
+    A := X >= Y;
+    write('X >= Y =  ');
+    writeln(A);
+
+    A := X < Y;
+    write('X < Y =  ');
+    writeln(A);
+
+    A := X <= Y;
+    write('X <= Y =  ');
+    writeln(A);
 
     write(const_1);
 end.

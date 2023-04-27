@@ -53,11 +53,6 @@ block:
     BEGIN (statement SEMICOLON)* END
 ;
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-acess_array:
-    ID LBRACK (INT_VAL | ID ) RBRACK
-;
-
 statement:
     atribution 
 |   while_block
@@ -68,52 +63,41 @@ statement:
 ;
 
 atribution:
-    ID BECOMES (expr_mat| expr_log | STRING | CHAR | array | acess_array | val )
+    (ID | acess_array) BECOMES ( expr )
 ;
 
-expr_mat:  
-    LPAR expr_mat RPAR
-|   expr_mat (ASTERISK | SLASH | MOD) expr_mat
-|   expr_mat (PLUS | MINUS) expr_mat
-|   INT_VAL
-|   REAL_VAL
-|   acess_array
+expr:  
+    LPAR expr RPAR
+|   NOT expr
+|   expr (ASTERISK | SLASH | MOD ) expr
+|   expr AND expr
+|   expr (PLUS | MINUS) expr
+|   expr OR expr
+|   expr ( NOTEQUAL | EQUAL | LESSTHAN | GREATERTHAN | LEQ | BEQ ) expr
 |   ID
 |   call_function_procedure
-;
-
-expr_log:  
-    LPAR expr_log RPAR
-|   expr_log ( NOTEQUAL | EQUAL ) expr_log
-|   expr_mat ( LESSTHAN | GREATERTHAN | LEQ | REQ | NOTEQUAL | EQUAL ) expr_mat
-|   NOT expr_log
-|   expr_log AND expr_log
-|   expr_log OR expr_log
-|   BOOLEAN_VAL
-|   ID
+|   val
 ;
 
 while_block:
-  WHILE (expr_log | expr_mat) DO block 
+  WHILE expr DO block 
 ;
 
 if_block:
-    IF expr_log THEN block (ELSE block)? 
+    IF expr THEN block (ELSE block)? 
 ;
 
 param_call:
-    expr_mat
-|   expr_log
-|   call_function_procedure
+    expr
 |   param_call COMMA param_call
 ;
 
 call_function_procedure:
-    ID LPAR param_call RPAR
+    ID LPAR param_call? RPAR
 ;
 
 write_io:
-    (WRITE | WRITELN) LPAR (val|ID|expr_log|expr_mat) RPAR  
+    (WRITE | WRITELN) LPAR (expr) RPAR  
 ;
 
 read_io:
@@ -137,12 +121,13 @@ array_type:
    ARRAY LBRACK INT_VAL RANGE INT_VAL RBRACK OF type_simple
 ;
 
-val:
-    (INT_VAL | REAL_VAL | STRING_VAL | BOOLEAN_VAL | CHAR_VAL )
+acess_array:
+    ID LBRACK (INT_VAL | ID ) RBRACK
 ;
 
-// PERGUNTAR SOBRE PASSAR PARAMETRO PARA FUNÇÃO
-//operacoes de array
+val:
+    (INT_VAL | REAL_VAL | STRING_VAL | BOOLEAN_VAL | CHAR_VAL | acess_array )
+;
 
 
 //Limitações

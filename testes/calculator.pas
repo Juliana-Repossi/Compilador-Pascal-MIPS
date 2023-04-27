@@ -4,7 +4,9 @@ var
   op, space: char;
 
 begin
-  read(a, space, op, b);
+  read(a);
+  read(op);
+  read(b);
   
   if op = '+' then
   begin
