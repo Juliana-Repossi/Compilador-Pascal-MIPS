@@ -44,7 +44,7 @@ begin
   verifica_aprovado(media(ap1,ap2));
   verifica_aprovado(media(bp1,bp2));
   verifica_aprovado(media(cp1,cp2)); 
-  verifica_aprovado(media(2.5 + 3.2,2/5)); 
+  verifica_aprovado(media(2.5+3.2,2/5)); 
 
   reprovado:= media(ap1,ap2) > 7;
 

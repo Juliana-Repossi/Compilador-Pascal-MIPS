@@ -54,6 +54,10 @@ constant:
     CONST ID COLON type_simple
 ;
 
+//Limitações
+// constantes só podem receber valores hard coded 
+// constante so pode ser type simples
+
 parameter:
     var_parameter
 |   constant
@@ -81,6 +85,7 @@ atribution:
 expr:  
     LPAR expr RPAR
 |   NOT expr
+|   MINUS expr
 |   expr (ASTERISK | SLASH | MOD ) expr
 |   expr AND expr
 |   expr (PLUS | MINUS) expr
@@ -142,10 +147,7 @@ acess_array:
 ;
 
 val:
-    (INT_VAL | REAL_VAL | STRING_VAL | BOOLEAN_VAL | CHAR_VAL | acess_array )
+    ( (PLUS|MINUS)? INT_VAL | (PLUS|MINUS)?  REAL_VAL | STRING_VAL | BOOLEAN_VAL | CHAR_VAL | acess_array )
 ;
 
 
-//Limitações
-// constantes só podem receber valores hard coded 
-// constante so pode ser type simples
