@@ -33,10 +33,6 @@ var:
     (ID)(COMMA ID)* COLON type
 ;
 
-constant:
-    CONST ID COLON type_simple
-;
-
 procedure:
     PROCEDURE ID parameter_list SEMICOLON const_var_section* block SEMICOLON
 ;
@@ -46,12 +42,16 @@ function:
 ;
 
 parameter_list:
-    LPAR parameter* RPAR
+    LPAR parameter? RPAR
 ;
 
 var_parameter:
     (ID)(COMMA ID)* COLON type_simple
 |   (ID)(COMMA ID)* COLON array_type
+;
+
+constant:
+    CONST ID COLON type_simple
 ;
 
 parameter:

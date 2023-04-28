@@ -32,11 +32,30 @@ var-const-section
 			falta de ; nas constantes				OK
 			declarar constante na var e var na const		OK
 			
-function
+function e procedimento
 		palavra reservada errada					OK
 		ID incompativel						OK
 		falta de paranteses ou desalinhados				OK
 		passar todos os tipos de parametro e mais de um por tipo	OK
+		passar faltando ;						OK
+		sem :								OK
+		sem o type do parameter					OK
+		; no ultimo parameter						OK
+		erro em array de array						OK
+		sem retorno							OK
+		funcao com o bloco if						OK
+		função sem parametros						OK
+		não terminar com ;						OK
+		trocar um pelo outro
+		
+atribuição
+		nao permitir atribuição multipla				OK
+		atribuição com = error						OK
+		atribuicao com valores literais				OK
+		atribuição com variaveis
+		
+		
+		
 			
 			
 			
