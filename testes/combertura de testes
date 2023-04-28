@@ -1,0 +1,43 @@
+// teste de estrutura inicial
+
+teste1 -	testei o programa começar sem o program;			OK
+teste2 -	id do program errado;						OK
+teste3 -	nao colocar ponto e virgula depois do cabeçalho do prog	OK
+teste4 -	não colocar . no final do programa				OK
+teste5 -	teste com o básico para rodar o programa			OK
+		faltando cabeçalho						OK
+		faltando main							OK
+		comecar sem a palavra program ou errada			OK
+		seção var ou const vazia 					OK	
+		
+//teste na seção de variavel e constante
+
+teste6 - 	seção de variavel 						OK
+		introduzir erros:
+			palavra var errada					OK
+			algo que não é declaração na seção			OK	
+			falta de ponto e virgula no final da declaração	OK
+			falta de : na declaração				OK
+			falta de , na declaração				OK
+			tipo inexistente de dado				OK
+			array sem declaração de tamanho			OK
+			array com tamanho real					OK
+			falta do OF						OK
+			nao aceitar array de array				OK
+teste7 - 	usar palavra reservada como nome da função(ID)		OK
+var-const-section
+
+			permutação de var e const				OK	
+			sinal de atribuição ao inves de = 			OK
+			falta de ; nas constantes				OK
+			declarar constante na var e var na const		OK
+			
+function
+		palavra reservada errada					OK
+		ID incompativel						OK
+		falta de paranteses ou desalinhados				OK
+		passar todos os tipos de parametro e mais de um por tipo	OK
+			
+			
+			
+

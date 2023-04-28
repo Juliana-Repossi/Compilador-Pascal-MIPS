@@ -46,8 +46,20 @@ function:
 ;
 
 parameter_list:
-    LPAR (var|constant)* RPAR
+    LPAR parameter* RPAR
 ;
+
+var_parameter:
+    (ID)(COMMA ID)* COLON type_simple
+|   (ID)(COMMA ID)* COLON array_type
+;
+
+parameter:
+    var_parameter
+|   constant
+|   parameter SEMICOLON parameter
+;
+
 
 block:
     BEGIN (statement SEMICOLON)* END
@@ -106,7 +118,7 @@ read_io:
 
 type:
     type_simple 
-|   array_type
+|   array_type_range
 ;
 
 type_simple: 
@@ -117,8 +129,12 @@ type_simple:
 |   CHAR 
 ;
 
-array_type:
+array_type_range:
    ARRAY LBRACK INT_VAL RANGE INT_VAL RBRACK OF type_simple
+;
+
+array_type:
+   ARRAY OF type_simple
 ;
 
 acess_array:
