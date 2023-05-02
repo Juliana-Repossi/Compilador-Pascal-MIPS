@@ -42,12 +42,16 @@ function:
 ;
 
 parameter_list:
-    LPAR parameter? RPAR
+    LPAR parameters? RPAR
+;
+
+parameters:
+    parameter (SEMICOLON parameter)*
 ;
 
 var_parameter:
-    (ID)(COMMA ID)* COLON type_simple
-|   (ID)(COMMA ID)* COLON array_type
+    ID (COMMA ID)* COLON type_simple
+|   ID (COMMA ID)* COLON array_type
 ;
 
 constant:
@@ -61,7 +65,6 @@ constant:
 parameter:
     var_parameter
 |   constant
-|   parameter SEMICOLON parameter
 ;
 
 
