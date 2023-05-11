@@ -3,11 +3,13 @@ var
   w: real;
   x: integer;
   y: string;
-  z: char;
 
+const
+  a= 2.0;
+  b= 5;
+  
 begin
   w := 15.4;
   x := 2;
   y := 'anything';
-  z := 'z';
 end.

@@ -1,7 +1,7 @@
 program calculator;
 var
   a, b, result: real;
-  op, space: char;
+  op, space: string;
 
 begin
   read(a);

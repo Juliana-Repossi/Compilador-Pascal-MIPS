@@ -1,5 +1,9 @@
 parser grammar PascalParser;
 
+@header{
+    package parser;
+}
+
 options {
   tokenVocab = PascalLexer;
 }
@@ -134,8 +138,10 @@ type_simple:
 |   REAL 
 |   BOOLEAN 
 |   STRING
-|   CHAR 
 ;
+
+//|   CHAR 
+
 
 array_type_range:
    ARRAY LBRACK INT_VAL RANGE INT_VAL RBRACK OF type_simple
@@ -150,7 +156,13 @@ acess_array:
 ;
 
 val:
-    ( (PLUS|MINUS)? INT_VAL | (PLUS|MINUS)?  REAL_VAL | STRING_VAL | BOOLEAN_VAL | CHAR_VAL | acess_array )
+    (PLUS|MINUS)? INT_VAL      #int_val
+|   (PLUS|MINUS)?  REAL_VAL    #real_val
+|    STRING_VAL                #string_val
+|    BOOLEAN_VAL               #boolean_val
+|    acess_array               #accessarray     
 ;
+
+//|    CHAR_VAL                  #char_val
 
 

@@ -1,5 +1,9 @@
 lexer grammar PascalLexer;
 
+@header{
+    package parser;
+}
+
 fragment INT_VALUE  : [0-9]+ ;
 fragment REAL_VALUE : INT_VALUE '.' INT_VALUE ;
 fragment BOOLEAN_VALUE : (('true') | ('false'));
@@ -27,7 +31,7 @@ INTEGER     : 'integer' ;
 REAL        : 'real' ;
 BOOLEAN     : 'boolean' ;
 STRING      : 'string' ;
-CHAR        : 'char' ;
+//CHAR        : 'char' ;
 ARRAY       : 'array' ;
 RANGE       : '..' ;
 OF          : 'of' ;
@@ -82,4 +86,4 @@ BOOLEAN_VAL : BOOLEAN_VALUE ;
 
 ID          : ID_VALUE ;
 
-UNKNOWN : . {System.out.println("Error na linha: " + getLine() + " - Simbolo desconhecido: '" + getText() + "'") ; System.exit(0);};
+UNKNOWN : . {System.out.println("Error na linha: " + getLine() + " - Simbolo desconhecido: '" + getText() + "'") ; System.exit(1);};
