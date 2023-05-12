@@ -6,6 +6,7 @@ var
   z: boolean;
 
 begin
+  
   t := 586.45;
   w := 15.4 * t + t * t;
   x := 2 * w - t;

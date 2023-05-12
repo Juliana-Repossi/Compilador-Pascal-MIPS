@@ -90,18 +90,17 @@ atribution:
 ;
 
 expr:  
-    LPAR expr RPAR
-|   NOT expr
-|   MINUS expr
-|   expr (ASTERISK | SLASH | MOD ) expr
-|   expr AND expr
-|   expr (PLUS | MINUS) expr
-|   expr OR expr
-|   expr ( NOTEQUAL | EQUAL | LESSTHAN | GREATERTHAN | LEQ | BEQ ) expr
-|   ID
-|   call_function_procedure
-|   val_simple_array
-|
+    LPAR expr RPAR                                                          #expr_par
+|   NOT expr                                                                #expr_not
+|   MINUS expr                                                              #expr_minus
+|   expr (ASTERISK | SLASH | MOD ) expr                                     #expr_div
+|   expr AND expr                                                           #expr_and
+|   expr (PLUS | MINUS) expr                                                #expr_plus
+|   expr OR expr                                                            #expr_or
+|   expr ( NOTEQUAL | EQUAL | LESSTHAN | GREATERTHAN | LEQ | BEQ ) expr     #expr_equal
+|   ID                                                                      #expr_id
+|   call_function_procedure                                                 #expr_call
+|   val_simple_array                                                        #expr_array
 ;
 
 while_block:
@@ -135,13 +134,11 @@ type:
 ;
 
 type_simple: 
-    INTEGER 
-|   REAL 
-|   BOOLEAN 
-|   STRING
+    INTEGER  #type_simple_integer
+|   REAL     #type_simple_real
+|   BOOLEAN  #type_simple_boolean
+|   STRING   #type_simple_string
 ;
-
-
 
 array_type_range:
    ARRAY LBRACK INT_VAL RANGE INT_VAL RBRACK OF type_simple
@@ -152,7 +149,7 @@ array_type:
 ;
 
 acess_array:
-    ID LBRACK (INT_VAL | ID ) RBRACK
+    ID LBRACK (expr) RBRACK
 ;
 
 val_simple_array:
@@ -169,3 +166,4 @@ val_simple:
 
 
 
+///// falta procedure e function

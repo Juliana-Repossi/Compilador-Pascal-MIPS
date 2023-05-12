@@ -7,6 +7,7 @@ var
 const
   a= 2.0;
   b= 5;
+  a=2.6;
   
 begin
   w := 15.4;

@@ -115,11 +115,82 @@ public interface PascalParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAtribution(PascalParser.AtributionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PascalParser#expr}.
+	 * Visit a parse tree produced by the {@code expr_call}
+	 * labeled alternative in {@link PascalParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitExpr(PascalParser.ExprContext ctx);
+	T visitExpr_call(PascalParser.Expr_callContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code expr_equal}
+	 * labeled alternative in {@link PascalParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_equal(PascalParser.Expr_equalContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code expr_par}
+	 * labeled alternative in {@link PascalParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_par(PascalParser.Expr_parContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code expr_minus}
+	 * labeled alternative in {@link PascalParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_minus(PascalParser.Expr_minusContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code expr_div}
+	 * labeled alternative in {@link PascalParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_div(PascalParser.Expr_divContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code expr_or}
+	 * labeled alternative in {@link PascalParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_or(PascalParser.Expr_orContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code expr_and}
+	 * labeled alternative in {@link PascalParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_and(PascalParser.Expr_andContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code expr_plus}
+	 * labeled alternative in {@link PascalParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_plus(PascalParser.Expr_plusContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code expr_not}
+	 * labeled alternative in {@link PascalParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_not(PascalParser.Expr_notContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code expr_id}
+	 * labeled alternative in {@link PascalParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_id(PascalParser.Expr_idContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code expr_array}
+	 * labeled alternative in {@link PascalParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_array(PascalParser.Expr_arrayContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PascalParser#while_block}.
 	 * @param ctx the parse tree
@@ -163,11 +234,33 @@ public interface PascalParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitType(PascalParser.TypeContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PascalParser#type_simple}.
+	 * Visit a parse tree produced by the {@code type_simple_integer}
+	 * labeled alternative in {@link PascalParser#type_simple}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitType_simple(PascalParser.Type_simpleContext ctx);
+	T visitType_simple_integer(PascalParser.Type_simple_integerContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code type_simple_real}
+	 * labeled alternative in {@link PascalParser#type_simple}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitType_simple_real(PascalParser.Type_simple_realContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code type_simple_boolean}
+	 * labeled alternative in {@link PascalParser#type_simple}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitType_simple_boolean(PascalParser.Type_simple_booleanContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code type_simple_string}
+	 * labeled alternative in {@link PascalParser#type_simple}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitType_simple_string(PascalParser.Type_simple_stringContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PascalParser#array_type_range}.
 	 * @param ctx the parse tree
