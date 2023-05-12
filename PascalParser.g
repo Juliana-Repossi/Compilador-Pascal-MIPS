@@ -42,7 +42,7 @@ procedure:
 ;
 
 function:
-    FUNCTION ID parameter_list COLON type SEMICOLON const_var_section* block SEMICOLON
+    FUNCTION ID parameter_list COLON type_simple SEMICOLON const_var_section* block SEMICOLON
 ;
 
 parameter_list:

@@ -1,7 +1,7 @@
 program sum;
 var 
     X, Y, A: real;
-    z, i, z: boolean;
+    z, i: boolean;
 
 
 const

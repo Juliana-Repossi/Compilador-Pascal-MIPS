@@ -25,7 +25,7 @@ public class PascalLexer extends Lexer {
 		PLUS=25, MINUS=26, ASTERISK=27, SLASH=28, EQUAL=29, LESSTHAN=30, GREATERTHAN=31, 
 		LBRACK=32, RBRACK=33, PERIOD=34, COMMA=35, COLON=36, SEMICOLON=37, LPAR=38, 
 		RPAR=39, NOTEQUAL=40, LEQ=41, BEQ=42, BECOMES=43, MOD=44, READ=45, WRITE=46, 
-		WRITELN=47, INT_VAL=48, REAL_VAL=49, STRING_VAL=50, BOOLEAN_VAL=51, ID=52, 
+		WRITELN=47, INT_VAL=48, REAL_VAL=49, BOOLEAN_VAL=50, STRING_VAL=51, ID=52, 
 		UNKNOWN=53;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
@@ -44,7 +44,7 @@ public class PascalLexer extends Lexer {
 			"AND", "OR", "NOT", "PLUS", "MINUS", "ASTERISK", "SLASH", "EQUAL", "LESSTHAN", 
 			"GREATERTHAN", "LBRACK", "RBRACK", "PERIOD", "COMMA", "COLON", "SEMICOLON", 
 			"LPAR", "RPAR", "NOTEQUAL", "LEQ", "BEQ", "BECOMES", "MOD", "READ", "WRITE", 
-			"WRITELN", "INT_VAL", "REAL_VAL", "STRING_VAL", "BOOLEAN_VAL", "ID", 
+			"WRITELN", "INT_VAL", "REAL_VAL", "BOOLEAN_VAL", "STRING_VAL", "ID", 
 			"UNKNOWN"
 		};
 	}
@@ -69,7 +69,7 @@ public class PascalLexer extends Lexer {
 			"MINUS", "ASTERISK", "SLASH", "EQUAL", "LESSTHAN", "GREATERTHAN", "LBRACK", 
 			"RBRACK", "PERIOD", "COMMA", "COLON", "SEMICOLON", "LPAR", "RPAR", "NOTEQUAL", 
 			"LEQ", "BEQ", "BECOMES", "MOD", "READ", "WRITE", "WRITELN", "INT_VAL", 
-			"REAL_VAL", "STRING_VAL", "BOOLEAN_VAL", "ID", "UNKNOWN"
+			"REAL_VAL", "BOOLEAN_VAL", "STRING_VAL", "ID", "UNKNOWN"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -268,7 +268,7 @@ public class PascalLexer extends Lexer {
 		"l\3\2\2\2\u0171\u0172\7y\2\2\u0172\u0173\7t\2\2\u0173\u0174\7k\2\2\u0174"+
 		"\u0175\7v\2\2\u0175\u0176\7g\2\2\u0176\u0177\7n\2\2\u0177\u0178\7p\2\2"+
 		"\u0178n\3\2\2\2\u0179\u017a\5\3\2\2\u017ap\3\2\2\2\u017b\u017c\5\5\3\2"+
-		"\u017cr\3\2\2\2\u017d\u017e\5\13\6\2\u017et\3\2\2\2\u017f\u0180\5\7\4"+
+		"\u017cr\3\2\2\2\u017d\u017e\5\7\4\2\u017et\3\2\2\2\u017f\u0180\5\13\6"+
 		"\2\u0180v\3\2\2\2\u0181\u0182\5\t\5\2\u0182x\3\2\2\2\u0183\u0184\13\2"+
 		"\2\2\u0184\u0185\b=\3\2\u0185z\3\2\2\2\13\2~\u008d\u0093\u009a\u00a5\u00ae"+
 		"\u00b6\u00bc\4\b\2\2\3=\2";

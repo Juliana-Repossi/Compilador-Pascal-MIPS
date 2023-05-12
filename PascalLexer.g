@@ -81,8 +81,9 @@ WRITELN     : 'writeln' ;
 
 INT_VAL     : INT_VALUE ;
 REAL_VAL    : REAL_VALUE ;
-STRING_VAL  : STR_VALUE ;
 BOOLEAN_VAL : BOOLEAN_VALUE ;
+STRING_VAL  : STR_VALUE ;
+
 
 ID          : ID_VALUE ;
 

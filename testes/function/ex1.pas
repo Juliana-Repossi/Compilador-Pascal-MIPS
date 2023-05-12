@@ -3,7 +3,7 @@ program funcao;
 var 
   vetor : array[0..9] of integer;
 
-function soma(x,y : integer; a: real; b: boolean; s: string; c: char; vetor: array of integer; const constante : real;) : integer;
+function soma(x,y : integer; a: real; b: boolean; s: string; vetor: array of integer; const constante : real) : integer;
   const
     PI = 3.14;
   

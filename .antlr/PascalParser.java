@@ -25,7 +25,7 @@ public class PascalParser extends Parser {
 		PLUS=25, MINUS=26, ASTERISK=27, SLASH=28, EQUAL=29, LESSTHAN=30, GREATERTHAN=31, 
 		LBRACK=32, RBRACK=33, PERIOD=34, COMMA=35, COLON=36, SEMICOLON=37, LPAR=38, 
 		RPAR=39, NOTEQUAL=40, LEQ=41, BEQ=42, BECOMES=43, MOD=44, READ=45, WRITE=46, 
-		WRITELN=47, INT_VAL=48, REAL_VAL=49, STRING_VAL=50, BOOLEAN_VAL=51, ID=52, 
+		WRITELN=47, INT_VAL=48, REAL_VAL=49, BOOLEAN_VAL=50, STRING_VAL=51, ID=52, 
 		UNKNOWN=53;
 	public static final int
 		RULE_begin = 0, RULE_program = 1, RULE_program_pascal = 2, RULE_const_var_section = 3, 
@@ -68,7 +68,7 @@ public class PascalParser extends Parser {
 			"MINUS", "ASTERISK", "SLASH", "EQUAL", "LESSTHAN", "GREATERTHAN", "LBRACK", 
 			"RBRACK", "PERIOD", "COMMA", "COLON", "SEMICOLON", "LPAR", "RPAR", "NOTEQUAL", 
 			"LEQ", "BEQ", "BECOMES", "MOD", "READ", "WRITE", "WRITELN", "INT_VAL", 
-			"REAL_VAL", "STRING_VAL", "BOOLEAN_VAL", "ID", "UNKNOWN"
+			"REAL_VAL", "BOOLEAN_VAL", "STRING_VAL", "ID", "UNKNOWN"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -617,8 +617,8 @@ public class PascalParser extends Parser {
 			return getRuleContext(Parameter_listContext.class,0);
 		}
 		public TerminalNode COLON() { return getToken(PascalParser.COLON, 0); }
-		public TypeContext type() {
-			return getRuleContext(TypeContext.class,0);
+		public Type_simpleContext type_simple() {
+			return getRuleContext(Type_simpleContext.class,0);
 		}
 		public List<TerminalNode> SEMICOLON() { return getTokens(PascalParser.SEMICOLON); }
 		public TerminalNode SEMICOLON(int i) {
@@ -655,7 +655,7 @@ public class PascalParser extends Parser {
 			setState(137);
 			match(COLON);
 			setState(138);
-			type();
+			type_simple();
 			setState(139);
 			match(SEMICOLON);
 			setState(143);
@@ -1687,7 +1687,7 @@ public class PascalParser extends Parser {
 			setState(281);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << NOT) | (1L << PLUS) | (1L << MINUS) | (1L << LPAR) | (1L << INT_VAL) | (1L << REAL_VAL) | (1L << STRING_VAL) | (1L << BOOLEAN_VAL) | (1L << ID))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << NOT) | (1L << PLUS) | (1L << MINUS) | (1L << LPAR) | (1L << INT_VAL) | (1L << REAL_VAL) | (1L << BOOLEAN_VAL) | (1L << STRING_VAL) | (1L << ID))) != 0)) {
 				{
 				setState(280);
 				param_call(0);
@@ -2107,8 +2107,8 @@ public class PascalParser extends Parser {
 			case MINUS:
 			case INT_VAL:
 			case REAL_VAL:
-			case STRING_VAL:
 			case BOOLEAN_VAL:
+			case STRING_VAL:
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(326);
@@ -2340,7 +2340,7 @@ public class PascalParser extends Parser {
 		"\u0080\3\2\2\2\u0082\u0083\3\2\2\2\u0083\u0085\3\2\2\2\u0084\u0082\3\2"+
 		"\2\2\u0085\u0086\5\36\20\2\u0086\u0087\7\'\2\2\u0087\21\3\2\2\2\u0088"+
 		"\u0089\7\n\2\2\u0089\u008a\7\66\2\2\u008a\u008b\5\24\13\2\u008b\u008c"+
-		"\7&\2\2\u008c\u008d\5\62\32\2\u008d\u0091\7\'\2\2\u008e\u0090\5\b\5\2"+
+		"\7&\2\2\u008c\u008d\5\64\33\2\u008d\u0091\7\'\2\2\u008e\u0090\5\b\5\2"+
 		"\u008f\u008e\3\2\2\2\u0090\u0093\3\2\2\2\u0091\u008f\3\2\2\2\u0091\u0092"+
 		"\3\2\2\2\u0092\u0094\3\2\2\2\u0093\u0091\3\2\2\2\u0094\u0095\5\36\20\2"+
 		"\u0095\u0096\7\'\2\2\u0096\23\3\2\2\2\u0097\u0099\7(\2\2\u0098\u009a\5"+
@@ -2406,7 +2406,7 @@ public class PascalParser extends Parser {
 		"=\3\2\2\2\u014c\u014e\t\3\2\2\u014d\u014c\3\2\2\2\u014d\u014e\3\2\2\2"+
 		"\u014e\u014f\3\2\2\2\u014f\u0157\7\62\2\2\u0150\u0152\t\3\2\2\u0151\u0150"+
 		"\3\2\2\2\u0151\u0152\3\2\2\2\u0152\u0153\3\2\2\2\u0153\u0157\7\63\2\2"+
-		"\u0154\u0157\7\64\2\2\u0155\u0157\7\65\2\2\u0156\u014d\3\2\2\2\u0156\u0151"+
+		"\u0154\u0157\7\65\2\2\u0155\u0157\7\64\2\2\u0156\u014d\3\2\2\2\u0156\u0151"+
 		"\3\2\2\2\u0156\u0154\3\2\2\2\u0156\u0155\3\2\2\2\u0157?\3\2\2\2\"KPRX"+
 		"\\fnu\u0082\u0091\u0099\u00a2\u00aa\u00b4\u00b9\u00c2\u00ca\u00d5\u00d9"+
 		"\u00ea\u00fb\u00fd\u010b\u0115\u011b\u0128\u012e\u0134\u014a\u014d\u0151"+

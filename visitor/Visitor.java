@@ -2,6 +2,8 @@ package visitor;
 
 import parser.PascalParserBaseVisitor;
 import parser.PascalParser;
+import tables.FuncTable;
+import tables.ProcTable;
 import tables.StrTable;
 import tables.IdTable;
 
@@ -14,7 +16,10 @@ public class Visitor extends PascalParserBaseVisitor<Void>
 
     private Type currentType;
     private int currentLine;
+
     private IdTable currentTable = idTable;
+    private StrTable currentStrTable = strTable;
+
 
     public StrTable getStrTable() {
         return this.strTable;
@@ -40,7 +45,6 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     public Void visitConst_section(PascalParser.Const_sectionContext ctx) {
         
         for(int i = 0 ; i < ctx.ID().size(); i ++){
-
             visit(ctx.val_simple(i));
             addIdTable(ctx.ID(i).getText(),currentLine,currentType,true);          
         }
@@ -64,7 +68,7 @@ public class Visitor extends PascalParserBaseVisitor<Void>
 	
      @Override 
     public Void visitString_val(PascalParser.String_valContext ctx) { 
-        strTable.add(ctx.getText());
+        currentStrTable.add(ctx.getText());
         currentType = Type.STRING;
         currentLine = ctx.getStart().getLine();
         return null;    
@@ -86,8 +90,6 @@ public class Visitor extends PascalParserBaseVisitor<Void>
         }
         return null; 
     }
-
-    
 
     @Override public Void visitType_simple_integer(PascalParser.Type_simple_integerContext ctx) { 
         currentType = Type.INTEGER;
@@ -111,12 +113,12 @@ public class Visitor extends PascalParserBaseVisitor<Void>
 	
 	@Override 
     public Void visitType_simple_string(PascalParser.Type_simple_stringContext ctx) {
-        currentType = Type.REAL;
+        currentType = Type.STRING;
         currentLine = ctx.getStart().getLine();
         return null;
     }
     
-        /*
+    /*
     ** Verifica se um dado Id já foi declarado
     ** Caso não exista na tabela de Id encerra o programa
     */
@@ -143,6 +145,7 @@ public class Visitor extends PascalParserBaseVisitor<Void>
             System.out.println("Erro inesperado!!!");
             System.exit(5);
         }
+        visit(ctx.expr());
         return null;
     }
 
@@ -150,7 +153,6 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     public Void visitAcess_array(PascalParser.Acess_arrayContext ctx) {
 
         checkId(ctx.ID().getText());
-
         visit(ctx.expr());
         
         return null;
@@ -164,6 +166,23 @@ public class Visitor extends PascalParserBaseVisitor<Void>
         return null; 
     }
 
+    @Override 
+    public Void visitRead_io(PascalParser.Read_ioContext ctx) {
+        if(ctx.ID() != null)
+        {
+            checkId(ctx.ID().getText());
+        }
+        else if (ctx.acess_array() != null)
+        {
+          visit(ctx.acess_array());
+        }
+        else
+        {
+            System.out.println("Erro inesperado!!!");
+            System.exit(5);
+        }
+        return null;
+    }
 
 
 
