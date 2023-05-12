@@ -26,7 +26,7 @@ const_var_section:
 ;
 
 const_section:
-    CONST (ID EQUAL val SEMICOLON)+
+    CONST (ID EQUAL val_simple SEMICOLON)+
 ;
 
 var_section:
@@ -100,7 +100,8 @@ expr:
 |   expr ( NOTEQUAL | EQUAL | LESSTHAN | GREATERTHAN | LEQ | BEQ ) expr
 |   ID
 |   call_function_procedure
-|   val
+|   val_simple_array
+|
 ;
 
 while_block:
@@ -140,7 +141,6 @@ type_simple:
 |   STRING
 ;
 
-//|   CHAR 
 
 
 array_type_range:
@@ -155,14 +155,17 @@ acess_array:
     ID LBRACK (INT_VAL | ID ) RBRACK
 ;
 
-val:
+val_simple_array:
+    val_simple
+|   acess_array
+;
+
+val_simple:
     (PLUS|MINUS)? INT_VAL      #int_val
 |   (PLUS|MINUS)?  REAL_VAL    #real_val
 |    STRING_VAL                #string_val
 |    BOOLEAN_VAL               #boolean_val
-|    acess_array               #accessarray     
 ;
 
-//|    CHAR_VAL                  #char_val
 
 

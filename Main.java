@@ -40,6 +40,6 @@ public class Main {
 
 		// Saída final.
 		System.out.println(visitor.getStrTable().toString());
-		System.out.println(visitor.getIdTable().toString());
+		//System.out.println(visitor.getIdTable().toString());
 	}
 }

@@ -28,7 +28,7 @@ public class Visitor extends PascalParserBaseVisitor<Void>
         currentType = Type.STRING;
         return null;    
     }
-
+/*
     private Void addId (String s, int line, Type type){
 
         if(idTable.lookupVar(s)==-1)
@@ -73,5 +73,5 @@ public class Visitor extends PascalParserBaseVisitor<Void>
         currentType = Type.BOOLEAN;
         return null;    
     }
-
+*/
 }
