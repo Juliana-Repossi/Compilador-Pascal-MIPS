@@ -7,6 +7,7 @@ import java.util.List;
 import types.Type;
 import tables.StrTable;
 import tables.IdTable;
+import tables.ArrayTable;
 
 public final class FuncTable {
 
@@ -43,6 +44,8 @@ public final class FuncTable {
 			System.out.println("    " + getStrTable(i).toString());
 			System.out.println("    Tabela de Id");
 			System.out.println("    " +  getIdTable(i).toString());
+			System.out.println("    Tabela de Array");
+			System.out.println("    " +  getArrayTable(i).toString());
 
 		}
 		f.close();
@@ -69,6 +72,10 @@ public final class FuncTable {
 		return table.get(i).idTable;
 	}
 
+	public ArrayTable getArrayTable(int i) {
+		return table.get(i).arrayTable;
+	}
+
 
 
 	private static final class EntryFunc {
@@ -77,6 +84,7 @@ public final class FuncTable {
 		private final int line;
         private final StrTable strTable;
         private final IdTable idTable;
+		private final ArrayTable arrayTable;
 		
 		EntryFunc(String name,Type typeReturn, int line) {
 			this.name = name;
@@ -84,6 +92,7 @@ public final class FuncTable {
 			this.line = line;
 			this.strTable = new StrTable();
 			this.idTable = new IdTable();
+			this.arrayTable = new ArrayTable();
 		}
 	}
 }

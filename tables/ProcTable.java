@@ -42,6 +42,8 @@ public final class ProcTable {
 			System.out.println("    " + getStrTable(i).toString());
 			System.out.println("    Tabela de Id");
 			System.out.println("    " +  getIdTable(i).toString());
+			System.out.println("    Tabela de Array");
+			System.out.println("    " +  getArrayTable(i).toString());
 		}
 		f.close();
 		return sb.toString();
@@ -63,18 +65,24 @@ public final class ProcTable {
 		return table.get(i).idTable;
 	}
 
+	public ArrayTable getArrayTable(int i) {
+		return table.get(i).arrayTable;
+	}
+
 
 	private static final class EntryProc {
         private final String name;
 		private final int line;
         private final StrTable strTable;
         private final IdTable idTable;
+		private final ArrayTable arrayTable;
 		
 		EntryProc(String name, int line) {
 			this.name = name;
 			this.line = line;
 			this.strTable = new StrTable();
 			this.idTable = new IdTable();
+			this.arrayTable = new ArrayTable();
 		}
 	}
 }

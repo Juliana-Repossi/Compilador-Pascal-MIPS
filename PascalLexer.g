@@ -31,7 +31,6 @@ INTEGER     : 'integer' ;
 REAL        : 'real' ;
 BOOLEAN     : 'boolean' ;
 STRING      : 'string' ;
-//CHAR        : 'char' ;
 ARRAY       : 'array' ;
 RANGE       : '..' ;
 OF          : 'of' ;
