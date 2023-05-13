@@ -6,7 +6,7 @@ lexer grammar PascalLexer;
 
 fragment INT_VALUE  : [0-9]+ ;
 fragment REAL_VALUE : INT_VALUE '.' INT_VALUE ;
-fragment BOOLEAN_VALUE : (('True') | ('False'));
+fragment BOOLEAN_VALUE : (('true') | ('false'));
 fragment ID_VALUE   : [A-Za-z][A-Za-z0-9_]* ;
 fragment STR_VALUE  : ['] ~[']* ['] ;
 fragment LINE_COMMENT : '//' ~[\n]* [\n] ;

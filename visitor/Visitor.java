@@ -15,14 +15,17 @@ import types.Type;
 
 public class Visitor extends PascalParserBaseVisitor<Void>
 {
+    //tables da main
     private StrTable strTable = new StrTable();
     private IdTable idTable = new IdTable();
     private ArrayTable arrayTable = new ArrayTable();
 
+    //auxiliares para obter dados das variáveis
     private Type currentType;
     private int currentLine;
     private int currentSize;
 
+    //escopo da função atual
     private IdTable currentIdTable = idTable;
     private StrTable currentStrTable = strTable;
     private ArrayTable currentArrayTable = arrayTable;
@@ -63,6 +66,7 @@ public class Visitor extends PascalParserBaseVisitor<Void>
         return this.currentArrayTable;
     }
 
+    //adiciona Id na tabela de escopo atual - sendo id unico
     private Void addIdTable (String s, int line, Type type, Boolean ehConst){
 
         if(currentIdTable.lookupVar(s)==-1 && currentArrayTable.lookupArray(s)==-1)
@@ -75,6 +79,7 @@ public class Visitor extends PascalParserBaseVisitor<Void>
         return null;
     }
 
+    //adiciona array na tabela de escopo atual - sendo id unico
     private Void addArrayTable (String s, int line, Type type, int size){
 
         if(currentIdTable.lookupVar(s)==-1 && currentArrayTable.lookupArray(s)==-1)
@@ -192,6 +197,10 @@ public class Visitor extends PascalParserBaseVisitor<Void>
         }
     }
 
+    /*
+    ** Verifica se um dado Id de array já foi declarado
+    ** Caso não exista na tabela de Id encerra o programa
+    */
     private void checkArray(String s){
         if(currentArrayTable.lookupArray(s) == -1)
         {
@@ -231,7 +240,11 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     @Override
     public Void visitExpr_id(PascalParser.Expr_idContext ctx) {
 
-        checkId(ctx.ID().getText());
+        if(currentIdTable.lookupVar(ctx.ID().getText())==-1 && currentArrayTable.lookupArray(ctx.ID().getText()) == -1)
+        {
+            System.out.println("O id " + ctx.ID().getText() + " não foi previamente declarado!");
+            System.exit(4);
+        }
                 
         return null; 
     }
@@ -254,7 +267,7 @@ public class Visitor extends PascalParserBaseVisitor<Void>
         return null;
     }
 
-
+    //mudando as tabelas correntes quando ocorre mudança de escopo
     private Void changeCurrentFunctionProcedure(StrTable strTable, IdTable idTable, ArrayTable arrayTable)
     {
         this.currentStrTable = strTable;
@@ -263,6 +276,7 @@ public class Visitor extends PascalParserBaseVisitor<Void>
         return null;
     }
 
+    //retomando as tabelas correntes apontarem para o escopo main
     private Void restoreCurrentTable(){
         currentStrTable = strTable;
         currentIdTable = idTable;
@@ -371,6 +385,9 @@ public class Visitor extends PascalParserBaseVisitor<Void>
 
             //trocar as tabelas correntes
             changeCurrentFunctionProcedure(funcTable.getStrTable(id),funcTable.getIdTable(id),funcTable.getArrayTable(id));
+
+            //add nome da tabela a tabela de Id, já que este é usado para fazer retorno em pascal
+            addIdTable(funcTable.getName(id),funcTable.getLine(id),funcTable.getTypeReturn(id),false);
         }
         else
         {
@@ -400,9 +417,15 @@ public class Visitor extends PascalParserBaseVisitor<Void>
         
         if(funcTable.lookupVar(ctx.ID().getText())==-1 && procTable.lookupVar(ctx.ID().getText())==-1)
         {
-            System.out.println("A função " + ctx.ID().getText() + "não foi previamente declarada!");
+            System.out.println("A função \'" + ctx.ID().getText() + "\' não foi previamente declarada!");
             System.exit(4);
         }
+
+        if(ctx.param_call() != null)
+        {
+            visit(ctx.param_call());
+        }
+
         return null;
     }
 

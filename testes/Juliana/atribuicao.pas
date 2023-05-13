@@ -2,7 +2,6 @@ program atribuicoes;
   var
     a,x: integer;
     b: boolean;
-    c:char;
     s : string;
     r: real;
     

@@ -50,7 +50,7 @@ public final class IdTable {
 		Formatter f = new Formatter(sb);
 		f.format("Variables table:\n");
 		for (int i = 0; i < table.size(); i++) {
-			f.format("Entry %d -- name: %s, line: %d, type: %s, Const: %b\n", i,
+			f.format("Entry %d -- name: %s, line: %d, type: %s, const: %b\n", i,
 	                 getName(i), getLine(i), getType(i).toString(),getConst(i));
 		}
 		f.close();

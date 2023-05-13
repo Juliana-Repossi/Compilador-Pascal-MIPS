@@ -35,20 +35,17 @@ public final class ProcTable {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		Formatter f = new Formatter(sb);
+		f.format("\n------------------------------------------------------------\n");
 		f.format("Procedure table:\n");
 
 		for (int i = 0; i < table.size(); i++) {
+			f.format("\n------------------------------------------------------------\n");
 			f.format("Entry %d -- name: %s, line: %d \n", i, getName(i), getLine(i));
-			// System.out.println("    Tabela de String");
 			f.format("    %s\n", getStrTable(i).toString());
-			// System.out.println("    " + getStrTable(i).toString());
-			// System.out.println("    Tabela de Id");
 			f.format("    %s\n", getIdTable(i).toString());
-			// System.out.println("    " +  getIdTable(i).toString());
-			// System.out.println("    Tabela de Array");
 			f.format("    %s\n", getArrayTable(i).toString());
-			// System.out.println("    " +  getArrayTable(i).toString());
 		}
+		f.format("\n------------------------------------------------------------\n");
 		f.close();
 		return sb.toString();
 	}

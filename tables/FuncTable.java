@@ -36,22 +36,19 @@ public final class FuncTable {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		Formatter f = new Formatter(sb);
+		f.format("\n------------------------------------------------------------\n");
 		f.format("Functions table:\n");
 
 		for (int i = 0; i < table.size(); i++) {
-			f.format("Entry %d -- name: %s, typeReturn: %s, line: %d \n", i,
+			f.format("\n------------------------------------------------------------\n");
+			f.format("    Entry %d -- name: %s, typeReturn: %s, line: %d \n", i,
 	                 getName(i), getTypeReturn(i).toString(), getLine(i));
-			// System.out.println("    Tabela de String");
 			f.format("    %s\n", getStrTable(i).toString());
-			// System.out.println("    " + getStrTable(i).toString());
-			// System.out.println("    Tabela de Id");
 			f.format("    %s\n", getIdTable(i).toString());
-			// System.out.println("    " +  getIdTable(i).toString());
-			// System.out.println("    Tabela de Array");
 			f.format("    %s\n", getArrayTable(i).toString());
-			// System.out.println("    " +  getArrayTable(i).toString());
 
 		}
+		f.format("\n------------------------------------------------------------\n");
 		f.close();
 		return sb.toString();
 	}

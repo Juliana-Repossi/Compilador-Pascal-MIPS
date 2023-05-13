@@ -50,7 +50,7 @@ public final class ArrayTable {
 		Formatter f = new Formatter(sb);
 		f.format("Array table:\n");
 		for (int i = 0; i < table.size(); i++) {
-			f.format("Entry %d -- name: %s, line: %d, type: %s, Tam: %d\n", i,
+			f.format("Entry %d -- name: %s, line: %d, type: %s, size: %d\n", i,
 	                 getName(i), getLine(i), getType(i).toString(),getSize(i));
 		}
 		f.close();

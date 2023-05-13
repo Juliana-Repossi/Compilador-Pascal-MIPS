@@ -4,6 +4,7 @@ var
   n: integer;
 
 function factorial(const n: integer) : integer;
+
 begin
   if (n = 0) or (n = 1) then 
   begin
@@ -16,6 +17,6 @@ begin
 end;
 
 begin
-  readln(n);
+  read(n);
   writeln(factorial(n));
 end.

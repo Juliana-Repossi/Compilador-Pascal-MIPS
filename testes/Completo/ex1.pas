@@ -3,6 +3,7 @@ program notasAlunos;
 var
   ap1,bp1,cp1,ap2,bp2,cp2 : real;
   reprovado : boolean;
+  //media : integer;
 
 function soma_notas(nota1,nota2: real) : real;
 begin
@@ -17,6 +18,7 @@ begin
 end;
 
 procedure verifica_aprovado(media: real);
+
   const 
     ap = 7;
 
@@ -48,6 +50,8 @@ begin
 
   reprovado:= media(ap1,ap2) > 7;
 
+
   write(reprovado);
+  write(media);
 
 end.
