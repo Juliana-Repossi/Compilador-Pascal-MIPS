@@ -6,6 +6,7 @@ begin
     end
     else begin
       write('any message...');
+    end;
   end
   else begin
     if 'string' = 'string2' then begin
