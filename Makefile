@@ -6,7 +6,9 @@ JAVA=java
 YEAR=$(shell pwd | grep -o '20..-.')
 # ROOT=/home/fgasouza/compiladores-labs/lab3
 #ROOT=/home/jcrepossi/Compilador-Pascal-MIPS
-ROOT=/home/juliana/Compilador-Pascal-MIPS
+ROOT=/home/filipe/git/Compilador-Pascal-MIPS
+# ROOT=/home/juliana/Compilador-Pascal-MIPS
+# ROOT=/home/juliana/Compilador-Pascal-MIPS
 # Caminho para o JAR do ANTLR em labs/tools
 ANTLR_PATH=$(ROOT)/tools/antlr-4.11.1-complete.jar
 # Opção de configuração do CLASSPATH para o ambiente Java

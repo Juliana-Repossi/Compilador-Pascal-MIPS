@@ -43,6 +43,14 @@ public class Visitor extends PascalParserBaseVisitor<Void>
         return this.arrayTable;
     }
 
+    public FuncTable getFuncTable(){
+        return this.funcTable;
+    }
+
+    public ProcTable getProcTable(){
+        return this.procTable;
+    }
+
     public StrTable getCurrentStrTable() {
         return this.currentStrTable;
     }
@@ -54,8 +62,6 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     public ArrayTable getCurrentArrayTable() {
         return this.currentArrayTable;
     }
-
-    
 
     private Void addIdTable (String s, int line, Type type, Boolean ehConst){
 
@@ -251,9 +257,9 @@ public class Visitor extends PascalParserBaseVisitor<Void>
 
     private Void changeCurrentFunctionProcedure(StrTable strTable, IdTable idTable, ArrayTable arrayTable)
     {
-        currentStrTable = strTable;
-        currentIdTable = idTable;
-        currentArrayTable = arrayTable;
+        this.currentStrTable = strTable;
+        this.currentIdTable = idTable;
+        this.currentArrayTable = arrayTable;
         return null;
     }
 
