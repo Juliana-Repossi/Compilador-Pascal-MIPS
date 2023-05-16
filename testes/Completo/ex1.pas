@@ -3,7 +3,7 @@ program notasAlunos;
 var
   ap1,bp1,cp1,ap2,bp2,cp2 : real;
   reprovado : boolean;
-  //media : integer;
+  media : integer;
 
 function soma_notas(nota1,nota2: real) : real;
 begin
