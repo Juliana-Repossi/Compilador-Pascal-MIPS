@@ -11,9 +11,11 @@ import tables.StrTable;
 import tables.IdTable;
 import tables.ArrayTable;
 
+import error.MsgErros;
+
 import types.Type;
 
-public class Visitor extends PascalParserBaseVisitor<Void>
+public class Visitor extends PascalParserBaseVisitor<Type>
 {
     //tables da main
     private StrTable strTable = new StrTable();
@@ -67,33 +69,31 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     }
 
     //adiciona Id na tabela de escopo atual - sendo id unico
-    private Void addIdTable (String s, int line, Type type, Boolean ehConst){
+    private Type addIdTable (String s, int line, Type type, Boolean ehConst){
 
         if(currentIdTable.lookupVar(s)==-1 && currentArrayTable.lookupArray(s)==-1)
         {
             currentIdTable.addId(s,line,type,ehConst);
             return null;
         }
-        System.out.println("O Id \'" + s + "\' já foi declarado" );
-        System.exit(3);
+        MsgErros.idJaDeclarado(s,line);
         return null;
     }
 
     //adiciona array na tabela de escopo atual - sendo id unico
-    private Void addArrayTable (String s, int line, Type type, int size){
+    private Type addArrayTable (String s, int line, Type type, int size){
 
         if(currentIdTable.lookupVar(s)==-1 && currentArrayTable.lookupArray(s)==-1)
         {
             currentArrayTable.addArray(s,line,type,size);
             return null;
         }
-        System.out.println("O Id \'" + s + "\' já foi declarado" );
-        System.exit(3);
+        MsgErros.idJaDeclarado(s,line);
         return null;
     }
 
     @Override
-    public Void visitConst_section(PascalParser.Const_sectionContext ctx) {
+    public Type visitConst_section(PascalParser.Const_sectionContext ctx) {
         
         for(int i = 0 ; i < ctx.ID().size(); i ++){
             visit(ctx.val_simple(i));
@@ -103,21 +103,21 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     }
 
     @Override 
-    public Void visitInt_val(PascalParser.Int_valContext ctx) {
+    public Type visitInt_val(PascalParser.Int_valContext ctx) {
         currentType = Type.INTEGER;
         currentLine = ctx.getStart().getLine();
         return null;
     }
 
 	@Override
-    public Void visitReal_val(PascalParser.Real_valContext ctx) { 
+    public Type visitReal_val(PascalParser.Real_valContext ctx) { 
         currentType = Type.REAL;
         currentLine = ctx.getStart().getLine();
         return null;
     }
 	
      @Override 
-    public Void visitString_val(PascalParser.String_valContext ctx) { 
+    public Type visitString_val(PascalParser.String_valContext ctx) { 
         currentStrTable.add(ctx.getText());
         currentType = Type.STRING;
         currentLine = ctx.getStart().getLine();
@@ -125,14 +125,14 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     }
 
 	@Override 
-    public Void visitBoolean_val(PascalParser.Boolean_valContext ctx) {
+    public Type visitBoolean_val(PascalParser.Boolean_valContext ctx) {
         currentType = Type.BOOLEAN;
         currentLine = ctx.getStart().getLine();
         return null;    
     }
 
     @Override 
-    public Void visitVar(PascalParser.VarContext ctx) {
+    public Type visitVar(PascalParser.VarContext ctx) {
 
         if(ctx.type_simple() != null)
         {
@@ -152,34 +152,33 @@ public class Visitor extends PascalParserBaseVisitor<Void>
         }
         else
         {
-            System.out.println("Erro inesperado!!!");
-            System.exit(5);
+           MsgErros.erroInesperado(ctx.getStart().getLine()); 
         }
         return null; 
     }
 
-    @Override public Void visitType_simple_integer(PascalParser.Type_simple_integerContext ctx) { 
+    @Override public Type visitType_simple_integer(PascalParser.Type_simple_integerContext ctx) { 
         currentType = Type.INTEGER;
         currentLine = ctx.getStart().getLine();
         return null;
     }
 	
 	@Override 
-    public Void visitType_simple_real(PascalParser.Type_simple_realContext ctx) { 
+    public Type visitType_simple_real(PascalParser.Type_simple_realContext ctx) { 
         currentType = Type.REAL;
         currentLine = ctx.getStart().getLine();
         return null;
     }
 
 	@Override 
-    public Void visitType_simple_boolean(PascalParser.Type_simple_booleanContext ctx) {
+    public Type visitType_simple_boolean(PascalParser.Type_simple_booleanContext ctx) {
         currentType = Type.BOOLEAN;
         currentLine = ctx.getStart().getLine();
         return null;
     }
 	
 	@Override 
-    public Void visitType_simple_string(PascalParser.Type_simple_stringContext ctx) {
+    public Type visitType_simple_string(PascalParser.Type_simple_stringContext ctx) {
         currentType = Type.STRING;
         currentLine = ctx.getStart().getLine();
         return null;
@@ -189,11 +188,10 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     ** Verifica se um dado Id já foi declarado
     ** Caso não exista na tabela de Id encerra o programa
     */
-    private void checkId(String s){
+    private void checkId(String s, int line){
         if(currentIdTable.lookupVar(s) == -1)
         {
-            System.out.println("O Id \'"+ s + "\' não foi declarado previamente");
-            System.exit(4);
+            MsgErros.idNaoDeclarado(s,line);           
         }
     }
 
@@ -201,59 +199,62 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     ** Verifica se um dado Id de array já foi declarado
     ** Caso não exista na tabela de Id encerra o programa
     */
-    private void checkArray(String s){
+    private void checkArray(String s, int line){
         if(currentArrayTable.lookupArray(s) == -1)
         {
-            System.out.println("O Id Array \'"+ s + "\' não foi declarado previamente");
-            System.exit(4);
+            MsgErros.idNaoDeclarado(s, line);           
         }
     }
 
     @Override 
-    public Void visitAtribution(PascalParser.AtributionContext ctx) {
+    public Type visitAtribution(PascalParser.AtributionContext ctx) {
+        Type type1;
+
         if(ctx.ID() != null)
         {
-            checkId(ctx.ID().getText());
+            checkId(ctx.ID().getText(),ctx.getStart().getLine());
+
         }
         else if (ctx.acess_array() != null)
         {
-            visit(ctx.acess_array());
+            type1 = visit(ctx.acess_array());
         }
         else
         {
-            System.out.println("Erro inesperado!!!");
-            System.exit(5);
+            MsgErros.erroInesperado(ctx.getStart().getLine());
         }
         visit(ctx.expr());
+
+
+
         return null;
     }
 
     @Override 
-    public Void visitAcess_array(PascalParser.Acess_arrayContext ctx) {
+    public Type visitAcess_array(PascalParser.Acess_arrayContext ctx) {
 
-        checkArray(ctx.ID().getText());
+        checkArray(ctx.ID().getText(),ctx.getStart().getLine());
         visit(ctx.expr());
         
         return null;
     }
 
     @Override
-    public Void visitExpr_id(PascalParser.Expr_idContext ctx) {
+    public Type visitExpr_id(PascalParser.Expr_idContext ctx) {
 
         if(currentIdTable.lookupVar(ctx.ID().getText())==-1 && currentArrayTable.lookupArray(ctx.ID().getText()) == -1)
         {
-            System.out.println("O id " + ctx.ID().getText() + " não foi previamente declarado!");
-            System.exit(4);
+            MsgErros.idNaoDeclarado(ctx.ID().getText(), ctx.getStart().getLine());
         }
                 
         return null; 
     }
 
     @Override 
-    public Void visitRead_io(PascalParser.Read_ioContext ctx) {
+    public Type visitRead_io(PascalParser.Read_ioContext ctx) {
         if(ctx.ID() != null)
         {
-            checkId(ctx.ID().getText());
+            checkId(ctx.ID().getText(),ctx.getStart().getLine());
         }
         else if (ctx.acess_array() != null)
         {
@@ -261,43 +262,39 @@ public class Visitor extends PascalParserBaseVisitor<Void>
         }
         else
         {
-            System.out.println("Erro inesperado!!!");
-            System.exit(5);
+            MsgErros.erroInesperado(ctx.getStart().getLine());
         }
         return null;
     }
 
     //mudando as tabelas correntes quando ocorre mudança de escopo
-    private Void changeCurrentFunctionProcedure(StrTable strTable, IdTable idTable, ArrayTable arrayTable)
+    private Type changeCurrentFunctionProcedure(IdTable idTable, ArrayTable arrayTable)
     {
-        this.currentStrTable = strTable;
         this.currentIdTable = idTable;
         this.currentArrayTable = arrayTable;
         return null;
     }
 
     //retomando as tabelas correntes apontarem para o escopo main
-    private Void restoreCurrentTable(){
-        currentStrTable = strTable;
+    private Type restoreCurrentTable(){
         currentIdTable = idTable;
         currentArrayTable = arrayTable;
         return null;
     }
 
     @Override 
-    public Void visitProcedure(PascalParser.ProcedureContext ctx) {
+    public Type visitProcedure(PascalParser.ProcedureContext ctx) {
 
         if(funcTable.lookupVar(ctx.ID().getText())==-1 && procTable.lookupVar(ctx.ID().getText())==-1)
         {
             int id = procTable.addProc(ctx.ID().getText(),ctx.getStart().getLine());
 
             //trocar as tabelas correntes
-            changeCurrentFunctionProcedure(procTable.getStrTable(id),procTable.getIdTable(id),procTable.getArrayTable(id));
+            changeCurrentFunctionProcedure(procTable.getIdTable(id),procTable.getArrayTable(id));
         }
         else
         {
-            System.out.println("O Id " + ctx.ID().getText() + " já foi usado");
-            System.exit(3);
+            MsgErros.idJaDeclarado(ctx.ID().getText(),ctx.getStart().getLine());
         }
 
         visit(ctx.parameter_list());
@@ -318,7 +315,7 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     }
 
     @Override 
-    public Void visitParameter_list(PascalParser.Parameter_listContext ctx) {
+    public Type visitParameter_list(PascalParser.Parameter_listContext ctx) {
         
         if(ctx.parameters() != null)
         {
@@ -329,7 +326,7 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     }
 
 	@Override 
-    public Void visitParameters(PascalParser.ParametersContext ctx) {
+    public Type visitParameters(PascalParser.ParametersContext ctx) {
 
         visit(ctx.parameter(0));
 
@@ -341,7 +338,7 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     }
 
     
-	@Override public Void visitVar_parameter(PascalParser.Var_parameterContext ctx) {
+	@Override public Type visitVar_parameter(PascalParser.Var_parameterContext ctx) {
        
        if( ctx.type_simple() !=null)
        {
@@ -361,14 +358,13 @@ public class Visitor extends PascalParserBaseVisitor<Void>
        }
        else
        {
-            System.out.println("Erro inesperado!!!");
-            System.exit(5);
+            MsgErros.erroInesperado(ctx.getStart().getLine());
        }
        
         return null; 
     }
 	
-	@Override public Void visitConstant(PascalParser.ConstantContext ctx) { 
+	@Override public Type visitConstant(PascalParser.ConstantContext ctx) { 
         
         visit(ctx.type_simple());
         addIdTable (ctx.ID().getText(), currentLine, currentType,true);
@@ -376,7 +372,7 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     }
 
     @Override
-    public Void visitFunction(PascalParser.FunctionContext ctx) {
+    public Type visitFunction(PascalParser.FunctionContext ctx) {
         
         if(funcTable.lookupVar(ctx.ID().getText())==-1 && procTable.lookupVar(ctx.ID().getText())==-1)
         {
@@ -384,15 +380,14 @@ public class Visitor extends PascalParserBaseVisitor<Void>
             int id = funcTable.addFunc(ctx.ID().getText(), currentType, ctx.getStart().getLine());
 
             //trocar as tabelas correntes
-            changeCurrentFunctionProcedure(funcTable.getStrTable(id),funcTable.getIdTable(id),funcTable.getArrayTable(id));
+            changeCurrentFunctionProcedure(funcTable.getIdTable(id),funcTable.getArrayTable(id));
 
             //add nome da tabela a tabela de Id, já que este é usado para fazer retorno em pascal
             addIdTable(funcTable.getName(id),funcTable.getLine(id),funcTable.getTypeReturn(id),false);
         }
         else
         {
-            System.out.println("O Id " + ctx.ID().getText() + " já foi usado");
-            System.exit(3);
+            MsgErros.idJaDeclarado(ctx.ID().getText(),ctx.getStart().getLine());
         }
 
         visit(ctx.parameter_list());
@@ -413,12 +408,11 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     }
 
     @Override
-    public Void visitCall_function_procedure(PascalParser.Call_function_procedureContext ctx) {
+    public Type visitCall_function_procedure(PascalParser.Call_function_procedureContext ctx) {
         
         if(funcTable.lookupVar(ctx.ID().getText())==-1 && procTable.lookupVar(ctx.ID().getText())==-1)
         {
-            System.out.println("A função \'" + ctx.ID().getText() + "\' não foi previamente declarada!");
-            System.exit(4);
+            MsgErros.metodoNaoDeclarado(ctx.ID().getText(), ctx.getStart().getLine());
         }
 
         if(ctx.param_call() != null)
@@ -430,14 +424,13 @@ public class Visitor extends PascalParserBaseVisitor<Void>
     }
 
 	@Override
-    public Void visitArray_type_range(PascalParser.Array_type_rangeContext ctx) {
+    public Type visitArray_type_range(PascalParser.Array_type_rangeContext ctx) {
         
-        currentSize = Integer.parseInt(ctx.INT_VAL(1).getText()) - Integer.parseInt(ctx.INT_VAL(0).getText());
+        currentSize = Integer.parseInt(ctx.INT_VAL(1).getText()) - Integer.parseInt(ctx.INT_VAL(0).getText()) + 1;
         
         if (currentSize < 1)
         {
-            System.out.println("O tamanho do array é inválido");
-            System.exit(6);
+            MsgErros.tamArrayInvalido(ctx.getStart().getLine());
         }
 
         visit(ctx.type_simple());

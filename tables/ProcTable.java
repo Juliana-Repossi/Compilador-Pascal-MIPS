@@ -41,7 +41,6 @@ public final class ProcTable {
 		for (int i = 0; i < table.size(); i++) {
 			f.format("\n------------------------------------------------------------\n");
 			f.format("Entry %d -- name: %s, line: %d \n", i, getName(i), getLine(i));
-			f.format("    %s\n", getStrTable(i).toString());
 			f.format("    %s\n", getIdTable(i).toString());
 			f.format("    %s\n", getArrayTable(i).toString());
 		}
@@ -58,10 +57,6 @@ public final class ProcTable {
 		return table.get(i).line;
 	}
 
-    public StrTable getStrTable(int i) {
-		return table.get(i).strTable;
-	}
-
 	public IdTable getIdTable(int i) {
 		return table.get(i).idTable;
 	}
@@ -74,14 +69,12 @@ public final class ProcTable {
 	private static final class EntryProc {
         private final String name;
 		private final int line;
-        private final StrTable strTable;
         private final IdTable idTable;
 		private final ArrayTable arrayTable;
 		
 		EntryProc(String name, int line) {
 			this.name = name;
 			this.line = line;
-			this.strTable = new StrTable();
 			this.idTable = new IdTable();
 			this.arrayTable = new ArrayTable();
 		}
