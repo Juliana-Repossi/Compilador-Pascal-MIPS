@@ -1,28 +1,46 @@
+package semantic_type_operations;
+
 import types.Type;
+import error.MsgErros;
 
 public final class SemanticTypeOperations {
 
-    public static getTypeReturnByOperation(Type type1, Type type2, String op){
+    public static Type getTypeReturnByOperation(Type type1, Type type2, String op){
         switch(op){
-            case '+':
+            case "+":
                 return typesSum(type1, type2);
-            case '-':
+            case "-":
                 return typesMinus(type1,type2);
-            case '*':
+            case "*":
                 return typesTimes(type1, type2);
-            case '/':
+            case "/":
                 return typesOver(type1, type2);
-            case '<':
-            case '>':
-            case '<=':
-            case '>=':
-            case '=':
-            case '<>':
+            case "<":
+            case ">":
+            case "<=":
+            case ">=":
+            case "=":
+            case "<>":
                 return typesComparation(type1, type2);
-            case ':=':
-                return typesAtribution(type1, type2);
+            case "mod":
+                return typesMod(type1, type2);
             default:
-                operadorInvalido(op);
+                MsgErros.operadorInvalido(op);
+        }
+
+        return null;
+    }
+
+    public static Boolean  typesAtribution(Type type1, Type type2){
+
+        if (type1 == type2 ){
+            return true;
+        }
+        else if (type1 == Type.REAL && type2 == Type.INTEGER){
+            return true;
+        }
+        else{
+            return null;
         }
     }
 
@@ -108,16 +126,12 @@ public final class SemanticTypeOperations {
         }
     }
 
-    private static Boolean  typesAtribution(Type type1, Type type2){
 
-        if (type1 == type2 ){
-            return true;
+    private static Type typesMod(Type type1, Type type2) {
+        if(type1 == type2 && type1 == Type.INTEGER) {
+            return Type.INTEGER;
         }
-        else if (type1 == Type.REAL && type2 == Type.INTEGER){
-            return true;
-        }
-        else{
-            return null;
-        }
+
+        return null;
     }
 }

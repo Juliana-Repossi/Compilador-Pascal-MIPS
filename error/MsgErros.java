@@ -1,4 +1,5 @@
 package error;
+import types.Type;
 
 public final class MsgErros {
 
@@ -32,4 +33,25 @@ public final class MsgErros {
         System.out.println("O operador " + op + " é inválido");
         System.exit(8);
     }
+
+    public static void typeIndexError(int line){
+        System.out.println("(" + line + ") - O índice do array deve ser do tipo Integer");
+        System.exit(9);
+    }
+
+    public static void incompatibleTypesAtribution(int line, Type typeId, Type typeExpr ){
+        System.out.println("(" + line + ") - O tipo " + typeExpr + " não pode ser atribuído ao tipo " + typeId + ".");
+        System.exit(10);
+    }
+
+    public static void exprIsNotBoolean(int line, Type typeExpr){
+        System.out.println("(" + line + ") - A expressão é do tipo " + typeExpr + " , deveria ser booleana.");
+        System.exit(11);
+    }
+
+    public static void incompatibleTypesOperation(int line, Type typeExpr1, Type typeExpr2, String op){
+        System.out.println("(" + line + ") - Operação '"+ op + "' inválida entre os tipos " + typeExpr1 + " e " + typeExpr2 + ".");
+        System.exit(12);
+    }
+
 }

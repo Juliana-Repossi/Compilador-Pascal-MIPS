@@ -45,6 +45,11 @@ public final class IdTable {
 		return table.get(i).ehConst;
 	}
 
+	public Type getTypeByName(String name) {
+		int i = lookupVar(name); // Pegando índice do nome na tabela;
+		return getType(i);
+	}
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		Formatter f = new Formatter(sb);

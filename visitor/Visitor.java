@@ -12,6 +12,10 @@ import tables.IdTable;
 import tables.ArrayTable;
 
 import error.MsgErros;
+import semantic_type_operations.SemanticTypeOperations;
+
+
+
 
 import types.Type;
 
@@ -208,11 +212,12 @@ public class Visitor extends PascalParserBaseVisitor<Type>
 
     @Override 
     public Type visitAtribution(PascalParser.AtributionContext ctx) {
-        Type type1;
+        Type type1 = null, type2 = null;
 
         if(ctx.ID() != null)
         {
             checkId(ctx.ID().getText(),ctx.getStart().getLine());
+            type1 = currentIdTable.getTypeByName(ctx.ID().getText());
 
         }
         else if (ctx.acess_array() != null)
@@ -223,8 +228,12 @@ public class Visitor extends PascalParserBaseVisitor<Type>
         {
             MsgErros.erroInesperado(ctx.getStart().getLine());
         }
-        visit(ctx.expr());
+        
+        type2 = visit(ctx.expr());
 
+        if(SemanticTypeOperations.typesAtribution(type1, type2) == null) {
+            MsgErros.incompatibleTypesAtribution(ctx.getStart().getLine(), type1, type2);
+        } 
 
 
         return null;
@@ -234,20 +243,36 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     public Type visitAcess_array(PascalParser.Acess_arrayContext ctx) {
 
         checkArray(ctx.ID().getText(),ctx.getStart().getLine());
-        visit(ctx.expr());
         
-        return null;
+        if (visit(ctx.expr()) != Type.INTEGER ) 
+        {
+            MsgErros.typeIndexError(ctx.getStart().getLine());
+        }
+        
+        Type type = currentArrayTable.getTypeByName(ctx.ID().getText());
+        return type;
     }
 
     @Override
     public Type visitExpr_id(PascalParser.Expr_idContext ctx) {
-
+        
         if(currentIdTable.lookupVar(ctx.ID().getText())==-1 && currentArrayTable.lookupArray(ctx.ID().getText()) == -1)
-        {
+        {   
             MsgErros.idNaoDeclarado(ctx.ID().getText(), ctx.getStart().getLine());
         }
-                
-        return null; 
+
+        if(currentIdTable.lookupVar(ctx.ID().getText()) != -1) {
+            return currentIdTable.getTypeByName(ctx.ID().getText());
+
+        } else if(currentArrayTable.lookupArray(ctx.ID().getText()) != -1) {
+            return currentIdTable.getTypeByName(ctx.ID().getText());
+
+        } else {
+            MsgErros.erroInesperado(ctx.getStart().getLine());
+        }
+        
+        Type type = currentIdTable     
+        return type; 
     }
 
     @Override 
@@ -433,8 +458,134 @@ public class Visitor extends PascalParserBaseVisitor<Type>
             MsgErros.tamArrayInvalido(ctx.getStart().getLine());
         }
 
-        visit(ctx.type_simple());
+        visit(ctx.type_simple_array());
 
         return null;
+    }
+
+    @Override 
+    public Type visitExpr_call(PascalParser.Expr_callContext ctx) { 
+        return visitChildren(ctx); 
+    }
+	
+	@Override 
+    public Type visitExpr_equal(PascalParser.Expr_equalContext ctx) { 
+        Type type1 = visit(ctx.expr(0));
+        Type type2 = visit(ctx.expr(1));
+        Type typeResult = SemanticTypeOperations.getTypeReturnByOperation(type1, type2, String.valueOf(ctx.op.getType()));
+
+        if(typeResult == null) {
+            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), type1, type2, String.valueOf(ctx.op.getType()));
+        }
+        
+        return typeResult; 
+    }
+
+	
+	@Override 
+    public Type visitExpr_minus(PascalParser.Expr_minusContext ctx) { 
+        Type type = visit(ctx.expr());
+
+        if(SemanticTypeOperations.getTypeReturnByOperation(Type.INTEGER, type, "*") == null) {
+            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), Type.INTEGER, type, "-()");
+        }
+        return type;
+    }
+	
+	@Override 
+    public Type visitExpr_div(PascalParser.Expr_divContext ctx) { 
+        Type type1 = visit(ctx.expr(0));
+        Type type2 = visit(ctx.expr(1));
+        Type typeResult = null;
+
+        if(ctx.op.getType() == PascalParser.ASTERISK) {
+            typeResult = SemanticTypeOperations.getTypeReturnByOperation(type1, type2, "*");
+        
+        } else if(ctx.op.getType() == PascalParser.SLASH) {
+            typeResult = SemanticTypeOperations.getTypeReturnByOperation(type1, type2, "/");
+
+        } else if(ctx.op.getType() == PascalParser.MOD) {
+            typeResult = SemanticTypeOperations.getTypeReturnByOperation(type1, type2, "mod");
+             
+        } else {
+            MsgErros.erroInesperado(ctx.getStart().getLine());
+        }
+
+        if(typeResult == null) {
+            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), type1, type2, String.valueOf(ctx.op.getType()));
+        }
+        
+        
+        return typeResult; 
+    }
+	
+	@Override 
+    public Type visitExpr_or(PascalParser.Expr_orContext ctx) { 
+        Type type1 = visit(ctx.expr(0));
+        Type type2 = visit(ctx.expr(1));
+        
+        if(type1 != Type.BOOLEAN) {
+            MsgErros.exprIsNotBoolean(ctx.getStart().getLine(), type1);
+        }
+
+        if(type2 != Type.BOOLEAN) {
+            MsgErros.exprIsNotBoolean(ctx.getStart().getLine(), type2);
+        }
+
+        return Type.BOOLEAN; 
+    }
+	
+	@Override 
+    public Type visitExpr_and(PascalParser.Expr_andContext ctx) { 
+        Type type1 = visit(ctx.expr(0));
+        Type type2 = visit(ctx.expr(1));
+        
+        if(type1 != Type.BOOLEAN) {
+            MsgErros.exprIsNotBoolean(ctx.getStart().getLine(), type1);
+        }
+
+        if(type2 != Type.BOOLEAN) {
+            MsgErros.exprIsNotBoolean(ctx.getStart().getLine(), type2);
+        }
+
+        return Type.BOOLEAN; 
+    }
+	
+	@Override 
+    public Type visitExpr_plus(PascalParser.Expr_plusContext ctx) { 
+        Type type1 = visit(ctx.expr(0));
+        Type type2 = visit(ctx.expr(1));
+        Type typeResult = null;
+
+        if(ctx.op.getType() == PascalParser.PLUS) {
+            typeResult = SemanticTypeOperations.getTypeReturnByOperation(type1, type2, "+");
+        
+        } else if(ctx.op.getType() == PascalParser.MINUS) {
+            typeResult = SemanticTypeOperations.getTypeReturnByOperation(type1, type2, "-");
+
+        } else {
+            MsgErros.erroInesperado(ctx.getStart().getLine());
+        }
+
+        if(typeResult == null) {
+            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), type1, type2, String.valueOf(ctx.op.getType()));
+        }
+        
+        return typeResult; 
+    }
+	
+	@Override 
+    public Type visitExpr_not(PascalParser.Expr_notContext ctx) { 
+        Type type = visit(ctx.expr());
+        
+        if(type != Type.BOOLEAN) {
+            MsgErros.exprIsNotBoolean(ctx.getStart().getLine(), type);
+        }
+        return type; 
+    }
+	
+	@Override 
+    public Type visitExpr_array(PascalParser.Expr_arrayContext ctx) { 
+        return visitChildren(ctx); 
     }
 }

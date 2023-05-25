@@ -23,6 +23,7 @@ public final class ArrayTable {
 	}
 
 	public int addArray(String s, int line, Type type, int size) {
+		
 		EntryArray entryArray = new EntryArray(s, line, type,size);
 		int idxAdded = table.size();
 		table.add(entryArray);
@@ -43,6 +44,11 @@ public final class ArrayTable {
 
 	public int getSize(int i) {
 		return table.get(i).size;
+	}
+
+	public Type getTypeByName(String name) {
+		int i = lookupArray(name); // Pegando índice do nome na tabela;
+		return getType(i);
 	}
 
 	public String toString() {

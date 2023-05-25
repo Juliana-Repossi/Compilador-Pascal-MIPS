@@ -265,6 +265,13 @@ public class PascalParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> impl
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitType_simple_array(PascalParser.Type_simple_arrayContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitType_simple_integer(PascalParser.Type_simple_integerContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

@@ -6,8 +6,9 @@ public enum Type {
     REAL,
     BOOLEAN,
     STRING,
-    ARRAY;
-
+    ARRAY_INTEGER,
+    ARRAY_REAL,
+    ARRAY_BOOLEAN;
 
 	public String toString() {
 		switch(this) {

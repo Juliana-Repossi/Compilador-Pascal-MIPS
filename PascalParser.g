@@ -94,11 +94,11 @@ expr:
     LPAR expr RPAR                                                          #expr_par
 |   NOT expr                                                                #expr_not
 |   MINUS expr                                                              #expr_minus
-|   expr (ASTERISK | SLASH | MOD ) expr                                     #expr_div
+|   expr op=(ASTERISK | SLASH | MOD ) expr                                     #expr_div
 |   expr AND expr                                                           #expr_and
-|   expr (PLUS | MINUS) expr                                                #expr_plus
+|   expr op=(PLUS | MINUS) expr                                                #expr_plus
 |   expr OR expr                                                            #expr_or
-|   expr ( NOTEQUAL | EQUAL | LESSTHAN | GREATERTHAN | LEQ | BEQ ) expr     #expr_equal
+|   expr op=( NOTEQUAL | EQUAL | LESSTHAN | GREATERTHAN | LEQ | BEQ ) expr     #expr_equal
 |   ID                                                                      #expr_id
 |   call_function_procedure                                                 #expr_call
 |   val_simple_array                                                        #expr_array
@@ -134,6 +134,12 @@ type:
 |   array_type_range
 ;
 
+type_simple_array: 
+    INTEGER  #type_simple_array_integer
+|   REAL     #type_simple_array_real
+|   BOOLEAN  #type_simple_array_boolean
+;
+
 type_simple: 
     INTEGER  #type_simple_integer
 |   REAL     #type_simple_real
@@ -142,7 +148,7 @@ type_simple:
 ;
 
 array_type_range:
-   ARRAY LBRACK INT_VAL RANGE INT_VAL RBRACK OF type_simple
+   ARRAY LBRACK INT_VAL RANGE INT_VAL RBRACK OF type_simple_array
 ;
 
 array_type:
