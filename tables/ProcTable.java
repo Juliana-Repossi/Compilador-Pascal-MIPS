@@ -24,12 +24,27 @@ public final class ProcTable {
 		return -1;
 	}
 
-	public int addProc(String name, int line) {
+	public int addProc(String name, int qtdParameters, int line) {
 	
-		EntryProc entry = new EntryProc(name, line);
+		EntryProc entry = new EntryProc(name,qtdParameters, line);
 		int idxAdded = table.size();
 		table.add(entry);
 		return idxAdded;
+	}
+
+	public void setArraySize(int index,String array_name, int size){
+		getArrayTable(index).setSizeArray(size,array_name);
+	}
+
+	public Type getTypeByArgument(int position, String name) {
+		int index = lookupVar(name);
+		Type type = getIdTable(index).getTypeByPositionArgument(position);
+
+		if(type == null){
+			type = getArrayTable(index).getTypeByPositionArgument(position);
+		}
+
+		return type;
 	}
 
 	public String toString() {
@@ -40,7 +55,7 @@ public final class ProcTable {
 
 		for (int i = 0; i < table.size(); i++) {
 			f.format("\n------------------------------------------------------------\n");
-			f.format("Entry %d -- name: %s, line: %d \n", i, getName(i), getLine(i));
+			f.format("Entry %d -- name: %s, qtdParameters: %d, line: %d \n", i, getName(i), getQtdParameters(i), getLine(i));
 			f.format("    %s\n", getIdTable(i).toString());
 			f.format("    %s\n", getArrayTable(i).toString());
 		}
@@ -49,8 +64,16 @@ public final class ProcTable {
 		return sb.toString();
 	}
 
+	public int getTableSize() {
+		return table.size();
+	}
+
 	public String getName(int i) {
 		return table.get(i).name;
+	}
+
+	public int getQtdParameters(int i){
+		return table.get(i).qtdParameters;
 	}
 
 	public int getLine(int i) {
@@ -65,16 +88,21 @@ public final class ProcTable {
 		return table.get(i).arrayTable;
 	}
 
+	public void incrementQtdParameters(int increment, int i){
+		table.get(i).qtdParameters += increment;
+	}
 
 	private static final class EntryProc {
         private final String name;
 		private final int line;
+		private int qtdParameters;
         private final IdTable idTable;
 		private final ArrayTable arrayTable;
 		
-		EntryProc(String name, int line) {
+		EntryProc(String name, int qtdParameters, int line) {
 			this.name = name;
 			this.line = line;
+			this.qtdParameters = qtdParameters;
 			this.idTable = new IdTable();
 			this.arrayTable = new ArrayTable();
 		}

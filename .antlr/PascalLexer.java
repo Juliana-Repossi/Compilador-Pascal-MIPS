@@ -1,4 +1,4 @@
-// Generated from /home/jcrepossi/Compilador-Pascal-MIPS/PascalLexer.g by ANTLR 4.9.2
+// Generated from /home/filipe/git/Compilador-Pascal-MIPS/PascalLexer.g by ANTLR 4.9.2
 
     package parser;
 

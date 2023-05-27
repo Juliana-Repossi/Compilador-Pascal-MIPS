@@ -54,4 +54,14 @@ public final class MsgErros {
         System.exit(12);
     }
 
+    public static void incompatibleTypesParameters(int line, Type typeParam1, Type typeParam2){
+        System.out.println("(" + line + ") - Método esperava " + typeParam1 + " e foi passado " + typeParam2 + ".");
+        System.exit(12);
+    }
+
+     public static void incompatibleQtdParameters(int line, int qtdEsperado, int qtdRecebido){
+        System.out.println("(" + line + ") - Método esperava " + qtdEsperado + "parâmetro(s) e foi(ram) passado(s) " + qtdRecebido + ".");
+        System.exit(12);
+    }
+
 }

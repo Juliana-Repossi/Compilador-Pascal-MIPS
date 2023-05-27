@@ -16,6 +16,9 @@ public enum Type {
 			case REAL:      return "real";
 			case BOOLEAN:   return "boolean";
 			case STRING: 	return "string";
+			case ARRAY_INTEGER: return "array of integer";
+			case ARRAY_REAL: return "array of real";
+			case ARRAY_BOOLEAN: return "array of boolean";
 			default:
 				System.err.println("ERROR: Fall through in Type enumeration!");
 				System.exit(1);

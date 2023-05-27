@@ -91,17 +91,17 @@ atribution:
 ;
 
 expr:  
-    LPAR expr RPAR                                                          #expr_par
-|   NOT expr                                                                #expr_not
-|   MINUS expr                                                              #expr_minus
-|   expr op=(ASTERISK | SLASH | MOD ) expr                                     #expr_div
-|   expr AND expr                                                           #expr_and
-|   expr op=(PLUS | MINUS) expr                                                #expr_plus
-|   expr OR expr                                                            #expr_or
-|   expr op=( NOTEQUAL | EQUAL | LESSTHAN | GREATERTHAN | LEQ | BEQ ) expr     #expr_equal
-|   ID                                                                      #expr_id
-|   call_function_procedure                                                 #expr_call
-|   val_simple_array                                                        #expr_array
+    LPAR expr RPAR                                                              #expr_par
+|   NOT expr                                                                    #expr_not
+|   MINUS expr                                                                  #expr_minus
+|   expr op=(ASTERISK | SLASH | MOD ) expr                                      #expr_div
+|   expr AND expr                                                               #expr_and
+|   expr op=(PLUS | MINUS) expr                                                 #expr_plus
+|   expr OR expr                                                                #expr_or
+|   expr op=( NOTEQUAL | EQUAL | LESSTHAN | GREATERTHAN | LEQ | BEQ ) expr      #expr_equal
+|   ID                                                                          #expr_id
+|   call_function_procedure                                                     #expr_call
+|   val_simple_array                                                            #expr_array
 ;
 
 while_block:
@@ -112,13 +112,9 @@ if_block:
     IF expr THEN block (ELSE block)? 
 ;
 
-param_call:
-    expr
-|   param_call COMMA param_call
-;
-
 call_function_procedure:
-    ID LPAR param_call? RPAR
+    ID LPAR expr (COMMA expr)* RPAR
+|   ID LPAR RPAR
 ;
 
 write_io:
@@ -129,22 +125,17 @@ read_io:
     READ LPAR (ID | acess_array) RPAR 
 ;
 
-type:
-    type_simple 
-|   array_type_range
-;
-
 type_simple_array: 
-    INTEGER  #type_simple_array_integer
-|   REAL     #type_simple_array_real
-|   BOOLEAN  #type_simple_array_boolean
+    INTEGER     #type_simple_array_integer
+|   REAL        #type_simple_array_real
+|   BOOLEAN     #type_simple_array_boolean
 ;
 
 type_simple: 
-    INTEGER  #type_simple_integer
-|   REAL     #type_simple_real
-|   BOOLEAN  #type_simple_boolean
-|   STRING   #type_simple_string
+    INTEGER     #type_simple_integer
+|   REAL        #type_simple_real
+|   BOOLEAN     #type_simple_boolean
+|   STRING      #type_simple_string
 ;
 
 array_type_range:
@@ -152,7 +143,7 @@ array_type_range:
 ;
 
 array_type:
-   ARRAY OF type_simple
+   ARRAY OF type_simple_array
 ;
 
 acess_array:
@@ -170,6 +161,3 @@ val_simple:
 |    STRING_VAL                #string_val
 |    BOOLEAN_VAL               #boolean_val
 ;
-
-
-

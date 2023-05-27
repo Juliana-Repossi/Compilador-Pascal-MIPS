@@ -25,6 +25,7 @@ public final class SemanticTypeOperations {
             case "mod":
                 return typesMod(type1, type2);
             default:
+                System.out.println("OPERADOR: (" + op + ")");
                 MsgErros.operadorInvalido(op);
         }
 

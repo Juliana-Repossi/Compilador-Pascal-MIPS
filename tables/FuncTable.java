@@ -25,9 +25,10 @@ public final class FuncTable {
 		return -1;
 	}
 
-	public int addFunc(String name,Type typeReturn, int line) {
+	public int addFunc(String name, Type typeReturn, int line) {
 	
-		EntryFunc entry = new EntryFunc(name, typeReturn, line);
+		//por default a qtd de parameters é 0
+		EntryFunc entry = new EntryFunc(name, 0, typeReturn, line);
 		int idxAdded = table.size();
 		table.add(entry);
 		return idxAdded;
@@ -41,8 +42,8 @@ public final class FuncTable {
 
 		for (int i = 0; i < table.size(); i++) {
 			f.format("\n------------------------------------------------------------\n");
-			f.format("    Entry %d -- name: %s, typeReturn: %s, line: %d \n", i,
-	                 getName(i), getTypeReturn(i).toString(), getLine(i));
+			f.format("    Entry %d -- name: %s, typeReturn: %s, qtdParameters: %d, line: %d \n", i,
+	                 getName(i), getTypeReturn(i).toString(), getQtdParameters(i), getLine(i));
 			f.format("    %s\n", getIdTable(i).toString());
 			f.format("    %s\n", getArrayTable(i).toString());
 
@@ -52,8 +53,16 @@ public final class FuncTable {
 		return sb.toString();
 	}
 
+	public int getTableSize() {
+		return table.size();
+	}
+	
 	public String getName(int i) {
 		return table.get(i).name;
+	}
+
+	public int getQtdParameters(int i) {
+		return table.get(i).qtdParameters;
 	}
 
 	public Type getTypeReturn(int i) {
@@ -72,17 +81,36 @@ public final class FuncTable {
 		return table.get(i).arrayTable;
 	}
 
+	public void incrementQtdParameters(int increment, int i){
+		table.get(i).qtdParameters += increment;
+	}
 
+	public Type getTypeByArgument(int position, String name) {
+		int index = lookupVar(name);
+		Type type = getIdTable(index).getTypeByPositionArgument(position);
 
+		if(type == null){
+			type = getArrayTable(index).getTypeByPositionArgument(position);
+		}
+
+		return type;
+	}
+
+	public void setArraySize(int index,String array_name, int size){
+		getArrayTable(index).setSizeArray(size,array_name);
+	}
+	
 	private static final class EntryFunc {
-        private final String name;
-        private final Type typeReturn;
+    	private final String name;
+		private int qtdParameters;
+    	private final Type typeReturn;
 		private final int line;
-        private final IdTable idTable;
+    	private final IdTable idTable;
 		private final ArrayTable arrayTable;
 		
-		EntryFunc(String name,Type typeReturn, int line) {
+		EntryFunc(String name, int qtdParameters, Type typeReturn, int line) {
 			this.name = name;
+			this.qtdParameters = qtdParameters;
 			this.typeReturn = typeReturn;
 			this.line = line;
 			this.idTable = new IdTable();

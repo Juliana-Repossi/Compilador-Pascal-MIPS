@@ -14,9 +14,6 @@ import tables.ArrayTable;
 import error.MsgErros;
 import semantic_type_operations.SemanticTypeOperations;
 
-
-
-
 import types.Type;
 
 public class Visitor extends PascalParserBaseVisitor<Type>
@@ -30,12 +27,19 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     private Type currentType;
     private int currentLine;
     private int currentSize;
+    private Type currentTypeElement;
+    
+    //current function
+    // 0 - main
+    // 1 - function
+    // 2 - procedure
+    private int currentTypeMetodo;
 
     //escopo da função atual
     private IdTable currentIdTable = idTable;
     private StrTable currentStrTable = strTable;
     private ArrayTable currentArrayTable = arrayTable;
-
+    
     private FuncTable funcTable = new FuncTable();
     private ProcTable procTable = new ProcTable();
 
@@ -73,11 +77,11 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     }
 
     //adiciona Id na tabela de escopo atual - sendo id unico
-    private Type addIdTable (String s, int line, Type type, Boolean ehConst){
+    private Type addIdTable (String s, int line, Type type, Boolean ehConst, int positionArgument){
 
         if(currentIdTable.lookupVar(s)==-1 && currentArrayTable.lookupArray(s)==-1)
         {
-            currentIdTable.addId(s,line,type,ehConst);
+            currentIdTable.addId(s,line,type,ehConst, positionArgument);
             return null;
         }
         MsgErros.idJaDeclarado(s,line);
@@ -85,11 +89,11 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     }
 
     //adiciona array na tabela de escopo atual - sendo id unico
-    private Type addArrayTable (String s, int line, Type type, int size){
+    private Type addArrayTable (String s, int line, Type type, Type typeElement, int size, int positionArgument){
 
         if(currentIdTable.lookupVar(s)==-1 && currentArrayTable.lookupArray(s)==-1)
         {
-            currentArrayTable.addArray(s,line,type,size);
+            currentArrayTable.addArray(s,line,type, typeElement, size, positionArgument);
             return null;
         }
         MsgErros.idJaDeclarado(s,line);
@@ -101,7 +105,7 @@ public class Visitor extends PascalParserBaseVisitor<Type>
         
         for(int i = 0 ; i < ctx.ID().size(); i ++){
             visit(ctx.val_simple(i));
-            addIdTable(ctx.ID(i).getText(),currentLine,currentType,true);          
+            addIdTable(ctx.ID(i).getText(),currentLine,currentType,true,-1);          
         }
         return null;
     }
@@ -110,14 +114,14 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     public Type visitInt_val(PascalParser.Int_valContext ctx) {
         currentType = Type.INTEGER;
         currentLine = ctx.getStart().getLine();
-        return null;
+        return Type.INTEGER;
     }
 
 	@Override
     public Type visitReal_val(PascalParser.Real_valContext ctx) { 
         currentType = Type.REAL;
         currentLine = ctx.getStart().getLine();
-        return null;
+        return Type.REAL;
     }
 	
      @Override 
@@ -125,14 +129,14 @@ public class Visitor extends PascalParserBaseVisitor<Type>
         currentStrTable.add(ctx.getText());
         currentType = Type.STRING;
         currentLine = ctx.getStart().getLine();
-        return null;    
+        return Type.STRING;    
     }
 
 	@Override 
     public Type visitBoolean_val(PascalParser.Boolean_valContext ctx) {
         currentType = Type.BOOLEAN;
         currentLine = ctx.getStart().getLine();
-        return null;    
+        return Type.BOOLEAN;    
     }
 
     @Override 
@@ -143,7 +147,7 @@ public class Visitor extends PascalParserBaseVisitor<Type>
             visit(ctx.type_simple());
             for(int i = 0 ; i < ctx.ID().size(); i ++)
             {            
-                addIdTable(ctx.ID(i).getText(),currentLine,currentType,false);          
+                addIdTable(ctx.ID(i).getText(),currentLine,currentType,false,-1);          
             }
         }
         else if(ctx.array_type_range() != null)
@@ -151,7 +155,7 @@ public class Visitor extends PascalParserBaseVisitor<Type>
             visit(ctx.array_type_range());
             for(int i = 0 ; i < ctx.ID().size(); i ++)
             {            
-                addArrayTable(ctx.ID(i).getText(),currentLine,currentType,currentSize);          
+                addArrayTable(ctx.ID(i).getText(),currentLine,currentType, currentTypeElement, currentSize,-1);          
             }
         }
         else
@@ -187,11 +191,31 @@ public class Visitor extends PascalParserBaseVisitor<Type>
         currentLine = ctx.getStart().getLine();
         return null;
     }
-    
-    /*
-    ** Verifica se um dado Id já foi declarado
-    ** Caso não exista na tabela de Id encerra o programa
-    */
+
+    @Override 
+    public Type visitType_simple_array_integer(PascalParser.Type_simple_array_integerContext ctx) {
+        currentType = Type.ARRAY_INTEGER;
+        currentTypeElement = Type.INTEGER;
+        currentLine = ctx.getStart().getLine();
+        return null;
+    }
+	
+	@Override 
+    public Type visitType_simple_array_real(PascalParser.Type_simple_array_realContext ctx) { 
+        currentType = Type.ARRAY_REAL;
+        currentTypeElement = Type.REAL;
+        currentLine = ctx.getStart().getLine();
+        return null;
+    }
+	
+	@Override 
+    public Type visitType_simple_array_boolean(PascalParser.Type_simple_array_booleanContext ctx) { 
+        currentType = Type.ARRAY_BOOLEAN;
+        currentTypeElement = Type.BOOLEAN;
+        currentLine = ctx.getStart().getLine();
+        return null;
+    }
+
     private void checkId(String s, int line){
         if(currentIdTable.lookupVar(s) == -1)
         {
@@ -199,10 +223,6 @@ public class Visitor extends PascalParserBaseVisitor<Type>
         }
     }
 
-    /*
-    ** Verifica se um dado Id de array já foi declarado
-    ** Caso não exista na tabela de Id encerra o programa
-    */
     private void checkArray(String s, int line){
         if(currentArrayTable.lookupArray(s) == -1)
         {
@@ -248,16 +268,15 @@ public class Visitor extends PascalParserBaseVisitor<Type>
         {
             MsgErros.typeIndexError(ctx.getStart().getLine());
         }
-        
-        Type type = currentArrayTable.getTypeByName(ctx.ID().getText());
+        Type type = currentArrayTable.getTypeElementByName(ctx.ID().getText());
+        // return null;
         return type;
     }
 
     @Override
     public Type visitExpr_id(PascalParser.Expr_idContext ctx) {
         
-        if(currentIdTable.lookupVar(ctx.ID().getText())==-1 && currentArrayTable.lookupArray(ctx.ID().getText()) == -1)
-        {   
+        if(currentIdTable.lookupVar(ctx.ID().getText())==-1 && currentArrayTable.lookupArray(ctx.ID().getText()) == -1) {   
             MsgErros.idNaoDeclarado(ctx.ID().getText(), ctx.getStart().getLine());
         }
 
@@ -265,14 +284,13 @@ public class Visitor extends PascalParserBaseVisitor<Type>
             return currentIdTable.getTypeByName(ctx.ID().getText());
 
         } else if(currentArrayTable.lookupArray(ctx.ID().getText()) != -1) {
-            return currentIdTable.getTypeByName(ctx.ID().getText());
+            return currentArrayTable.getTypeByName(ctx.ID().getText());
 
         } else {
             MsgErros.erroInesperado(ctx.getStart().getLine());
         }
-        
-        Type type = currentIdTable     
-        return type; 
+          
+        return null; 
     }
 
     @Override 
@@ -293,10 +311,11 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     }
 
     //mudando as tabelas correntes quando ocorre mudança de escopo
-    private Type changeCurrentFunctionProcedure(IdTable idTable, ArrayTable arrayTable)
+    private Type changeCurrentFunctionProcedure(IdTable idTable, ArrayTable arrayTable,int typeMetodo)
     {
         this.currentIdTable = idTable;
         this.currentArrayTable = arrayTable;
+        this.currentTypeMetodo = typeMetodo;
         return null;
     }
 
@@ -304,6 +323,7 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     private Type restoreCurrentTable(){
         currentIdTable = idTable;
         currentArrayTable = arrayTable;
+        this.currentTypeMetodo = 0;
         return null;
     }
 
@@ -312,10 +332,10 @@ public class Visitor extends PascalParserBaseVisitor<Type>
 
         if(funcTable.lookupVar(ctx.ID().getText())==-1 && procTable.lookupVar(ctx.ID().getText())==-1)
         {
-            int id = procTable.addProc(ctx.ID().getText(),ctx.getStart().getLine());
+            int id = procTable.addProc(ctx.ID().getText(),0,ctx.getStart().getLine());
 
             //trocar as tabelas correntes
-            changeCurrentFunctionProcedure(procTable.getIdTable(id),procTable.getArrayTable(id));
+            changeCurrentFunctionProcedure(procTable.getIdTable(id),procTable.getArrayTable(id),2);
         }
         else
         {
@@ -353,24 +373,35 @@ public class Visitor extends PascalParserBaseVisitor<Type>
 	@Override 
     public Type visitParameters(PascalParser.ParametersContext ctx) {
 
-        visit(ctx.parameter(0));
-
-        for(int i=1; i < ctx.parameter().size(); i++)
+        for(int i=0; ctx.parameter(i) != null ; i++)
         {
             visit(ctx.parameter(i));
         }
+
         return null;
     }
 
     
-	@Override public Type visitVar_parameter(PascalParser.Var_parameterContext ctx) {
+	@Override 
+    public Type visitVar_parameter(PascalParser.Var_parameterContext ctx) {
+        
+        int qtdParam=0;
+
+        if (currentTypeMetodo == 1)
+        {
+            //function
+            qtdParam = funcTable.getQtdParameters(funcTable.getTableSize()-1);
+        }else if (currentTypeMetodo == 2){
+            //procedure
+            qtdParam = procTable.getQtdParameters(procTable.getTableSize()-1);
+        }       
        
        if( ctx.type_simple() !=null)
        {
             visit(ctx.type_simple());
             for(int i=0; i<ctx.ID().size();i++)
             {
-                addIdTable(ctx.ID(i).getText(), currentLine, currentType,false);
+                addIdTable(ctx.ID(i).getText(), currentLine, currentType,false,qtdParam+i);
             }
        }
        else if (ctx.array_type() != null)
@@ -378,21 +409,59 @@ public class Visitor extends PascalParserBaseVisitor<Type>
             visit(ctx.array_type());
             for(int i=0; i<ctx.ID().size();i++)
             {
-                addArrayTable(ctx.ID(i).getText(),currentLine,currentType,currentSize);
+                addArrayTable(ctx.ID(i).getText(), currentLine, currentType, currentTypeElement, 0,qtdParam+i);
             }
        }
        else
        {
             MsgErros.erroInesperado(ctx.getStart().getLine());
        }
+
+       if (currentTypeMetodo == 1)
+        {
+            //function
+            funcTable.incrementQtdParameters(ctx.ID().size(),funcTable.getTableSize()-1);
+        }else if (currentTypeMetodo == 2){
+            //procedure
+            procTable.incrementQtdParameters(ctx.ID().size(),procTable.getTableSize()-1);
+        }   
        
-        return null; 
+       return null; 
     }
 	
 	@Override public Type visitConstant(PascalParser.ConstantContext ctx) { 
-        
+
+        int qtdParam=0;
+
+        switch(currentTypeMetodo)
+       {
+        case 1:
+            //function
+            funcTable.getQtdParameters(funcTable.getTableSize()-1);
+        break;
+
+        case 2:
+            //procedure
+            procTable.getQtdParameters(procTable.getTableSize()-1);
+        break;
+       }
+    
         visit(ctx.type_simple());
-        addIdTable (ctx.ID().getText(), currentLine, currentType,true);
+        addIdTable (ctx.ID().getText(), currentLine, currentType,true,qtdParam);
+
+         switch(currentTypeMetodo)
+       {
+        case 1:
+            //function
+            funcTable.incrementQtdParameters(1,funcTable.getTableSize()-1);
+        break;
+
+        case 2:
+            //procedure
+            procTable.incrementQtdParameters(1,procTable.getTableSize()-1);
+        break;
+       }
+
         return null; 
     }
 
@@ -405,10 +474,10 @@ public class Visitor extends PascalParserBaseVisitor<Type>
             int id = funcTable.addFunc(ctx.ID().getText(), currentType, ctx.getStart().getLine());
 
             //trocar as tabelas correntes
-            changeCurrentFunctionProcedure(funcTable.getIdTable(id),funcTable.getArrayTable(id));
+            changeCurrentFunctionProcedure(funcTable.getIdTable(id),funcTable.getArrayTable(id),1);
 
             //add nome da tabela a tabela de Id, já que este é usado para fazer retorno em pascal
-            addIdTable(funcTable.getName(id),funcTable.getLine(id),funcTable.getTypeReturn(id),false);
+            addIdTable(funcTable.getName(id),funcTable.getLine(id),funcTable.getTypeReturn(id),false,-1);
         }
         else
         {
@@ -439,10 +508,50 @@ public class Visitor extends PascalParserBaseVisitor<Type>
         {
             MsgErros.metodoNaoDeclarado(ctx.ID().getText(), ctx.getStart().getLine());
         }
-
-        if(ctx.param_call() != null)
+       
+        Type type;
+        if(funcTable.lookupVar(ctx.ID().getText())!=-1) 
         {
-            visit(ctx.param_call());
+            // Chamada de função
+            int index = funcTable.lookupVar(ctx.ID().getText());
+
+            if(funcTable.getQtdParameters(index) != ctx.expr().size()){
+                MsgErros.incompatibleQtdParameters(ctx.getStart().getLine(),funcTable.getQtdParameters(index),ctx.expr().size());
+            }
+
+            for(int i = 0; ctx.expr(i) != null; i++) {
+                type = visit(ctx.expr(i));
+               
+                if(!funcTable.getTypeByArgument(i, ctx.ID().getText()).toString().equals(type.toString())){
+                    MsgErros.incompatibleTypesParameters(ctx.getStart().getLine(), funcTable.getTypeByArgument(i, ctx.ID().getText()), type);
+                }
+                else{
+                    //chamar função de setar tamanho do array
+                }
+            }  
+            
+            return funcTable.getTypeReturn(index);          
+
+        } else if (procTable.lookupVar(ctx.ID().getText())!=-1){ // Chamada de procedimento
+
+           // Chamada de procedure
+            int index = procTable.lookupVar(ctx.ID().getText());
+
+            if(procTable.getQtdParameters(index) != ctx.expr().size()){
+                MsgErros.incompatibleQtdParameters(ctx.getStart().getLine(),procTable.getQtdParameters(index),ctx.expr().size());
+            }
+
+            for(int i = 0; ctx.expr(i) != null; i++) {
+                type = visit(ctx.expr(i));
+                if(!procTable.getTypeByArgument(i, ctx.ID().getText()).toString().equals(type.toString()))
+                {
+                    MsgErros.incompatibleTypesParameters(ctx.getStart().getLine(), procTable.getTypeByArgument(i, ctx.ID().getText()), type);
+                }
+            }
+            return null;
+            
+        } else {
+            MsgErros.erroInesperado(ctx.getStart().getLine());
         }
 
         return null;
@@ -472,16 +581,15 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     public Type visitExpr_equal(PascalParser.Expr_equalContext ctx) { 
         Type type1 = visit(ctx.expr(0));
         Type type2 = visit(ctx.expr(1));
-        Type typeResult = SemanticTypeOperations.getTypeReturnByOperation(type1, type2, String.valueOf(ctx.op.getType()));
+        Type typeResult = SemanticTypeOperations.getTypeReturnByOperation(type1, type2, ctx.op.getText());
 
         if(typeResult == null) {
-            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), type1, type2, String.valueOf(ctx.op.getType()));
+            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), type1, type2, ctx.op.getText());
         }
         
         return typeResult; 
     }
 
-	
 	@Override 
     public Type visitExpr_minus(PascalParser.Expr_minusContext ctx) { 
         Type type = visit(ctx.expr());
@@ -512,9 +620,8 @@ public class Visitor extends PascalParserBaseVisitor<Type>
         }
 
         if(typeResult == null) {
-            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), type1, type2, String.valueOf(ctx.op.getType()));
+            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), type1, type2, ctx.op.getText());
         }
-        
         
         return typeResult; 
     }
@@ -568,7 +675,7 @@ public class Visitor extends PascalParserBaseVisitor<Type>
         }
 
         if(typeResult == null) {
-            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), type1, type2, String.valueOf(ctx.op.getType()));
+            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), type1, type2, ctx.op.getText());
         }
         
         return typeResult; 
@@ -583,9 +690,27 @@ public class Visitor extends PascalParserBaseVisitor<Type>
         }
         return type; 
     }
-	
-	@Override 
-    public Type visitExpr_array(PascalParser.Expr_arrayContext ctx) { 
-        return visitChildren(ctx); 
+
+    @Override
+    public Type visitWhile_block(PascalParser.While_blockContext ctx) { 
+        
+        Type type = visit(ctx.expr());
+        if(type != Type.BOOLEAN){
+          MsgErros.exprIsNotBoolean(ctx.getStart().getLine(), type);
+        }
+        visit(ctx.block());
+    return null; 
+    }
+
+    @Override 
+    public Type visitIf_block(PascalParser.If_blockContext ctx) { 
+        Type type = visit(ctx.expr());
+        if(type != Type.BOOLEAN){
+          MsgErros.exprIsNotBoolean(ctx.getStart().getLine(), type);
+        }
+        for(int i=0; ctx.block(i)!=null; i++){
+            visit(ctx.block(i));
+        }
+        return null;
     }
 }
