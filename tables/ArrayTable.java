@@ -84,7 +84,7 @@ public final class ArrayTable {
 		Formatter f = new Formatter(sb);
 		f.format("Array table:\n");
 		for (int i = 0; i < table.size(); i++) {
-			f.format("Entry %d -- name: %s, line: %d, type: %s, typeElement: %s , size: %d , positionArgument: %d\n", i,
+			f.format("Entry %d -- name: %s, line: %d, type: %s, typeElement: %s, size: %d, positionArgument: %d\n", i,
 	                 getName(i), getLine(i), getType(i).toString(), getTypeElement(i).toString(), getSize(i), getPositionArgument(i));
 		}
 		f.close();

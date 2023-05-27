@@ -33,7 +33,7 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     // 0 - main
     // 1 - function
     // 2 - procedure
-    private int currentTypeMetodo;
+    private int currentTypeMethod;
 
     //escopo da função atual
     private IdTable currentIdTable = idTable;
@@ -295,13 +295,30 @@ public class Visitor extends PascalParserBaseVisitor<Type>
 
     @Override 
     public Type visitRead_io(PascalParser.Read_ioContext ctx) {
+        Type type = null;
         if(ctx.ID() != null)
         {
             checkId(ctx.ID().getText(),ctx.getStart().getLine());
+            
+            type = currentIdTable.getTypeByName(ctx.ID().getText());
+
+            if(type != Type.BOOLEAN && type != null){ // Não é booleano nem array
+                return null;
+            }
+            else{
+                MsgErros.readErrorTypeNotAccepted(ctx.getStart().getLine(), type);
+            }
         }
         else if (ctx.acess_array() != null)
         {
-          visit(ctx.acess_array());
+            type = visit(ctx.acess_array());
+            
+            if(type != Type.BOOLEAN && type != null){ // Não é booleano nem ID
+                return null;
+            }
+            else{
+                MsgErros.readErrorTypeNotAccepted(ctx.getStart().getLine(), type);
+            }
         }
         else
         {
@@ -311,11 +328,10 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     }
 
     //mudando as tabelas correntes quando ocorre mudança de escopo
-    private Type changeCurrentFunctionProcedure(IdTable idTable, ArrayTable arrayTable,int typeMetodo)
-    {
+    private Type changeCurrentFunctionProcedure(IdTable idTable, ArrayTable arrayTable,int TypeMethod) {
         this.currentIdTable = idTable;
         this.currentArrayTable = arrayTable;
-        this.currentTypeMetodo = typeMetodo;
+        this.currentTypeMethod = TypeMethod;
         return null;
     }
 
@@ -323,13 +339,12 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     private Type restoreCurrentTable(){
         currentIdTable = idTable;
         currentArrayTable = arrayTable;
-        this.currentTypeMetodo = 0;
+        this.currentTypeMethod = 0;
         return null;
     }
 
     @Override 
     public Type visitProcedure(PascalParser.ProcedureContext ctx) {
-
         if(funcTable.lookupVar(ctx.ID().getText())==-1 && procTable.lookupVar(ctx.ID().getText())==-1)
         {
             int id = procTable.addProc(ctx.ID().getText(),0,ctx.getStart().getLine());
@@ -360,8 +375,7 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     }
 
     @Override 
-    public Type visitParameter_list(PascalParser.Parameter_listContext ctx) {
-        
+    public Type visitParameter_list(PascalParser.Parameter_listContext ctx) {  
         if(ctx.parameters() != null)
         {
             visit(ctx.parameters());
@@ -372,7 +386,6 @@ public class Visitor extends PascalParserBaseVisitor<Type>
 
 	@Override 
     public Type visitParameters(PascalParser.ParametersContext ctx) {
-
         for(int i=0; ctx.parameter(i) != null ; i++)
         {
             visit(ctx.parameter(i));
@@ -383,15 +396,14 @@ public class Visitor extends PascalParserBaseVisitor<Type>
 
     
 	@Override 
-    public Type visitVar_parameter(PascalParser.Var_parameterContext ctx) {
-        
+    public Type visitVar_parameter(PascalParser.Var_parameterContext ctx) {       
         int qtdParam=0;
 
-        if (currentTypeMetodo == 1)
+        if (currentTypeMethod == 1)
         {
             //function
             qtdParam = funcTable.getQtdParameters(funcTable.getTableSize()-1);
-        }else if (currentTypeMetodo == 2){
+        }else if (currentTypeMethod == 2){
             //procedure
             qtdParam = procTable.getQtdParameters(procTable.getTableSize()-1);
         }       
@@ -417,11 +429,11 @@ public class Visitor extends PascalParserBaseVisitor<Type>
             MsgErros.erroInesperado(ctx.getStart().getLine());
        }
 
-       if (currentTypeMetodo == 1)
+       if (currentTypeMethod == 1)
         {
             //function
             funcTable.incrementQtdParameters(ctx.ID().size(),funcTable.getTableSize()-1);
-        }else if (currentTypeMetodo == 2){
+        }else if (currentTypeMethod == 2){
             //procedure
             procTable.incrementQtdParameters(ctx.ID().size(),procTable.getTableSize()-1);
         }   
@@ -430,44 +442,41 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     }
 	
 	@Override public Type visitConstant(PascalParser.ConstantContext ctx) { 
-
         int qtdParam=0;
 
-        switch(currentTypeMetodo)
-       {
-        case 1:
+        if(currentTypeMethod == 1){
             //function
             funcTable.getQtdParameters(funcTable.getTableSize()-1);
-        break;
 
-        case 2:
+        } else if (currentTypeMethod == 2){
             //procedure
             procTable.getQtdParameters(procTable.getTableSize()-1);
-        break;
-       }
-    
+
+        } else {
+            MsgErros.erroInesperado(ctx.getStart().getLine());
+        }
+
         visit(ctx.type_simple());
         addIdTable (ctx.ID().getText(), currentLine, currentType,true,qtdParam);
 
-         switch(currentTypeMetodo)
-       {
-        case 1:
+   
+        if(currentTypeMethod == 1){
             //function
             funcTable.incrementQtdParameters(1,funcTable.getTableSize()-1);
-        break;
 
-        case 2:
+        } else if (currentTypeMethod == 2){
             //procedure
             procTable.incrementQtdParameters(1,procTable.getTableSize()-1);
-        break;
-       }
+
+        } else {
+            MsgErros.erroInesperado(ctx.getStart().getLine());
+        }
 
         return null; 
     }
 
     @Override
-    public Type visitFunction(PascalParser.FunctionContext ctx) {
-        
+    public Type visitFunction(PascalParser.FunctionContext ctx) {    
         if(funcTable.lookupVar(ctx.ID().getText())==-1 && procTable.lookupVar(ctx.ID().getText())==-1)
         {
             visit(ctx.type_simple());
@@ -502,8 +511,7 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     }
 
     @Override
-    public Type visitCall_function_procedure(PascalParser.Call_function_procedureContext ctx) {
-        
+    public Type visitCall_function_procedure(PascalParser.Call_function_procedureContext ctx) {   
         if(funcTable.lookupVar(ctx.ID().getText())==-1 && procTable.lookupVar(ctx.ID().getText())==-1)
         {
             MsgErros.metodoNaoDeclarado(ctx.ID().getText(), ctx.getStart().getLine());
@@ -558,8 +566,7 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     }
 
 	@Override
-    public Type visitArray_type_range(PascalParser.Array_type_rangeContext ctx) {
-        
+    public Type visitArray_type_range(PascalParser.Array_type_rangeContext ctx) {    
         currentSize = Integer.parseInt(ctx.INT_VAL(1).getText()) - Integer.parseInt(ctx.INT_VAL(0).getText()) + 1;
         
         if (currentSize < 1)
@@ -574,7 +581,8 @@ public class Visitor extends PascalParserBaseVisitor<Type>
 
     @Override 
     public Type visitExpr_call(PascalParser.Expr_callContext ctx) { 
-        return visitChildren(ctx); 
+        Type type = visit(ctx.call_function_procedure());
+        return type;
     }
 	
 	@Override 
@@ -711,6 +719,19 @@ public class Visitor extends PascalParserBaseVisitor<Type>
         for(int i=0; ctx.block(i)!=null; i++){
             visit(ctx.block(i));
         }
+        return null;
+    }
+
+    @Override 
+    public Type visitWrite_io(PascalParser.Write_ioContext ctx) { 
+        Type type = visit(ctx.expr());
+
+        if(type == Type.BOOLEAN || type == Type.REAL || type == Type.INTEGER || type == Type.STRING){ //aceita
+          return null; 
+        } else {
+            MsgErros.writeErrorTypeExprNotAccepted(ctx.getStart().getLine(), type);
+        }
+        
         return null;
     }
 }

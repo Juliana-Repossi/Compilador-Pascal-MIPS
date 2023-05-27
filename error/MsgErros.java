@@ -56,12 +56,21 @@ public final class MsgErros {
 
     public static void incompatibleTypesParameters(int line, Type typeParam1, Type typeParam2){
         System.out.println("(" + line + ") - Método esperava " + typeParam1 + " e foi passado " + typeParam2 + ".");
-        System.exit(12);
+        System.exit(13);
     }
 
      public static void incompatibleQtdParameters(int line, int qtdEsperado, int qtdRecebido){
         System.out.println("(" + line + ") - Método esperava " + qtdEsperado + "parâmetro(s) e foi(ram) passado(s) " + qtdRecebido + ".");
-        System.exit(12);
+        System.exit(14);
     }
 
+    public static void readErrorTypeNotAccepted(int line, Type type){
+        System.out.println("(" + line + ") - O tipo " + type + " não é aceito na leitura.");
+        System.exit(15);
+    }
+
+    public static void writeErrorTypeExprNotAccepted(int line, Type type){
+        System.out.println("(" + line + ") - Expressão do tipo  " + type + "não é aceita na escrita.");
+        System.exit(16);
+    }
 }

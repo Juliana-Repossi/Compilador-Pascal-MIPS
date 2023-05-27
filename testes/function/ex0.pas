@@ -6,19 +6,19 @@ var
   i, x, y : integer;
   boleano: boolean;
 
-function soma(vetor: array of integer) : integer;
+function soma(vetor: array of integer; x: integer) : integer;
   begin
     soma := 1;
   end;
 
-procedure subtracao(vetor: array of real);
+procedure subtracao(vetor, k, z, t: array of real);
 begin
 
 end;
   
 begin
 
- i := 0;
+  i := 0;
 
     while i < 10 do
     begin
@@ -26,5 +26,5 @@ begin
         i := i + 1;
     end;
 
-  soma(vetor);
+  soma(vetor, 4);
 end.
