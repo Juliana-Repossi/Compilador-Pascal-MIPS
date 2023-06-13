@@ -5,8 +5,8 @@ JAVA=java
 # ROOT é a raiz dos diretórios com todos os roteiros de laboratórios
 YEAR=$(shell pwd | grep -o '20..-.')
 # ROOT=/home/fgasouza/compiladores-labs/lab3
-ROOT=/home/filipe/git/Compilador-Pascal-MIPS
-# ROOT=/home/jcrepossi/Compilador-Pascal-MIPS
+#ROOT=/home/filipe/git/Compilador-Pascal-MIPS
+ROOT=/home/jcrepossi/Compilador-Pascal-MIPS
 # ROOT=/home/juliana/Compilador-Pascal-MIPS
 
 # Caminho para o JAR do ANTLR em labs/tools

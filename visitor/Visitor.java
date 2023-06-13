@@ -16,7 +16,10 @@ import semantic_type_operations.SemanticTypeOperations;
 
 import types.Type;
 
-public class Visitor extends PascalParserBaseVisitor<Type>
+import ast.AST;
+import ast.NodeKind;
+
+public class Visitor extends PascalParserBaseVisitor<AST>
 {
     //tables da main
     private StrTable strTable = new StrTable();
@@ -111,10 +114,14 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     }
 
     @Override 
-    public Type visitInt_val(PascalParser.Int_valContext ctx) {
+    public AST visitInt_val(PascalParser.Int_valContext ctx) {
+
+        int value = Integer.parseInt(ctx.INT_VAL().getText());
+        AST ast = new AST(NodeKind.INT_VAL_NODE, value, Type.INTEGER);
+        
         currentType = Type.INTEGER;
         currentLine = ctx.getStart().getLine();
-        return Type.INTEGER;
+        return ast;
     }
 
 	@Override
@@ -134,9 +141,19 @@ public class Visitor extends PascalParserBaseVisitor<Type>
 
 	@Override 
     public Type visitBoolean_val(PascalParser.Boolean_valContext ctx) {
+
+        int value;
+        if (ctx.BOOLEAN_VAL().getText().equals("true")){
+            value = 1;
+        }
+        else{
+            value = 0;
+        }
+        AST ast = new AST(NodeKind.BOOL_VAL_NODE,value,Type.BOOLEAN);
+        
         currentType = Type.BOOLEAN;
         currentLine = ctx.getStart().getLine();
-        return Type.BOOLEAN;    
+        return ast;  
     }
 
     @Override 
@@ -163,6 +180,15 @@ public class Visitor extends PascalParserBaseVisitor<Type>
            MsgErros.erroInesperado(ctx.getStart().getLine()); 
         }
         return null; 
+    }
+
+    @Override public AST visitBlock(PascalParser.BlockContext ctx) {
+        AST ast = new AST(NodeKind.BLOCK_NODE,0,Type.NO_TYPE);
+
+        for(int i = 0; i< ctx.statement().size(); i++){
+            ast.addChild(visit(ctx.statement(i)));
+        }
+        return ast;
     }
 
     @Override public Type visitType_simple_integer(PascalParser.Type_simple_integerContext ctx) { 
@@ -230,33 +256,53 @@ public class Visitor extends PascalParserBaseVisitor<Type>
         }
     }
 
+    private AST insertConversion(AST sub, Type conv, NodeKind typeNode){
+        AST wideNode = new AST(typeNode,0,conv);
+        wideNode.addChild(sub);
+        return wideNode;
+    }
+
     @Override 
-    public Type visitAtribution(PascalParser.AtributionContext ctx) {
-        Type type1 = null, type2 = null;
+    public AST visitAtribution(PascalParser.AtributionContext ctx) {
+        Type type1 = null;
+
+        AST ast = new AST(NodeKind.ASSIGN_NODE,0,Type.NO_TYPE);
+        AST left;
+        AST right;
 
         if(ctx.ID() != null)
         {
             checkId(ctx.ID().getText(),ctx.getStart().getLine());
             type1 = currentIdTable.getTypeByName(ctx.ID().getText());
-
+            left = new AST(NodeKind.VAR_USE_NODE,0,type1);
+            ast.addChild(left);   
         }
         else if (ctx.acess_array() != null)
         {
             type1 = visit(ctx.acess_array());
+            left = new AST(NodeKind.ARRAY_USE_NODE,0,type1);
+            ast.addChild(left);   
         }
         else
         {
             MsgErros.erroInesperado(ctx.getStart().getLine());
         }
         
-        type2 = visit(ctx.expr());
+        right = visit(ctx.expr());
 
-        if(SemanticTypeOperations.typesAtribution(type1, type2) == null) {
-            MsgErros.incompatibleTypesAtribution(ctx.getStart().getLine(), type1, type2);
+        if(SemanticTypeOperations.typesAtribution(type1, right.type) == null) {
+            MsgErros.incompatibleTypesAtribution(ctx.getStart().getLine(), type1, right.type);
         } 
 
+        if(left.Type == Type.INTEGER && right.type == Type.REAL)
+        {
+            ast.addChild(insertConversion(right, Type.REAL,NodeKind.I2R));
+        }
+        else{
+            ast.addChild(right);
+        }       
 
-        return null;
+        return ast;
     }
 
     @Override 
@@ -586,16 +632,53 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     }
 	
 	@Override 
-    public Type visitExpr_equal(PascalParser.Expr_equalContext ctx) { 
-        Type type1 = visit(ctx.expr(0));
-        Type type2 = visit(ctx.expr(1));
-        Type typeResult = SemanticTypeOperations.getTypeReturnByOperation(type1, type2, ctx.op.getText());
+    public AST visitExpr_equal(PascalParser.Expr_equalContext ctx) { 
+
+        AST ast;
+        NodeKind typeOp;
+
+        switch(ctx.op.getType()){
+            case PascalParser.NOTEQUAL:
+                typeOp = NodeKind.NOTEQUAL_NODE;
+                break;
+
+            case PascalParser.EQUAL:
+                typeOp = NodeKind.NOTEQUAL_NODE;
+                break;
+
+            case PascalParser.LESSTHAN:
+                typeOp = NodeKind.LESSTHAN_NODE;
+                break;
+
+            case PascalParser.GREATERTHAN:
+                typeOp = NodeKind.GREATERTHAN_NODE;
+                break;
+
+            case PascalParser.LEQ:
+                typeOp = NodeKind.LEQ_NODE;
+                break;
+
+            case PascalParser.BEQ:
+                typeOp = NodeKind.BEQ_NODE;
+                break;
+
+            default:
+                MsgErros.erroInesperado(ctx.getStart().getLine());           
+        }
+
+        AST left = visit(ctx.expr(0));
+        AST right = visit(ctx.expr(1));
+        Type typeResult = SemanticTypeOperations.getTypeReturnByOperation(left.type, right.type, typeOp);
 
         if(typeResult == null) {
-            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), type1, type2, ctx.op.getText());
+            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), left.type, right.type, typeOp);
         }
+
+        ast = new AST(typeOp, 0, Type.BOOLEAN);
+        ast.addChild(left);
+        ast.addChild(right);
         
-        return typeResult; 
+        return ast; 
     }
 
 	@Override 
@@ -666,27 +749,43 @@ public class Visitor extends PascalParserBaseVisitor<Type>
         return Type.BOOLEAN; 
     }
 	
+    private void convertAndAddFactors(AST dad, AST right, AST left){
+        if(left.type == Type.INTEGER && right.type == Type.REAL){
+            dad.addChild(insertConversion(left, Type.REAL, NodeKind.I2R_NODE));
+            dad.addChild(right);
+        }else if(left.type == Type.REAL && right.type == Type.INTEGER){
+            dad.addChild(left);
+            dad.addChild(insertConversion(right, Type.REAL, NodeKind.I2R_NODE));
+        }else{
+            dad.addChild(left);
+            dad.addChild(right);
+        }
+    }
+
 	@Override 
-    public Type visitExpr_plus(PascalParser.Expr_plusContext ctx) { 
-        Type type1 = visit(ctx.expr(0));
-        Type type2 = visit(ctx.expr(1));
+    public AST visitExpr_plus(PascalParser.Expr_plusContext ctx) { 
+        AST ast;
+        AST left = visit(ctx.expr(0));
+        AST right = visit(ctx.expr(1));
         Type typeResult = null;
 
         if(ctx.op.getType() == PascalParser.PLUS) {
-            typeResult = SemanticTypeOperations.getTypeReturnByOperation(type1, type2, "+");
-        
-        } else if(ctx.op.getType() == PascalParser.MINUS) {
-            typeResult = SemanticTypeOperations.getTypeReturnByOperation(type1, type2, "-");
+            typeResult = SemanticTypeOperations.getTypeReturnByOperation(left.type, right.type, "+");
+            ast = new AST(NodeKind.PLUS_NODE, 0, typeResult);
 
+        } else if(ctx.op.getType() == PascalParser.MINUS) {
+            typeResult = SemanticTypeOperations.getTypeReturnByOperation(left.type, right.type, "-");
+            ast = new AST(NodeKind.MINUS_NODE, 0, typeResult);
         } else {
             MsgErros.erroInesperado(ctx.getStart().getLine());
         }
 
         if(typeResult == null) {
-            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), type1, type2, ctx.op.getText());
+            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), left.type, right.type, ctx.op.getText());
         }
-        
-        return typeResult; 
+
+        convertAndAddFactors(ast,right,left);
+        return ast; 
     }
 	
 	@Override 
@@ -711,16 +810,28 @@ public class Visitor extends PascalParserBaseVisitor<Type>
     }
 
     @Override 
-    public Type visitIf_block(PascalParser.If_blockContext ctx) { 
-        Type type = visit(ctx.expr());
-        if(type != Type.BOOLEAN){
-          MsgErros.exprIsNotBoolean(ctx.getStart().getLine(), type);
+    public AST visitIf_block(PascalParser.If_blockContext ctx) { 
+        AST ast = new AST(NodeKind.IF_NODE,0,Type.NO_TYPE);
+        AST exp = visit(ctx.expr());
+        if(exp.type != Type.BOOLEAN){
+          MsgErros.exprIsNotBoolean(ctx.getStart().getLine(), exp.type);
         }
-        for(int i=0; ctx.block(i)!=null; i++){
-            visit(ctx.block(i));
+        else{
+            ast.addChild(exp);
         }
-        return null;
+        // for(int i=0; ctx.block(i)!=null; i++){
+        //     visit(ctx.block(i));
+        // }
+        ast ifBlock = visit(ctx.block(0)); 
+        ast.addChild(ifBlock);
+
+        if(ctx.block(1)!=null){
+            AST elseBlock = visit(ctx.block(1));
+            ast.addChild(elseBlock);
+        }
+        return ast;
     }
+    
 
     @Override 
     public Type visitWrite_io(PascalParser.Write_ioContext ctx) { 
