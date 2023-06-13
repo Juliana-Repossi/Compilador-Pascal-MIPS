@@ -2,7 +2,7 @@ program function_and_function;
 
 function maior_numero (a,b: integer) : integer;
 begin 
-    if (a>b) then
+    if (a > b) then
     begin
         maior_numero:=a;
         end

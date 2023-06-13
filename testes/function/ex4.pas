@@ -14,7 +14,7 @@ begin
         maior_numero :=b;
     end;
 
-end
+end;
 
 begin 
     writeln(maior_numero());

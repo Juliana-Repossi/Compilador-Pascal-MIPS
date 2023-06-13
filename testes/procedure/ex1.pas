@@ -1,7 +1,7 @@
 program funcao;
 
 
-procedure Hello();
+procedure hello();
   begin
     write('Hello world');
   end;

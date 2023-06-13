@@ -1,22 +1,24 @@
 program function_sem_param;
 
+
 function maior_numero () : integer;
 var
-    a,b: integer;
+    a: integer;
+    b: integer;
 begin 
-    a := 100;
+    a := 20;
     b:= 85;
 
     if (a>b) then
     begin
-        maior_numero:=a;
+        maior_numero:= a;
         end
     else
     begin
-        maior_numero :=b;
+        maior_numero := b;
     end;
 
-end
+end;
 
 begin 
     writeln(maior_numero());

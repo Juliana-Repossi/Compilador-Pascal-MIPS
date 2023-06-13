@@ -1,6 +1,8 @@
 program sum;
 var 
     X, Y, A: real;
+    z, i: boolean;
+
 
 const
     const_1 = 10.5;
