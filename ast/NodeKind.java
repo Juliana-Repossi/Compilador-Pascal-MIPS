@@ -8,9 +8,9 @@ package ast;
 // com mais de 20 classes herdando dela, uma classe para cada tipo de nó...
 public enum NodeKind {
 
+    I2R_NODE,
     ASSIGN_NODE,
     VAR_USE_NODE,
-    ARRAY_USE_NODE,
     NOTEQUAL_NODE,
     EQUAL_NODE,
     LESSTHAN_NODE,
@@ -21,28 +21,21 @@ public enum NodeKind {
     BOOL_VAL_NODE,
     IF_NODE,
     INT_VAL_NODE,
-
-
- /////
-
-    I2R_NODE,
-    
-    
-    
-   
-  
-    MINUS_NODE,
-    OVER_NODE,
     PLUS_NODE,
+    MINUS_NODE,
+    ASTERISK_NODE,
+    SLASH_NODE,
+    MOD_NODE,
     PROGRAM_NODE,
-    READ_NODE,
-    REAL_VAL_NODE,
-    REPEAT_NODE,
-    STR_VAL_NODE,
-    TIMES_NODE,
-    VAR_DECL_NODE,
     VAR_LIST_NODE,
+    READ_NODE,
     WRITE_NODE,
+    REAL_VAL_NODE,
+    WHILE_NODE,
+    STR_VAL_NODE,
+    VAR_DECL_NODE,
+        
+    
 
 	public String toString() {
 		switch(this) {

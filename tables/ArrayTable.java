@@ -29,6 +29,9 @@ public final class ArrayTable {
 		table.add(entryArray);
 		return idxAdded;
 	}
+	public int getSizeArrayTable() {
+		return table.size();
+	}
 
 	public String getName(int i) {
 		return table.get(i).name;

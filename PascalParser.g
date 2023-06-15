@@ -17,12 +17,17 @@ program:
 ;
 
 program_pascal:
-    const_var_section* (procedure | function)* block+          
+    const_var_section* procedure_function* block         
 ;
 
 const_var_section:
     const_section
 |   var_section
+;
+
+procedure_function:
+    procedure
+|   function
 ;
 
 const_section:
