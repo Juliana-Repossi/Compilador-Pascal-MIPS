@@ -1,8 +1,0 @@
-digraph {
-graph [ordering="out"];
-node0[label="program"];
-node1[label="var_list"];
-node0 -> node1;
-node2[label="block"];
-node0 -> node2;
-}
