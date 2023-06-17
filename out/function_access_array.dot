@@ -1,2 +1,0 @@
-line 19:4 extraneous input 'else' expecting {'end', 'if', 'while', 'read', 'write', 'writeln', ID}
-make: *** [Makefile:44: run] Error 2
