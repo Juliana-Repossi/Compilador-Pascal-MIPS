@@ -6,18 +6,16 @@ ANTLR_PATH=$ROOT/tools/antlr-4.11.1-complete.jar
 CLASS_PATH_OPTION="-cp .:$ANTLR_PATH"
 
 BIN_PATH=bin
+TEST_PATH=function
 
 DATA=$ROOT
-IN=$DATA/testes/cp5/statement/read_write
-# OUT=$DATA/out05
-MYOUT=$DATA/myout
+IN=$DATA/in/cp5/$TEST_PATH
+OUT=$DATA/out
 
 for infile in ls $IN/*.pas; do
     base=$(basename $infile)
     echo Running $base
-    dotfile=$MYOUT/${base/.pas/.dot}
-    # dotfileout=$OUT/${base/.ezl/.dot}
+    dotfile=$OUT/${base/.pas/.dot}
     make run < $infile 2> $dotfile > /dev/null
-    dot -Tpdf $dotfile -o $MYOUT/$base.pdf 
-    # diff -w $dotfile $dotfileout
+    dot -Tpdf $dotfile -o $OUT/$base.pdf 
 done

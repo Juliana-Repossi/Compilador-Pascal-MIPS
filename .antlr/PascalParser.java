@@ -448,13 +448,13 @@ public class PascalParser extends Parser {
 	}
 
 	public static class VarContext extends ParserRuleContext {
-		public TerminalNode COLON() { return getToken(PascalParser.COLON, 0); }
-		public Type_simpleContext type_simple() {
-			return getRuleContext(Type_simpleContext.class,0);
-		}
 		public List<TerminalNode> ID() { return getTokens(PascalParser.ID); }
 		public TerminalNode ID(int i) {
 			return getToken(PascalParser.ID, i);
+		}
+		public TerminalNode COLON() { return getToken(PascalParser.COLON, 0); }
+		public Type_simpleContext type_simple() {
+			return getRuleContext(Type_simpleContext.class,0);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(PascalParser.COMMA); }
 		public TerminalNode COMMA(int i) {
@@ -480,10 +480,8 @@ public class PascalParser extends Parser {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				{
 				setState(104);
 				match(ID);
-				}
 				setState(109);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
@@ -509,10 +507,8 @@ public class PascalParser extends Parser {
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				{
 				setState(114);
 				match(ID);
-				}
 				setState(119);
 				_errHandler.sync(this);
 				_la = _input.LA(1);

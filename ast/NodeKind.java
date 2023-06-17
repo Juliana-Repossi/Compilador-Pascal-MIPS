@@ -115,6 +115,8 @@ public enum NodeKind {
             case FUNCTION_NODE:
             case VAR_PARAMETER_NODE:
             case ARRAY_PARAMETER_NODE:
+            case CALL_FUNCTION_NODE:
+            case CALL_PROCEDURE_NODE:
 	            return true;
 	        default:
 	            return false;

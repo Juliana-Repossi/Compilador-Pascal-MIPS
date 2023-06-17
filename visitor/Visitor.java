@@ -113,12 +113,6 @@ public class Visitor extends PascalParserBaseVisitor<AST>
     @Override 
     public AST visitProgram_pascal(PascalParser.Program_pascalContext ctx) {
         AST ast = new AST(NodeKind.PROGRAM_NODE,0,Type.NO_TYPE);
-
-        // AST const_var_child;
-        // for(int i = 0; i< ctx.const_var_section().size(); i++){
-        //     const_var_child = visit(ctx.const_var_section(i)); 
-        //     ast.addChild(const_var_child);
-        // }
         
         AST ast_id_list = new AST(NodeKind.VAR_LIST_NODE,0,Type.NO_TYPE);
 
@@ -149,41 +143,18 @@ public class Visitor extends PascalParserBaseVisitor<AST>
         return ast;        
     }
 
-    // @Override public AST visitConst_var_section(PascalParser.Const_var_sectionContext ctx) {
-    //     if(ctx.const_section()!= null){
-    //         return visit(ctx.const_section());
-    //     } 
-    //     else {
-    //         return visit(ctx.var_section());
-    //     }
-    // }
-
     @Override 
     public AST visitVar_section(PascalParser.Var_sectionContext ctx) {
         AST ast = new AST(NodeKind.PROVISORY_NODE,0,Type.NO_TYPE);
 
         AST inter;
+        //linha
         for(int i=0; i < ctx.var().size() ; i++){
             inter = visit(ctx.var(i));
             ast.copyChildren(inter);
         }
         return ast;
     }
-
-
-    // @Override
-    // public AST visitConst_section(PascalParser.Const_sectionContext ctx) {
-    //     AST ast = null;
-    //     AST child;
-
-    //     for(int i = 0 ; i < ctx.ID().size(); i ++){
-    //         child = visit(ctx.val_simple(i));
-    //         addIdTable(ctx.ID(i).getText(),currentLine,currentType,true,-1);
-    //         ast = new AST(NodeKind.VAR_DECL_NODE, currentIdTable.getSize()-1,child.type);  
-    //         ast.addChild(child);      
-    //     }
-    //     return ast;
-    // }
 
     @Override
     public AST visitConst_section(PascalParser.Const_sectionContext ctx) {
@@ -269,10 +240,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
             for(int i = 0 ; i < ctx.ID().size(); i ++)
             {            
                 line = addIdTable(ctx.ID(i).getText(),currentLine,currentType,false,-1);
-                //provisory = new AST(NodeKind.VAR_DECL_NODE,line,currentType); 
-                child = new AST(NodeKind.VAR_DECL_NODE,line,currentType); 
-                provisory.addChild(child);         
-         
+                provisory.addChild( new AST(NodeKind.VAR_DECL_NODE,line,currentType));         
             }
         }
         else if(ctx.array_type_range() != null)
@@ -281,8 +249,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
             for(int i = 0 ; i < ctx.ID().size(); i ++)
             {            
                 line = addArrayTable(ctx.ID(i).getText(),currentLine,currentType, currentTypeElement, currentSize,-1);
-                child = new AST(NodeKind.ARRAY_DECL_NODE,line,currentType);
-                provisory.addChild(child);                    
+                provisory.addChild( new AST(NodeKind.ARRAY_DECL_NODE,line,currentType));                    
             }
         } 
         else
@@ -678,18 +645,20 @@ public class Visitor extends PascalParserBaseVisitor<AST>
     @Override
     public AST visitFunction(PascalParser.FunctionContext ctx) {  
         AST ast = null;
-
+        int index = -1;
+        int id =-1;
+    
         if(funcTable.lookupVar(ctx.ID().getText())==-1 && procTable.lookupVar(ctx.ID().getText())==-1)
         {
             visit(ctx.type_simple());
-            int id = funcTable.addFunc(ctx.ID().getText(), currentType, ctx.getStart().getLine());
+            id = funcTable.addFunc(ctx.ID().getText(), currentType, ctx.getStart().getLine());
             ast = new AST(NodeKind.FUNCTION_NODE, id, funcTable.getTypeReturn(id));  
 
             //trocar as tabelas correntes
             changeCurrentFunctionProcedure(funcTable.getIdTable(id),funcTable.getArrayTable(id),1);
 
             //add nome da tabela a tabela de Id, já que este é usado para fazer retorno em pascal
-            addIdTable(funcTable.getName(id),funcTable.getLine(id),funcTable.getTypeReturn(id),false,-1);
+            index = addIdTable(funcTable.getName(id),funcTable.getLine(id),funcTable.getTypeReturn(id),false,-1);
         }
         else
         {
@@ -701,9 +670,12 @@ public class Visitor extends PascalParserBaseVisitor<AST>
         
         AST ast_id_list = new AST(NodeKind.VAR_LIST_NODE,0,Type.NO_TYPE);
 
+        AST ret = new AST(NodeKind.VAR_DECL_NODE, index, funcTable.getTypeReturn(id));
+        ast_id_list.addChild(ret); 
+
         AST var_child;
         if(ctx.var_section()!= null){
-            var_child = visit(ctx.var_section());
+            var_child = visit(ctx.var_section());           
             ast_id_list.copyChildren(var_child); 
         }        
         
@@ -714,12 +686,9 @@ public class Visitor extends PascalParserBaseVisitor<AST>
         }
 
         ast.addChild(ast_id_list);
-
         ast.addChild(visit(ctx.block()));
 
-
         restoreCurrentTable();
-
         return ast;
     }
 
@@ -738,19 +707,23 @@ public class Visitor extends PascalParserBaseVisitor<AST>
             // Chamada de função
             int index = funcTable.lookupVar(ctx.ID().getText());
 
-            ast = new AST(NodeKind.CALL_FUNCTION_NODE,0,funcTable.getTypeReturn(index));
+            ast = new AST(NodeKind.CALL_FUNCTION_NODE,index,funcTable.getTypeReturn(index));
 
             if(funcTable.getQtdParameters(index) != ctx.expr().size()){
                 MsgErros.incompatibleQtdParameters(ctx.getStart().getLine(),funcTable.getQtdParameters(index),ctx.expr().size());
             }
 
             for(int i = 0; ctx.expr(i) != null; i++) {
-                
                 child = visit(ctx.expr(i));
-                if(!funcTable.getTypeByArgument(i, ctx.ID().getText()).toString().equals(child.type.toString())){
-                    MsgErros.incompatibleTypesParameters(ctx.getStart().getLine(), funcTable.getTypeByArgument(i, ctx.ID().getText()), child.type);
-                }
-                else{
+                Type type = funcTable.getTypeByArgument(i, ctx.ID().getText());
+                if(type != child.type){
+                    if(child.type == Type.INTEGER && type == Type.REAL){
+                        ast.addChild(insertConversion(child,Type.REAL, NodeKind.I2R_NODE));
+                        
+                    }else{
+                        MsgErros.incompatibleTypesParameters(ctx.getStart().getLine(), funcTable.getTypeByArgument(i, ctx.ID().getText()), child.type);
+                    }
+                }else{
                     ast.addChild(child);
                 }
             }  
@@ -762,19 +735,25 @@ public class Visitor extends PascalParserBaseVisitor<AST>
            // Chamada de procedure
             int index = procTable.lookupVar(ctx.ID().getText());
 
-            ast = new AST(NodeKind.CALL_PROCEDURE_NODE,0,Type.NO_TYPE);
-
+            ast = new AST(NodeKind.CALL_PROCEDURE_NODE,index,Type.NO_TYPE);
+            
             if(procTable.getQtdParameters(index) != ctx.expr().size()){
                 MsgErros.incompatibleQtdParameters(ctx.getStart().getLine(),procTable.getQtdParameters(index),ctx.expr().size());
             }
 
             for(int i = 0; ctx.expr(i) != null; i++) {
                 child = visit(ctx.expr(i));
-                if(!procTable.getTypeByArgument(i, ctx.ID().getText()).toString().equals(child.type.toString()))
-                {
-                    MsgErros.incompatibleTypesParameters(ctx.getStart().getLine(), procTable.getTypeByArgument(i, ctx.ID().getText()), child.type);
+                Type type = procTable.getTypeByArgument(i, ctx.ID().getText());
+                if(type != child.type){
+                    if(child.type == Type.INTEGER && type == Type.REAL){
+                        ast.addChild(insertConversion(child,Type.REAL, NodeKind.I2R_NODE));
+                        
+                    }else{
+                        MsgErros.incompatibleTypesParameters(ctx.getStart().getLine(), procTable.getTypeByArgument(i, ctx.ID().getText()), child.type);
+                    }
+                }else{
+                    ast.addChild(child);
                 }
-                ast.addChild(child);
             }
             return ast;
             
@@ -801,10 +780,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
 
     @Override 
     public AST visitExpr_call(PascalParser.Expr_callContext ctx) {
-        AST child = visit(ctx.call_function_procedure());
-        AST ast = new AST(NodeKind.CALL_FUNCTION_NODE, 0, child.type); 
-        ast.addChild(child);
-        return ast;
+        return visit(ctx.call_function_procedure());
     }
 	
 	@Override 

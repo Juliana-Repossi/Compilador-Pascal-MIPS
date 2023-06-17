@@ -34,8 +34,8 @@ var_section:
 ;
 
 var:
-    (ID)(COMMA ID)* COLON type_simple
-|   (ID)(COMMA ID)* COLON array_type_range
+    ID (COMMA ID)* COLON type_simple
+|   ID (COMMA ID)* COLON array_type_range
 ;
 
 procedure:

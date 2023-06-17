@@ -98,42 +98,61 @@ public class AST {
 	    }
 	    if (this.kind == NodeKind.VAR_DECL_NODE || this.kind == NodeKind.VAR_USE_NODE
 			|| this.kind == NodeKind.VAR_PARAMETER_NODE) {
+
 			System.err.printf("%s@", currentVt.getName(this.intData));
 			
 	    } else if(this.kind == NodeKind.ARRAY_DECL_NODE || this.kind == NodeKind.ACCESS_ARRAY_USE_NODE
 				|| this.kind == NodeKind.ARRAY_PARAMETER_NODE){
 			System.err.printf("%s@", currentAt.getName(this.intData));
 		}else if(this.kind == NodeKind.PROCEDURE_NODE){
+			System.err.printf("%s", this.kind.toString());
+			System.err.printf("@%s", pt.getName(this.intData));
 			currentVt = pt.getIdTable(this.intData);
 			currentAt = pt.getArrayTable(this.intData);
 		
 		}else if(this.kind == NodeKind.FUNCTION_NODE){
+			System.err.printf("%s", this.kind.toString());
+			System.err.printf("@%s", ft.getName(this.intData));
 			currentVt = ft.getIdTable(this.intData);
 			currentAt = ft.getArrayTable(this.intData);
-
-		}else {
-	    	System.err.printf("%s", this.kind.toString());
-	    }
-	    if (NodeKind.hasData(this.kind)) {
-	        if (this.kind == NodeKind.REAL_VAL_NODE) {
-	        	System.err.printf("%.2f", this.floatData);
-	        } else if (this.kind == NodeKind.STR_VAL_NODE) {
-	        	System.err.printf("@%d", this.intData);
-	        } else {
-	        	System.err.printf("%d", this.intData);
-	        }
-	    }
-	    System.err.printf("\"];\n");
-
-	    for (int i = 0; i < this.children.size(); i++) {
-	        int childNr = this.children.get(i).printNodeDot();
-	        System.err.printf("node%d -> node%d;\n", myNr, childNr);
-	    }
-
-		currentVt = vt;
-		currentAt = at;
 			
-	    return myNr;
+
+		}else if(this.kind == NodeKind.CALL_FUNCTION_NODE){
+			System.err.printf("%s", this.kind.toString());
+			System.err.printf("@%s", ft.getName(this.intData));			
+
+		}else if(this.kind == NodeKind.CALL_PROCEDURE_NODE){
+			System.err.printf("%s", this.kind.toString());
+			System.err.printf("@%s", pt.getName(this.intData));			
+
+		}else{
+	    	System.err.printf("%s", this.kind.toString());
+	  }
+
+		if (NodeKind.hasData(this.kind)) {
+				if (this.kind == NodeKind.REAL_VAL_NODE) {
+					System.err.printf("%.2f", this.floatData);
+				} else if (this.kind == NodeKind.STR_VAL_NODE) {
+					System.err.printf("@%d", this.intData);
+				} else {
+					System.err.printf("%d", this.intData);
+				}
+		}
+
+		System.err.printf("\"];\n");
+
+		for (int i = 0; i < this.children.size(); i++) {
+	
+			int childNr = this.children.get(i).printNodeDot();
+			System.err.printf("node%d -> node%d;\n", myNr, childNr);
+		}
+
+		if(this.kind == NodeKind.PROCEDURE_NODE || this.kind == NodeKind.FUNCTION_NODE) {
+			currentVt = vt;
+			currentAt = at;
+		}
+
+		return myNr;
 	}
 	// Imprime a árvore toda em stderr.
 	public static void printDot(AST tree, ArrayTable array_table, IdTable id_table,
