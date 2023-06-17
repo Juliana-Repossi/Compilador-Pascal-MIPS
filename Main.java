@@ -61,7 +61,7 @@ public class Main {
 
 		System.out.println(tree);
 		System.out.println(ast);
-		AST.printDot(ast, visitor.getArrayTable(), visitor.getIdTable());
+		AST.printDot(ast, visitor.getArrayTable(), visitor.getIdTable(), visitor.getFuncTable(), visitor.getProcTable());
 
 		
 		

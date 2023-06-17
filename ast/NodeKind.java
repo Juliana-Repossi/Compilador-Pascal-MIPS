@@ -11,6 +11,7 @@ public enum NodeKind {
     I2R_NODE,
     ASSIGN_NODE,
     VAR_USE_NODE,
+    ACCESS_ARRAY_USE_NODE,
     NOTEQUAL_NODE,
     EQUAL_NODE,
     LESSTHAN_NODE,
@@ -31,23 +32,24 @@ public enum NodeKind {
     VAR_LIST_NODE,
     READ_NODE,
     WRITE_NODE,
+    WRITELN_NODE,
     REAL_VAL_NODE,
     WHILE_NODE,
     STR_VAL_NODE,
     VAR_DECL_NODE,
+    ARRAY_DECL_NODE, 
     CALL_FUNCTION_NODE,
     CALL_PROCEDURE_NODE,
     PROCEDURE_NODE,
     FUNCTION_NODE,
     PARAMETERS_NODE,
     VAR_PARAMETER_NODE,
+    ARRAY_PARAMETER_NODE, 
     PROVISORY_NODE,
     OR_NODE,
     AND_NODE,
     NOT_NODE;
         
-    
-
 	public String toString() {
 		switch(this) {
             case I2R_NODE: return "i2r";
@@ -73,6 +75,7 @@ public enum NodeKind {
             case VAR_LIST_NODE:    return "var_list";
             case READ_NODE:    return "read";
             case WRITE_NODE:    return "write";
+            case WRITELN_NODE: return "writeln";
             case REAL_VAL_NODE:    return "real_val";
             case WHILE_NODE:    return "while";
             case STR_VAL_NODE:    return "str_val";
@@ -83,6 +86,9 @@ public enum NodeKind {
             case FUNCTION_NODE:    return "function";
             case PARAMETERS_NODE:    return "parameters";
             case VAR_PARAMETER_NODE:    return "var_parameter";
+            case ARRAY_PARAMETER_NODE:  return "array_parameter";
+            case ACCESS_ARRAY_USE_NODE : return "access_array_use_node";
+            case ARRAY_DECL_NODE : return "array_decl";
             case PROVISORY_NODE:    return "provisory_node";
             case OR_NODE:    return "or";
             case AND_NODE:    return "and";
@@ -103,6 +109,12 @@ public enum NodeKind {
 	        case STR_VAL_NODE:
 	        case VAR_DECL_NODE:
 	        case VAR_USE_NODE:
+            case ARRAY_DECL_NODE:
+            case ACCESS_ARRAY_USE_NODE:
+            case PROCEDURE_NODE:
+            case FUNCTION_NODE:
+            case VAR_PARAMETER_NODE:
+            case ARRAY_PARAMETER_NODE:
 	            return true;
 	        default:
 	            return false;

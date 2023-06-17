@@ -20,11 +20,6 @@ program_pascal:
     var_section? const_section? procedure_function* block        
 ;
 
-// const_var_section:
-//     const_section
-// |   var_section
-// ;
-
 procedure_function:
     procedure
 |   function

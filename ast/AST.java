@@ -9,6 +9,9 @@ import tables.IdTable;
 import tables.ArrayTable;
 import types.Type;
 
+import tables.ProcTable;
+import tables.FuncTable;
+
 // Implementação dos nós da AST.
 public class AST {
 
@@ -77,23 +80,38 @@ public class AST {
 	private static int nr;
 	private static IdTable vt;
 	private static ArrayTable at;
+	private static ProcTable pt;
+	private static FuncTable ft;
 
+	private static IdTable currentVt = vt;
+	private static ArrayTable currentAt = at;
+	
 	// Imprime recursivamente a codificação em DOT da subárvore começando no nó atual.
 	// Usa stderr como saída para facilitar o redirecionamento, mas isso é só um hack.
 	private int printNodeDot() {
+
 		int myNr = nr++;
 
 	    System.err.printf("node%d[label=\"", myNr);
 	    if (this.type != NO_TYPE) {
 	    	System.err.printf("(%s) ", this.type.toString());
 	    }
-	    if (this.kind == NodeKind.VAR_DECL_NODE || this.kind == NodeKind.VAR_USE_NODE) {
-			if(this.type == Type.ARRAY_BOOLEAN || this.type == Type.ARRAY_INTEGER || this.type == Type.ARRAY_REAL){
-				System.err.printf("%s@", at.getName(this.intData));
-			}else{
-				System.err.printf("%s@", vt.getName(this.intData));
-			}
-	    } else {
+	    if (this.kind == NodeKind.VAR_DECL_NODE || this.kind == NodeKind.VAR_USE_NODE
+			|| this.kind == NodeKind.VAR_PARAMETER_NODE) {
+			System.err.printf("%s@", currentVt.getName(this.intData));
+			
+	    } else if(this.kind == NodeKind.ARRAY_DECL_NODE || this.kind == NodeKind.ACCESS_ARRAY_USE_NODE
+				|| this.kind == NodeKind.ARRAY_PARAMETER_NODE){
+			System.err.printf("%s@", currentAt.getName(this.intData));
+		}else if(this.kind == NodeKind.PROCEDURE_NODE){
+			currentVt = pt.getIdTable(this.intData);
+			currentAt = pt.getArrayTable(this.intData);
+		
+		}else if(this.kind == NodeKind.FUNCTION_NODE){
+			currentVt = ft.getIdTable(this.intData);
+			currentAt = ft.getArrayTable(this.intData);
+
+		}else {
 	    	System.err.printf("%s", this.kind.toString());
 	    }
 	    if (NodeKind.hasData(this.kind)) {
@@ -111,13 +129,22 @@ public class AST {
 	        int childNr = this.children.get(i).printNodeDot();
 	        System.err.printf("node%d -> node%d;\n", myNr, childNr);
 	    }
+
+		currentVt = vt;
+		currentAt = at;
+			
 	    return myNr;
 	}
 	// Imprime a árvore toda em stderr.
-	public static void printDot(AST tree, ArrayTable array_table, IdTable id_table) {
+	public static void printDot(AST tree, ArrayTable array_table, IdTable id_table,
+										FuncTable functionTable, ProcTable procedureTable) {
 	    nr = 0;
 	    vt = id_table;
-		at = array_table;
+			at = array_table;
+			ft = functionTable;
+			pt = procedureTable;
+			currentVt = vt;
+			currentAt = at;
 	    System.err.printf("digraph {\ngraph [ordering=\"out\"];\n");
 	    tree.printNodeDot();
 	    System.err.printf("}\n");
