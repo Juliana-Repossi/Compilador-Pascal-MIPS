@@ -1,12 +1,13 @@
 package ast;
 
-import static typing.Type.NO_TYPE;
+import static types.Type.NO_TYPE;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import tables.VarTable;
-import typing.Type;
+import tables.IdTable;
+import tables.ArrayTable;
+import types.Type;
 
 // Implementação dos nós da AST.
 public class AST {
@@ -64,10 +65,18 @@ public class AST {
 	    return node;
 	}
 
+	//Copia os filhos da arvore provisory para a obj
+	public void copyChildren(AST provisory) {
+		for (AST child: provisory.children) {
+	    	this.addChild(child);
+	    }
+	}
+
 	// Variáveis internas usadas para geração da saída em DOT.
 	// Estáticas porque só precisamos de uma instância.
 	private static int nr;
-	private static VarTable vt;
+	private static IdTable vt;
+	private static ArrayTable at;
 
 	// Imprime recursivamente a codificação em DOT da subárvore começando no nó atual.
 	// Usa stderr como saída para facilitar o redirecionamento, mas isso é só um hack.
@@ -79,7 +88,11 @@ public class AST {
 	    	System.err.printf("(%s) ", this.type.toString());
 	    }
 	    if (this.kind == NodeKind.VAR_DECL_NODE || this.kind == NodeKind.VAR_USE_NODE) {
-	    	System.err.printf("%s@", vt.getName(this.intData));
+			if(this.type == Type.ARRAY_BOOLEAN || this.type == Type.ARRAY_INTEGER || this.type == Type.ARRAY_REAL){
+				System.err.printf("%s@", at.getName(this.intData));
+			}else{
+				System.err.printf("%s@", vt.getName(this.intData));
+			}
 	    } else {
 	    	System.err.printf("%s", this.kind.toString());
 	    }
@@ -100,11 +113,11 @@ public class AST {
 	    }
 	    return myNr;
 	}
-
 	// Imprime a árvore toda em stderr.
-	public static void printDot(AST tree, VarTable table) {
+	public static void printDot(AST tree, ArrayTable array_table, IdTable id_table) {
 	    nr = 0;
-	    vt = table;
+	    vt = id_table;
+		at = array_table;
 	    System.err.printf("digraph {\ngraph [ordering=\"out\"];\n");
 	    tree.printNodeDot();
 	    System.err.printf("}\n");

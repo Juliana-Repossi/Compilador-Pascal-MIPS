@@ -31,12 +31,6 @@ public interface PascalParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitProgram_pascal(PascalParser.Program_pascalContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PascalParser#const_var_section}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitConst_var_section(PascalParser.Const_var_sectionContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link PascalParser#procedure_function}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

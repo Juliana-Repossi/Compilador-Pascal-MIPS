@@ -26,6 +26,7 @@ public enum NodeKind {
     ASTERISK_NODE,
     SLASH_NODE,
     MOD_NODE,
+    ONE_MINUS_NODE,
     PROGRAM_NODE,
     VAR_LIST_NODE,
     READ_NODE,
@@ -34,33 +35,58 @@ public enum NodeKind {
     WHILE_NODE,
     STR_VAL_NODE,
     VAR_DECL_NODE,
+    CALL_FUNCTION_NODE,
+    CALL_PROCEDURE_NODE,
+    PROCEDURE_NODE,
+    FUNCTION_NODE,
+    PARAMETERS_NODE,
+    VAR_PARAMETER_NODE,
+    PROVISORY_NODE,
+    OR_NODE,
+    AND_NODE,
+    NOT_NODE;
         
     
 
 	public String toString() {
 		switch(this) {
-            case ASSIGN_NODE:   return ":=";
-            case EQ_NODE:       return "=";
-            case BLOCK_NODE:    return "block";
-            case BOOL_VAL_NODE: return "";
-            case IF_NODE:       return "if";
-            case INT_VAL_NODE:  return "";
-            case LT_NODE:       return "<";
-            case MINUS_NODE:    return "-";
-            case OVER_NODE:     return "/";
-            case PLUS_NODE:     return "+";
-            case PROGRAM_NODE:  return "program";
-            case READ_NODE:     return "read";
-            case REAL_VAL_NODE: return "";
-            case REPEAT_NODE:   return "repeat";
-            case STR_VAL_NODE:  return "";
-            case TIMES_NODE:    return "*";
-            case VAR_DECL_NODE: return "var_decl";
-            case VAR_LIST_NODE: return "var_list";
-            case VAR_USE_NODE:  return "var_use";
-            case ARRAY_USE_NODE:  return "array_use";
+            case I2R_NODE: return "i2r";
+            case ASSIGN_NODE : return "assign";
+            case VAR_USE_NODE : return "var_use";
+            case NOTEQUAL_NODE : return "!=";
+            case EQUAL_NODE : return "=";
+            case LESSTHAN_NODE : return "<";
+            case GREATERTHAN_NODE : return ">";
+            case LEQ_NODE : return "<=";
+            case BEQ_NODE : return ">=";
+            case PLUS_NODE : return "+";
+            case MINUS_NODE : return "-";
+            case BLOCK_NODE : return "block";
+            case BOOL_VAL_NODE : return "bool_val";
+            case IF_NODE: return "if";
+            case INT_VAL_NODE: return "int_val";
+            case ONE_MINUS_NODE:    return "-()";
+            case ASTERISK_NODE:    return "*";
+            case SLASH_NODE:    return "/";
+            case MOD_NODE:    return "%";
+            case PROGRAM_NODE:    return "program";
+            case VAR_LIST_NODE:    return "var_list";
+            case READ_NODE:    return "read";
             case WRITE_NODE:    return "write";
-            case I2R_NODE:      return "I2R";
+            case REAL_VAL_NODE:    return "real_val";
+            case WHILE_NODE:    return "while";
+            case STR_VAL_NODE:    return "str_val";
+            case VAR_DECL_NODE:    return "var_decl";
+            case CALL_FUNCTION_NODE:    return "call_function";
+            case CALL_PROCEDURE_NODE:    return "call_procedure";
+            case PROCEDURE_NODE:    return "procedure";
+            case FUNCTION_NODE:    return "function";
+            case PARAMETERS_NODE:    return "parameters";
+            case VAR_PARAMETER_NODE:    return "var_parameter";
+            case PROVISORY_NODE:    return "provisory_node";
+            case OR_NODE:    return "or";
+            case AND_NODE:    return "and";
+            case NOT_NODE:    return "not";
 
 			default:
 				System.err.println("ERROR: Fall through in NodeKind enumeration!");

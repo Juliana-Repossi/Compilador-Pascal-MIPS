@@ -17,13 +17,13 @@ program:
 ;
 
 program_pascal:
-    const_var_section* procedure_function* block         
+    var_section? const_section? procedure_function* block        
 ;
 
-const_var_section:
-    const_section
-|   var_section
-;
+// const_var_section:
+//     const_section
+// |   var_section
+// ;
 
 procedure_function:
     procedure
@@ -44,11 +44,11 @@ var:
 ;
 
 procedure:
-    PROCEDURE ID parameter_list SEMICOLON const_var_section* block SEMICOLON
+    PROCEDURE ID parameter_list SEMICOLON var_section? const_section? block SEMICOLON
 ;
 
 function:
-    FUNCTION ID parameter_list COLON type_simple SEMICOLON const_var_section* block SEMICOLON
+    FUNCTION ID parameter_list COLON type_simple SEMICOLON var_section? const_section? block SEMICOLON
 ;
 
 parameter_list:
