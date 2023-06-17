@@ -48,6 +48,6 @@ begin
   // x11 := 'elaine';
   // x12 := 'filipe';
   // x13 := 2 + 2 * 4;
-  x13 := 10.0  - 4;
+  x13 := 8.2 - 4.3;
   // x14 := 'elaine' + 'filipe';
 end.

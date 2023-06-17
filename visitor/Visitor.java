@@ -281,13 +281,10 @@ public class Visitor extends PascalParserBaseVisitor<AST>
             for(int i = 0 ; i < ctx.ID().size(); i ++)
             {            
                 line = addArrayTable(ctx.ID(i).getText(),currentLine,currentType, currentTypeElement, currentSize,-1);
-                //provisory = new AST(NodeKind.VAR_DECL_NODE,line,currentType);  
-                child = new AST(NodeKind.VAR_DECL_NODE,line,currentType);
-                provisory.addChild(child);         
-             
-           
+                child = new AST(NodeKind.ARRAY_DECL_NODE,line,currentType);
+                provisory.addChild(child);                    
             }
-        }
+        } 
         else
         {
            MsgErros.erroInesperado(ctx.getStart().getLine()); 
@@ -412,7 +409,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
             MsgErros.incompatibleTypesAtribution(ctx.getStart().getLine(), left.type, right.type);
         } 
 
-        if(left.type == Type.INTEGER && right.type == Type.REAL)
+        if(left.type == Type.REAL && right.type == Type.INTEGER)
         {
             ast.addChild(insertConversion(right, Type.REAL,NodeKind.I2R_NODE));
         }
@@ -425,15 +422,17 @@ public class Visitor extends PascalParserBaseVisitor<AST>
 
     @Override 
     public AST visitAcess_array(PascalParser.Acess_arrayContext ctx) {
+        
         int index = checkArray(ctx.ID().getText(),ctx.getStart().getLine());
         AST element = visit(ctx.expr());
-        if (element.type != Type.INTEGER ) 
+        if (element.type != Type.INTEGER) 
         {
             MsgErros.typeIndexError(ctx.getStart().getLine());
         }
-        Type type = currentArrayTable.getTypeElementByName(ctx.ID().getText());
-        AST ast = new AST(NodeKind.VAR_USE_NODE, index, type);
-
+        // Type type = currentArrayTable.getType(index);
+        Type type = currentArrayTable.getTypeElement(index);
+        AST ast = new AST(NodeKind.ACCESS_ARRAY_USE_NODE, index, type);
+        ast.addChild(element); // informação da expressão para acessar o index correto do array
         return ast;
     }
 
@@ -493,7 +492,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
                 return ast;
             }
             else{
-                MsgErros.readErrorTypeNotAccepted(ctx.getStart().getLine(), type);
+                MsgErros.readErrorTypeNotAccepted(ctx.getStart().getLine(), child.type);
             }
         }
         else
@@ -621,7 +620,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
             for(int i=0; i<ctx.ID().size();i++)
             {
                 index = addArrayTable(ctx.ID(i).getText(), currentLine, currentType, currentTypeElement, 0,qtdParam+i);
-                ast.addChild( new AST(NodeKind.VAR_PARAMETER_NODE,index,currentArrayTable.getType(index)));
+                ast.addChild( new AST(NodeKind.ARRAY_PARAMETER_NODE,index,currentArrayTable.getType(index)));
             }
        }
        else
@@ -820,7 +819,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
                 break;
 
             case PascalParser.EQUAL:
-                typeOp = NodeKind.NOTEQUAL_NODE;
+                typeOp = NodeKind.EQUAL_NODE;
                 break;
 
             case PascalParser.LESSTHAN:
@@ -852,19 +851,23 @@ public class Visitor extends PascalParserBaseVisitor<AST>
         }
 
         ast = new AST(typeOp, 0, Type.BOOLEAN);
-        ast.addChild(left);
-        ast.addChild(right);
+        convertAndAddFactors(ast, right, left);
+        // ast.addChild(left);
+        // ast.addChild(right);
         
         return ast; 
     }
 
 	@Override 
     public AST visitExpr_minus(PascalParser.Expr_minusContext ctx) { 
-        AST ast = visit(ctx.expr());
+        AST expr = visit(ctx.expr());
 
-        if(SemanticTypeOperations.getTypeReturnByOperation(Type.INTEGER, ast.type, "*") == null) {
-            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), Type.INTEGER, ast.type, "-()");
+        if(SemanticTypeOperations.getTypeReturnByOperation(Type.INTEGER, expr.type, "*") == null) {
+            MsgErros.incompatibleTypesOperation(ctx.getStart().getLine(), Type.INTEGER, expr.type, "-()");
         }
+        AST ast = new AST(NodeKind.ONE_MINUS_NODE, 0, expr.type);
+        
+        ast.addChild(expr);
         return ast;
     }
 	
@@ -969,7 +972,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
 
         } else if(ctx.op.getType() == PascalParser.MINUS) {
             typeResult = SemanticTypeOperations.getTypeReturnByOperation(left.type, right.type, "-");
-            ast = new AST(NodeKind.ONE_MINUS_NODE, 0, typeResult);
+            ast = new AST(NodeKind.MINUS_NODE, 0, typeResult);
         } else {
             MsgErros.erroInesperado(ctx.getStart().getLine());
         }
@@ -1035,13 +1038,20 @@ public class Visitor extends PascalParserBaseVisitor<AST>
 
     @Override 
     public AST visitWrite_io(PascalParser.Write_ioContext ctx) { 
-
-        AST ast;
-
+        AST ast = null;
         AST astExpr = visit(ctx.expr());
 
         if(astExpr.type == Type.BOOLEAN || astExpr.type == Type.REAL || astExpr.type == Type.INTEGER || astExpr.type == Type.STRING){ //aceita
-            ast = new AST(NodeKind.WRITE_NODE,0,astExpr.type);
+            if(ctx.WRITE() != null) {
+                ast = new AST(NodeKind.WRITE_NODE,0,Type.NO_TYPE);
+
+            } else if(ctx.WRITELN() != null) { 
+                ast = new AST(NodeKind.WRITELN_NODE,0,Type.NO_TYPE);
+                
+            } else {
+                MsgErros.erroInesperado(ctx.getStart().getLine());
+            }
+        
             ast.addChild(astExpr);
           return ast;
            
@@ -1049,6 +1059,92 @@ public class Visitor extends PascalParserBaseVisitor<AST>
             MsgErros.writeErrorTypeExprNotAccepted(ctx.getStart().getLine(), astExpr.type);
         }
         
+        return null;
+    }
+
+    @Override 
+    public AST visitVal_simple_array(PascalParser.Val_simple_arrayContext ctx) {
+        if(ctx.val_simple() != null){
+            return visit(ctx.val_simple());
+        } else if(ctx.acess_array() != null) {
+            return visit(ctx.acess_array());
+        } else {
+            MsgErros.erroInesperado(ctx.getStart().getLine());
+        }
+        return null;
+    }
+
+    @Override 
+    public AST visitExpr_array(PascalParser.Expr_arrayContext ctx) {
+        return visit(ctx.val_simple_array()); 
+    }
+
+    @Override 
+    public AST visitExpr_par(PascalParser.Expr_parContext ctx) { 
+        return visit(ctx.expr()); 
+    }
+
+    @Override 
+    public AST visitStatement(PascalParser.StatementContext ctx) { 
+        if(ctx.atribution() != null){
+            return visit(ctx.atribution());
+            
+        } else if(ctx.while_block() != null) {
+            return visit(ctx.while_block());
+
+        } else if(ctx.if_block() != null) {
+            return visit(ctx.if_block());
+            
+        } else if(ctx.call_function_procedure() != null) {
+            return visit(ctx.call_function_procedure());
+
+        } else if(ctx.read_io() != null) {
+            return visit(ctx.read_io());
+            
+        } else if(ctx.write_io() != null) {
+            return visit(ctx.write_io());
+            
+        } else {
+            MsgErros.erroInesperado(ctx.getStart().getLine());
+        }
+        return null;
+    }
+
+    @Override
+    public AST visitParameter(PascalParser.ParameterContext ctx) { 
+        if(ctx.var_parameter() != null) {
+            return visit(ctx.var_parameter());
+
+        } else if(ctx.constant() != null) {
+             return visit(ctx.constant());
+             
+        } else {
+            MsgErros.erroInesperado(ctx.getStart().getLine());
+        }
+        return null;
+    }
+
+    @Override 
+    public AST visitProcedure_function(PascalParser.Procedure_functionContext ctx) { 
+        if(ctx.procedure() != null) {
+            return visit(ctx.procedure());
+
+        } else if(ctx.function() != null) {
+            return visit(ctx.function());
+
+        } else {
+            MsgErros.erroInesperado(ctx.getStart().getLine());
+        }
+        return null;
+    }
+
+    @Override 
+    public AST visitBegin(PascalParser.BeginContext ctx) { 
+        if(ctx.program() != null){
+            return visit(ctx.program());
+        } else {
+            MsgErros.erroInesperado(ctx.getStart().getLine());
+        }
         return null;
     }
 }
