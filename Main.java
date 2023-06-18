@@ -31,22 +31,16 @@ public class Main {
 		ParseTree tree = parser.program();
 
 		if (parser.getNumberOfSyntaxErrors() != 0) {
-			// Houve algum erro sintático. Termina a compilação aqui.
-            System.out.println("Erro sintático");
-            System.exit(2);
+				// Houve algum erro sintático. Termina a compilação aqui.
+				System.out.println("Erro sintático");
+				System.exit(2);
 		}
 
-		// Cria a calculadora e visita a ParseTree para computar.
+		// Cria o visitor e percorre a ParseTree para 
+		// a análise semântica e geração da AST.
 		Visitor visitor = new Visitor();
 		AST ast = visitor.visit(tree);
-		System.out.println("tentando imprimir a tree");
 
-		System.out.println(tree);
-
-		System.out.println("---------------------");
-
-
-		// // Saída final.
 		System.out.println("PARSE SUCCESSFUL!");
 		System.out.println("\n\n");
 		System.out.println(visitor.getStrTable().toString());
@@ -54,16 +48,6 @@ public class Main {
 		System.out.println(visitor.getArrayTable().toString());
 		System.out.println(visitor.getFuncTable().toString());
 		System.out.println(visitor.getProcTable().toString());
-
-		
-		System.out.println("-----------------------");
-		System.out.println(ast);
-
-		System.out.println(tree);
-		System.out.println(ast);
 		AST.printDot(ast, visitor.getArrayTable(), visitor.getIdTable(), visitor.getFuncTable(), visitor.getProcTable());
-
-		
-		
 	}
 }
