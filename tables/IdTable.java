@@ -29,6 +29,10 @@ public final class IdTable {
 		return idxAdded;
 	}
 
+	public int getSize() {
+		return table.size();
+	}
+
 	public String getName(int i) {
 		return table.get(i).name;
 	}

@@ -5,10 +5,12 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import ast.AST;
 // import Visitor;
 import parser.PascalLexer;
 import parser.PascalParser;
 import visitor.Visitor;
+
 
 
 public class Main {
@@ -29,21 +31,23 @@ public class Main {
 		ParseTree tree = parser.program();
 
 		if (parser.getNumberOfSyntaxErrors() != 0) {
-			// Houve algum erro sintático. Termina a compilação aqui.
-            System.out.println("Erro sintático");
-            System.exit(2);
+				// Houve algum erro sintático. Termina a compilação aqui.
+				System.out.println("Erro sintático");
+				System.exit(2);
 		}
 
-		// Cria a calculadora e visita a ParseTree para computar.
+		// Cria o visitor e percorre a ParseTree para 
+		// a análise semântica e geração da AST.
 		Visitor visitor = new Visitor();
-		visitor.visit(tree);
+		AST ast = visitor.visit(tree);
 
-		// Saída final.
+		System.out.println("PARSE SUCCESSFUL!");
+		System.out.println("\n\n");
 		System.out.println(visitor.getStrTable().toString());
 		System.out.println(visitor.getIdTable().toString());
 		System.out.println(visitor.getArrayTable().toString());
 		System.out.println(visitor.getFuncTable().toString());
 		System.out.println(visitor.getProcTable().toString());
-		
+		AST.printDot(ast, visitor.getArrayTable(), visitor.getIdTable(), visitor.getFuncTable(), visitor.getProcTable());
 	}
 }

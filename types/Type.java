@@ -8,7 +8,8 @@ public enum Type {
     STRING,
     ARRAY_INTEGER,
     ARRAY_REAL,
-    ARRAY_BOOLEAN;
+    ARRAY_BOOLEAN,
+	NO_TYPE;
 
 	public String toString() {
 		switch(this) {
@@ -19,6 +20,7 @@ public enum Type {
 			case ARRAY_INTEGER: return "array of integer";
 			case ARRAY_REAL: return "array of real";
 			case ARRAY_BOOLEAN: return "array of boolean";
+			case NO_TYPE: return "no type";
 			default:
 				System.err.println("ERROR: Fall through in Type enumeration!");
 				System.exit(1);

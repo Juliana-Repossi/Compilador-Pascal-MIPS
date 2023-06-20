@@ -54,7 +54,7 @@ public final class SemanticTypeOperations {
             return Type.INTEGER;
         }
         else if (type1 == Type.REAL && type2 == Type.REAL){
-            return Type.INTEGER;
+            return Type.REAL;
         }
         else if (type1 == Type.INTEGER && type2 == Type.REAL || type1 == Type.REAL && type2 == Type.INTEGER){
             return Type.REAL;

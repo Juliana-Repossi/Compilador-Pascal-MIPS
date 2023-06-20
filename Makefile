@@ -8,6 +8,7 @@ YEAR=$(shell pwd | grep -o '20..-.')
 ROOT=/home/filipe/git/Compilador-Pascal-MIPS
 # ROOT=/home/jcrepossi/Compilador-Pascal-MIPS
 # ROOT=/home/juliana/Compilador-Pascal-MIPS
+# ROOT=/home/elaine/git/Compilador-Pascal-MIPS
 
 # Caminho para o JAR do ANTLR em labs/tools
 ANTLR_PATH=$(ROOT)/tools/antlr-4.11.1-complete.jar
