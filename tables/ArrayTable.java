@@ -7,10 +7,10 @@ import java.util.List;
 import types.Type;
 
 public final class ArrayTable {
-
 	// No mundo real isto certamente deveria ser um hash...
 	// Implementação da classe não é exatamente Javanesca porque
 	// tentei deixar o mais parecido possível com a original em C.
+	
 	private List<EntryArray> table = new ArrayList<EntryArray>();
 
 	public int lookupArray(String s) {
@@ -26,9 +26,26 @@ public final class ArrayTable {
 		
 		EntryArray entryArray = new EntryArray(s, line, type, typeElement, size, positionArgument);
 		int idxAdded = table.size();
+
 		table.add(entryArray);
+
+		if(idxAdded == 0){
+			setMemoryPosition(idxAdded,0);
+		}else{
+			setMemoryPosition(idxAdded, getMemoryPosition(idxAdded-1) + getSize(idxAdded-1));
+		}
+
 		return idxAdded;
 	}
+
+	public int getMemoryPosition(int index){ 
+		return table.get(index).positionMemory;
+	}
+
+	public void setMemoryPosition(int index, int value){ //value is position memory
+		table.get(index).positionMemory = value;
+	}
+	
 	public int getSizeArrayTable() {
 		return table.size();
 	}
@@ -94,6 +111,16 @@ public final class ArrayTable {
 		return sb.toString();
 	}
 
+	public int calculateMemory(){
+		int sum_memory = 0;
+		for (int i = 0; i< this.getSizeArrayTable(); i++){
+			sum_memory += this.getSize(i);
+		}
+		return sum_memory;
+	}
+
+
+
 	private static final class EntryArray {
 		private final String name;
 		private final int line;
@@ -103,6 +130,7 @@ public final class ArrayTable {
 		// -1 - não é um argumento
 		// > -1 - posição do argumento na lista de arg da função
 		private final int positionArgument;
+		private int positionMemory;
 
 
 		EntryArray(String name, int line, Type type, Type typeElement, int size, int positionArgument) {
@@ -112,6 +140,7 @@ public final class ArrayTable {
 			this.typeElement = typeElement;
 			this.size = size;
 			this.positionArgument = positionArgument;
+			this.positionMemory = -1;
 		}
 	}
 }

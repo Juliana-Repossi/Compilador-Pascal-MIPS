@@ -109,7 +109,6 @@ public class Visitor extends PascalParserBaseVisitor<AST>
         return visit(ctx.program_pascal());
     }
 
-
     @Override 
     public AST visitProgram_pascal(PascalParser.Program_pascalContext ctx) {
         AST ast = new AST(NodeKind.PROGRAM_NODE,0,Type.NO_TYPE);
@@ -396,7 +395,6 @@ public class Visitor extends PascalParserBaseVisitor<AST>
         {
             MsgErros.typeIndexError(ctx.getStart().getLine());
         }
-        // Type type = currentArrayTable.getType(index);
         Type type = currentArrayTable.getTypeElement(index);
         AST ast = new AST(NodeKind.ACCESS_ARRAY_USE_NODE, index, type);
         ast.addChild(element); // informação da expressão para acessar o index correto do array

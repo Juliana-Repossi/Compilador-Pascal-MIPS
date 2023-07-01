@@ -1,0 +1,38 @@
+digraph {
+graph [ordering="out"];
+node0[label="program"];
+node1[label="var_list"];
+node0 -> node1;
+node2[label="block"];
+node3[label="if"];
+node4[label="(boolean) >"];
+node5[label="(real) real_val2.00"];
+node4 -> node5;
+node6[label="(real) i2r"];
+node7[label="(integer) int_val1"];
+node6 -> node7;
+node4 -> node6;
+node3 -> node4;
+node8[label="block"];
+node9[label="if"];
+node10[label="(boolean) ="];
+node11[label="(integer) int_val2"];
+node10 -> node11;
+node12[label="(integer) int_val3"];
+node10 -> node12;
+node9 -> node10;
+node13[label="block"];
+node14[label="write"];
+node15[label="(string) str_val@0"];
+node14 -> node15;
+node13 -> node14;
+node9 -> node13;
+node8 -> node9;
+node16[label="write"];
+node17[label="(string) str_val@1"];
+node16 -> node17;
+node8 -> node16;
+node3 -> node8;
+node2 -> node3;
+node0 -> node2;
+}

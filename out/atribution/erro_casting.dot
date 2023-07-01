@@ -1,0 +1,5 @@
+line 26:7 no viable alternative at input 'x1='
+line 27:7 no viable alternative at input 'x2='
+line 28:7 no viable alternative at input 'x3='
+line 29:7 no viable alternative at input 'x4='
+make: *** [Makefile:44: run] Error 1

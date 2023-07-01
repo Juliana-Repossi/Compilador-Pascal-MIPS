@@ -9,6 +9,8 @@ import tables.StrTable;
 import tables.IdTable;
 import tables.ArrayTable;
 
+import ast.AST;
+
 public final class FuncTable {
 
 	// No mundo real isto certamente deveria ser um hash...
@@ -107,6 +109,7 @@ public final class FuncTable {
 		private final int line;
     	private final IdTable idTable;
 		private final ArrayTable arrayTable;
+		private AST node;
 		
 		EntryFunc(String name, int qtdParameters, Type typeReturn, int line) {
 			this.name = name;
@@ -115,6 +118,7 @@ public final class FuncTable {
 			this.line = line;
 			this.idTable = new IdTable();
 			this.arrayTable = new ArrayTable();
+			this.node = null;
 		}
 	}
 }

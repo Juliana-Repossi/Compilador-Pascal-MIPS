@@ -49,3 +49,6 @@ debug:
 clean:
 	@rm -rf $(GEN_PATH) $(BIN_PATH)
 
+cleanOut:
+	rm -rf out/*
+
