@@ -22,6 +22,6 @@ const
    const_str = 'constante';
 
 begin
-
+    
 end.
 

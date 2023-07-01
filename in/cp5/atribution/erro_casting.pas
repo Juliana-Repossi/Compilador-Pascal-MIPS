@@ -23,19 +23,19 @@ const
 
 begin
 
-    x1 =: 3;
-    x2 =: 3.7;
-    x3 =: true;
-    x4 =: 'Minha String';
+    x1 := 3;
+    x2 := 3.7;
+    x3 := true;
+    x4 := 'Minha String';
 
-    z1 := 2;
+    z1 := 2.0;
     z2 := 3;    
     z3 := 4.5;
     z4 := 6.5;
-    z5 := true;
+    z5 := 1;
     z6 := false;
-    z7 := "string1";
-    z8 := "string2";
+    z7 := 'string1';
+    z8 := 'string2';
 
 end.
 

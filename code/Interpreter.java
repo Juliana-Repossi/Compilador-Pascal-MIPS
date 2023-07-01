@@ -14,6 +14,7 @@ import tables.IdTable;
 import tables.ProcTable;
 import tables.StrTable;
 import types.Type;
+import error.MsgErros;
 
 /*
  * Interpretador de código para EZLang, implementado como
@@ -56,7 +57,6 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	// TODO
 	@Override
 	protected Void visit_assign_node(AST node){
-
 		visit(node.getChild(1)); // expr
 		float resultFloat;
 		int resultInt;
@@ -64,7 +64,7 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 
 		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
 			visit(node.getChild(0));
-			int value = currentFrame.popiDataStack();
+			int value = currentFrame.popiDataStack(); // apenas retirando, este valor não é utilizado aqui
 			int arrayIndex = currentFrame.popiDataStack();
 			int accessArray = currentFrame.popiDataStack();
 			positionMemory = currentFrame.getArrayTable().getMemoryPosition(arrayIndex) + accessArray;
@@ -112,7 +112,6 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		Type type = node.type;
 		int intValue;
 		float floatValue;
-		//System.out.println("Entrou no var use");
 
 		if(type == Type.INTEGER){
 			intValue = currentFrame.loadiDataStackIdMemory(node.intData);
@@ -141,7 +140,6 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		int intValue;
 		float floatValue;
 
-		//System.out.println("Entrou no array use");
 		int indexArray = node.intData;
 
 		if(type == Type.INTEGER){
@@ -174,6 +172,13 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		int indexArray = currentFrame.popiDataStack();
 		int acessArray = currentFrame.popiDataStack();
 
+		int sizeArray = currentFrame.getArrayTable().getSizeArray(indexArray);
+		String idArray = currentFrame.getArrayTable().getName(indexArray);
+
+		if(acessArray < 0 || acessArray >= sizeArray) {
+			MsgErros.segmentationFault(idArray, acessArray, sizeArray);
+		}
+
 		currentFrame.pushiDataStack(acessArray);
 		currentFrame.pushiDataStack(indexArray);
 
@@ -183,6 +188,7 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 
 		}else if(node.type == Type.REAL){
 			float floatValue = currentFrame.loadfDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
+			
 			currentFrame.pushfDataStack(floatValue);
 
 		}else if(node.type == Type.BOOLEAN){
@@ -442,17 +448,50 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	// TODO
 	@Override
 	protected Void visit_plus_node(AST node){
-
 		visit(node.getChild(1));
 		visit(node.getChild(0));
 
-		if(node.type == Type.INTEGER) {		
+		int int_expr0 = 0;
+		int int_expr1 = 0;
 
-			int plusResult = currentFrame.popiDataStack() + currentFrame.popiDataStack();
+		float float_expr0 = 0;
+		float float_expr1 = 0;
+
+		int bool_expr0 = 0;
+		int bool_expr1 = 0;
+
+		if(node.type == Type.INTEGER) {
+			int_expr0 = currentFrame.popiDataStack();
+		} else if(node.type == Type.REAL) {
+			float_expr0 = currentFrame.popfDataStack();
+		} else if(node.type == Type.BOOLEAN) {
+			bool_expr0 = currentFrame.popiDataStack();
+		}
+
+		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+			currentFrame.popiDataStack();
+			currentFrame.popiDataStack();
+		}
+
+		if(node.type == Type.INTEGER) {
+			int_expr1 = currentFrame.popiDataStack();
+		} else if(node.type == Type.REAL) {
+			float_expr1 = currentFrame.popfDataStack();
+		} else if(node.type == Type.BOOLEAN) {
+			bool_expr1 = currentFrame.popiDataStack();
+		}
+
+		if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+			currentFrame.popiDataStack();
+			currentFrame.popiDataStack();
+		}
+		
+		if(node.type == Type.INTEGER) {		
+			int plusResult = int_expr0 + int_expr1;
 			currentFrame.pushiDataStack(plusResult);
 		
 		} else if(node.type == Type.REAL) {
-			float plusResult = currentFrame.popfDataStack() + currentFrame.popfDataStack();
+			float plusResult = float_expr0 + float_expr1;
 			currentFrame.pushfDataStack(plusResult);
 		
 		} else if(node.type == Type.STRING) {
@@ -466,12 +505,12 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			str2 = str2.substring(1, str2.length() - 1);
 
 			String concatResult = str1.concat(str2);
-			int indexConcat = st.addStr("\"" + concatResult + "\"");
+			int indexConcat = st.addStr("'" + concatResult + "'");
 			currentFrame.pushiDataStack(indexConcat); 
 
 		} else if(node.type == Type.BOOLEAN) {
 
-			if(currentFrame.popiDataStack() == 1 || currentFrame.popiDataStack() == 1){
+			if(bool_expr0 == 1 || bool_expr1 == 1){
 				currentFrame.pushiDataStack(1);
 			}else{
 				currentFrame.pushiDataStack(0);
@@ -483,33 +522,120 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	// TODO
 	@Override
 	protected Void visit_minus_node(AST node){
-		visit(node.getChild(1));
-		visit(node.getChild(0));
+		visit(node.getChild(1)); // expr
+		visit(node.getChild(0)); // expr
+
+		int int_expr0;
+		int int_expr1;
+		float float_expr0;
+		float float_expr1;
 
 		if(node.type == Type.INTEGER) {
-			int overResult = currentFrame.popiDataStack()  - currentFrame.popiDataStack();
-			currentFrame.pushiDataStack(overResult);
+			int_expr0 = currentFrame.popiDataStack();
+
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popiDataStack();
+				currentFrame.popiDataStack();
+			}
+
+			int_expr1 = currentFrame.popiDataStack();
+
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popiDataStack();
+				currentFrame.popiDataStack();
+			}
+
+			int minusResult = int_expr0 - int_expr1;
+			currentFrame.pushiDataStack(minusResult);
 		
 		} else if(node.type == Type.REAL) {
-			float overResult = currentFrame.popfDataStack() - currentFrame.popfDataStack();
-			currentFrame.pushfDataStack(overResult);
+			float_expr0 = currentFrame.popfDataStack();
+
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			float_expr1 = currentFrame.popfDataStack();
+
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			float minusResult =  float_expr0 - float_expr1;
+			currentFrame.pushfDataStack(minusResult);
 		}
+		
+
 		return null;
+		
+		
+		
+		// visit(node.getChild(1));
+		// visit(node.getChild(0));
+
+
+
+		// if(node.type == Type.INTEGER) {
+		// 	int overResult = currentFrame.popiDataStack()  - currentFrame.popiDataStack();
+		// 	currentFrame.pushiDataStack(overResult);
+		
+		// } else if(node.type == Type.REAL) {
+		// 	float overResult = currentFrame.popfDataStack() - currentFrame.popfDataStack();
+		// 	currentFrame.pushfDataStack(overResult);
+		// }
+		// return null;
 	}
 
 	// TODO
 	@Override
 	protected Void visit_asterisk_node(AST node){
-		visit(node.getChild(1));
-		visit(node.getChild(0));
+		visit(node.getChild(1)); // expr
+		visit(node.getChild(0)); // expr
+
+		int int_expr0;
+		int int_expr1;
+		float float_expr0;
+		float float_expr1;
 
 		if(node.type == Type.INTEGER) {
-			int overResult =  currentFrame.popiDataStack() * currentFrame.popiDataStack();
-			currentFrame.pushiDataStack(overResult);
+			int_expr0 = currentFrame.popiDataStack();
+
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popiDataStack();
+				currentFrame.popiDataStack();
+			}
+
+			int_expr1 = currentFrame.popiDataStack();
+
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popiDataStack();
+				currentFrame.popiDataStack();
+			}
+
+			int timesResult = int_expr0 * int_expr1;
+			currentFrame.pushiDataStack(timesResult);
+		
 		} else if(node.type == Type.REAL) {
-			float overResult = currentFrame.popfDataStack() * currentFrame.popfDataStack();
-			currentFrame.pushfDataStack(overResult);
+			float_expr0 = currentFrame.popfDataStack();
+
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			float_expr1 = currentFrame.popfDataStack();
+
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			float timesResult =  float_expr0 * float_expr1;
+			currentFrame.pushfDataStack(timesResult);
 		}
+		
 
 		return null;
 	}
@@ -517,15 +643,48 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	// TODO
 	@Override
 	protected Void visit_slash_node(AST node){
+		visit(node.getChild(1)); // expr
+		visit(node.getChild(0)); // expr
 
-		visit(node.getChild(1));
-		visit(node.getChild(0));
+		int int_expr0;
+		int int_expr1;
+		float float_expr0;
+		float float_expr1;
 
 		if(node.type == Type.INTEGER) {
-			int overResult =  currentFrame.popiDataStack() / currentFrame.popiDataStack();
+			int_expr0 = currentFrame.popiDataStack();
+
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popiDataStack();
+				currentFrame.popiDataStack();
+			}
+
+			int_expr1 = currentFrame.popiDataStack();
+
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popiDataStack();
+				currentFrame.popiDataStack();
+			}
+
+			int overResult = int_expr0 / int_expr1;
 			currentFrame.pushiDataStack(overResult);
+		
 		} else if(node.type == Type.REAL) {
-			float overResult = currentFrame.popfDataStack() / currentFrame.popfDataStack();
+			float_expr0 = currentFrame.popfDataStack();
+
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			float_expr1 = currentFrame.popfDataStack();
+
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			float overResult =  float_expr0 / float_expr1;
 			currentFrame.pushfDataStack(overResult);
 		}
 		return null;
@@ -534,13 +693,26 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	// TODO
 	@Override
 	protected Void visit_mod_node(AST node){
-
 		visit(node.getChild(1));
 		visit(node.getChild(0));
 
+		int int_expr0 = currentFrame.popiDataStack();
+
+		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+			currentFrame.popiDataStack();
+			currentFrame.popiDataStack();
+		}
+
+		int int_expr1 = currentFrame.popiDataStack();
+		
+		if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+			currentFrame.popiDataStack();
+			currentFrame.popiDataStack();
+		}
+
 		// Só pode inteiro
-		int overResult =  currentFrame.popiDataStack() % currentFrame.popiDataStack();
-		currentFrame.pushiDataStack(overResult);
+		int modResult = int_expr0 % int_expr1;
+		currentFrame.pushiDataStack(modResult);
 		
 		return null;
 	}
@@ -548,15 +720,29 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	// TODO
 	@Override
 	protected Void visit_one_minus_node(AST node){
-
 		visit(node.getChild(0));
 
+		int int_expr = 0;
+		float float_expr = 0;
+
 		if(node.type == Type.INTEGER) {
-			int overResult =  (-1) * currentFrame.popiDataStack();
-			currentFrame.pushiDataStack(overResult);
+			int_expr = currentFrame.popiDataStack();
 		} else if(node.type == Type.REAL) {
-			float overResult = (-1) * currentFrame.popfDataStack();
-			currentFrame.pushfDataStack(overResult);
+			float_expr = currentFrame.popfDataStack();
+		}
+
+		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+			currentFrame.popiDataStack();
+			currentFrame.popiDataStack();
+		}
+
+		if(node.type == Type.INTEGER) {
+			int oneMinusResult =  (-1) * int_expr;
+			currentFrame.pushiDataStack(oneMinusResult);
+
+		} else if(node.type == Type.REAL) {
+			float oneMinusResult = (-1) * float_expr;
+			currentFrame.pushfDataStack(oneMinusResult);
 		}
 		return null;
 	}
@@ -590,10 +776,11 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 
 		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
 			visit(node.getChild(0));
+			int value = currentFrame.popiDataStack(); // apenas retirando, este valor não é utilizado aqui
 			int arrayIndex = currentFrame.popiDataStack();
 			int accessArray = currentFrame.popiDataStack();
 			positionMemory = currentFrame.getArrayTable().getMemoryPosition(arrayIndex) + accessArray;
-
+			
 			if(node.getChild(0).type == Type.INTEGER) {
 				System.out.printf("read (access array integer): ");
 				resultInt = in.nextInt();
@@ -624,7 +811,7 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			} else if(node.getChild(0).type  == Type.STRING){
 				System.out.printf("read (string): ");
 				String str = in.next();
-				int strIdx = st.addStr(str);
+				int strIdx = st.addStr("'" + str + "'");
 				currentFrame.storeiDataStackIdMemory(positionMemory,strIdx);
 			}
 		}
@@ -683,8 +870,8 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			} else if(node.getChild(0).type == Type.BOOLEAN) {
 				writeBool();
 			}
-			currentFrame.popiDataStack();
-			currentFrame.popiDataStack();
+			currentFrame.popiDataStack(); // desempilhando pois não será usado
+			currentFrame.popiDataStack(); // desempilhando pois não será usado
 			
 		}else{
 			if(node.getChild(0).type == Type.INTEGER) {
@@ -762,6 +949,11 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 
 		int bool_val = currentFrame.popiDataStack();
 		
+		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+			currentFrame.popiDataStack();
+			currentFrame.popiDataStack();
+		}
+		
 		if(bool_val == 1) {
 			currentFrame.pushiDataStack(0);
 		} else if(bool_val == 0){
@@ -778,7 +970,18 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		visit(node.getChild(0)); //leftChild
 		
 		int bool_val1 = currentFrame.popiDataStack();
+
+		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+			currentFrame.popiDataStack();
+			currentFrame.popiDataStack();
+		}
+
 		int bool_val2 = currentFrame.popiDataStack();
+
+		if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+			currentFrame.popiDataStack();
+			currentFrame.popiDataStack();
+		}
 		
 		if(bool_val1 == 1 && bool_val2 == 1) {
 			currentFrame.pushiDataStack(1);
@@ -796,7 +999,18 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		visit(node.getChild(0)); //leftChild
 		
 		int bool_val1 = currentFrame.popiDataStack();
+
+		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+			currentFrame.popiDataStack();
+			currentFrame.popiDataStack();
+		}
+
 		int bool_val2 = currentFrame.popiDataStack();
+
+		if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+			currentFrame.popiDataStack();
+			currentFrame.popiDataStack();
+		}
 		
 		if(bool_val1 == 1 || bool_val2 == 1) {
 			currentFrame.pushiDataStack(1);
@@ -886,7 +1100,7 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	private Void writeStr() {
 		int strIdx = currentFrame.popiDataStack(); // String pointer
 		String originalStr = st.get(strIdx);
-		System.out.print(originalStr);
+		System.out.print(originalStr.substring(1, originalStr.length() - 1));
 		return null;
 	}
 

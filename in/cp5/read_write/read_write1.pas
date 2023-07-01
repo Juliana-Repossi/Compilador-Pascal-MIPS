@@ -30,7 +30,6 @@ begin
 
     read(vetor[1]);
     read(vetor1[2]);
-    read(vetor2[3]);
 
     write(x1 + x2);
     write(x2 + vetor[1]);

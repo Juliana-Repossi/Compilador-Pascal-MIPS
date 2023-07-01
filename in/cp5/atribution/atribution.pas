@@ -37,5 +37,19 @@ begin
     z7 := 'string1';
     z8 := 'string2';
 
+    writeln(x1);
+    writeln(x2);
+    writeln(x3);
+    writeln(x4);
+    writeln(z1);
+    writeln(z2);
+    writeln(z3);
+    writeln(z4);
+    writeln(z5);
+    writeln(z6);
+    writeln(z7);
+    writeln(z8);
+    writeln(z7 + ' ' + z8 + ' ' + x4);
+    write(false);
 end.
 

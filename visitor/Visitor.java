@@ -357,6 +357,11 @@ public class Visitor extends PascalParserBaseVisitor<AST>
         if(ctx.ID() != null)
         {
             index = checkId(ctx.ID().getText(),ctx.getStart().getLine());
+            
+            if(currentIdTable.getConst(index) == true) {
+                MsgErros.assignConstantError(currentLine, ctx.ID().getText());
+            }
+            
             type1 = currentIdTable.getTypeByName(ctx.ID().getText());
             left = new AST(NodeKind.VAR_USE_NODE,index,type1);
             ast.addChild(left);   

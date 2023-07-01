@@ -22,14 +22,17 @@ const
    const_str = 'constante';
 
 begin
-
     x2 := 3;
-
-  
     z3 := 5;
     z4 := 65;
     z5 := true;
     z6 := false;
+
+    writeln(x2);
+    writeln(z3);
+    writeln(z4);
+    writeln(z5);
+    writeln(z6);
 
 end.
 

@@ -5,8 +5,8 @@ var
     x3 : boolean;
     x4 : string;
 
-    vetor : array[0..9] of integer;
     vetor1 : array[0..3] of real;
+    vetor : array[0..9] of integer;
     vetor2 : array[0..5] of boolean;
 
 const
@@ -25,11 +25,12 @@ begin
     read(vetor[1]);
     read(vetor1[2]);
 
-    write(x1 + vetor[1] * PI);
-    write(x2 + vetor1[2] / 4);
-    write(x2 + vetor[1]);
+    writeln(x2);
+    writeln(x1 + PI);
+    writeln(x2 + vetor1[2] / 4);
+    writeln(x2 + vetor[1]);
     writeln(x3);
-    write('HELLO');
-    write(x4);
+    writeln('HELLO');
+    writeln(x4);
 
 end.

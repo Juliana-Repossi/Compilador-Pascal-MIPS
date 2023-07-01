@@ -6,7 +6,7 @@ var
 begin
     i := 0;
     //A expressão não é booleana
-    while i + 5 do begin
+    while 'str1' + 'str2' do begin
         i := i + 1;
     end;
 

@@ -94,6 +94,10 @@ public final class ArrayTable {
 		return null;
 	}
 
+	public int getSizeArray(int i) {
+		return table.get(i).size;
+	}
+
 	public void setSizeArray(int size, String name_array){
 		int index = lookupArray(name_array);
 		table.get(index).size  = size;

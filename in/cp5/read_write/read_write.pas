@@ -23,7 +23,7 @@ const
 
 begin
 
-    //read
+    // read
     read(x1);
     read(x2);
     read(z7);
@@ -31,13 +31,13 @@ begin
     read(vetor[1]);
     read(vetor1[2]);
 
-    write(x1);
-    write(x2);
+    writeln(x1);
+    writeln(x2);
     writeln(z6);
-    write(z7);
+    writeln(z7);
 
     writeln(vetor[1]);
-    write(vetor1[2]);
-    write(vetor2[3]);
+    writeln(vetor1[2]);
+    writeln(vetor2[0]);
 
 end.
