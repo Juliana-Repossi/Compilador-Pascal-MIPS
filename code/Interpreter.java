@@ -62,26 +62,27 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		int resultInt;
 		int positionMemory;
 
-		if(node.kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
 			visit(node.getChild(0));
+			int value = currentFrame.popiDataStack();
 			int arrayIndex = currentFrame.popiDataStack();
 			int accessArray = currentFrame.popiDataStack();
 			positionMemory = currentFrame.getArrayTable().getMemoryPosition(arrayIndex) + accessArray;
 
-			if(node.getChild(0).type == Type.ARRAY_INTEGER) {
+			if(node.getChild(0).type == Type.INTEGER) {
 				resultInt = currentFrame.popiDataStack();
 				currentFrame.storeiDataStackArrayMemory(positionMemory, resultInt);
 			
-			} else if(node.getChild(0).type == Type.ARRAY_REAL) {
+			} else if(node.getChild(0).type == Type.REAL) {
 				resultFloat = currentFrame.popfDataStack();
 				currentFrame.storefDataStackArrayMemory(positionMemory, resultFloat);
 		
-			} else if(node.getChild(0).type == Type.ARRAY_BOOLEAN) {
+			} else if(node.getChild(0).type == Type.BOOLEAN) {
 				resultInt = currentFrame.popiDataStack();
 				currentFrame.storeiDataStackArrayMemory(positionMemory, resultInt);
 			}
 			
-		}else if (node.kind == NodeKind.VAR_USE_NODE){
+		}else if (node.getChild(0).kind == NodeKind.VAR_USE_NODE){
 			positionMemory = node.getChild(0).intData;
 			
 			if(node.getChild(0).type == Type.INTEGER) {
@@ -111,6 +112,7 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		Type type = node.type;
 		int intValue;
 		float floatValue;
+		//System.out.println("Entrou no var use");
 
 		if(type == Type.INTEGER){
 			intValue = currentFrame.loadiDataStackIdMemory(node.intData);
@@ -125,19 +127,8 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			currentFrame.pushiDataStack(intValue);
 
 		}else if(type == Type.STRING){
-			currentFrame.pushiDataStack(node.intData);
-
-		}else if(type == Type.ARRAY_BOOLEAN){
-			intValue = currentFrame.loadiDataStackArrayMemory(node.intData);
-			currentFrame.pushiDataStack(intValue);
-
-		}else if(type == Type.ARRAY_REAL){
-			floatValue = currentFrame.loadfDataStackArrayMemory(node.intData);
-			currentFrame.pushfDataStack(floatValue);
-
-		}else if(type == Type.ARRAY_BOOLEAN){
-			intValue = currentFrame.loadiDataStackArrayMemory(node.intData);
-			currentFrame.pushiDataStack(intValue);
+			int index = currentFrame.loadiDataStackIdMemory(node.intData); 
+			currentFrame.pushiDataStack(index);
 		}
 
 		return null;
@@ -145,9 +136,60 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 
 	// TODO
 	@Override
+	protected Void visit_var_use_array_node(AST node){
+		Type type = node.type;
+		int intValue;
+		float floatValue;
+
+		//System.out.println("Entrou no array use");
+		int indexArray = node.intData;
+
+		if(type == Type.INTEGER){
+			intValue = currentFrame.loadiDataStackArrayMemory(node.intData);
+			currentFrame.pushiDataStack(intValue);
+
+		}else if(type == Type.REAL){
+			floatValue = currentFrame.loadfDataStackArrayMemory(node.intData);
+			currentFrame.pushfDataStack(floatValue);
+
+		}else if(type == Type.BOOLEAN){
+			intValue = currentFrame.loadiDataStackArrayMemory(node.intData);
+			currentFrame.pushiDataStack(intValue);
+		}
+
+		return null;
+	}
+
+	//PILHA:	
+	//valor da memoria nessa posição
+	//indice no array na tabela
+	//exp - indice
+
+	// TODO
+	@Override
 	protected Void visit_access_array_use_node(AST node){
 		visit(node.getChild(0)); // expr
 		currentFrame.pushiDataStack(node.intData);
+
+		int indexArray = currentFrame.popiDataStack();
+		int acessArray = currentFrame.popiDataStack();
+
+		currentFrame.pushiDataStack(acessArray);
+		currentFrame.pushiDataStack(indexArray);
+
+		if(node.type == Type.INTEGER){
+			int intValue = currentFrame.loadiDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
+			currentFrame.pushiDataStack(intValue);
+
+		}else if(node.type == Type.REAL){
+			float floatValue = currentFrame.loadfDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
+			currentFrame.pushfDataStack(floatValue);
+
+		}else if(node.type == Type.BOOLEAN){
+			int intValue = currentFrame.loadiDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
+			currentFrame.pushiDataStack(intValue);
+		}
+
 		return null;
 	}
 
@@ -531,7 +573,11 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	// TODO
 	@Override
 	protected Void visit_var_list_node(AST node){
-		// Nothing to do.
+		// Percorre todas as declarações procurando por constantes.
+		for(int i = 0; i < node.getChildrenSize(); i++) {
+			visit(node.getChild(i));
+		}
+		
 		return null;
 	}
 
@@ -548,12 +594,12 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			int accessArray = currentFrame.popiDataStack();
 			positionMemory = currentFrame.getArrayTable().getMemoryPosition(arrayIndex) + accessArray;
 
-			if(node.getChild(0).type == Type.ARRAY_INTEGER) {
+			if(node.getChild(0).type == Type.INTEGER) {
 				System.out.printf("read (access array integer): ");
 				resultInt = in.nextInt();
 				currentFrame.storeiDataStackArrayMemory(positionMemory, resultInt);
 			
-			} else if(node.getChild(0).type == Type.ARRAY_REAL) {
+			} else if(node.getChild(0).type == Type.REAL) {
 				System.out.printf("read (access array real): ");
 				resultFloat = in.nextFloat();
 				currentFrame.storefDataStackArrayMemory(positionMemory, resultFloat);
@@ -561,6 +607,9 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 
 		} else if(node.getChild(0).kind == NodeKind.VAR_USE_NODE) {
 			positionMemory = node.getChild(0).intData;
+			System.out.printf("node type");
+
+			System.out.println(node.getChild(0).type);
 
 			if(node.getChild(0).type == Type.INTEGER){
 				System.out.printf("read (integer): ");
@@ -587,18 +636,33 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	@Override
 	protected Void visit_write_node(AST node){
 		visit(node.getChild(0)); // expr
-	
-		if(node.getChild(0).type == Type.INTEGER) {
-			writeInt();
+		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE){
 
-		} else if(node.getChild(0).type == Type.REAL) {
-			writeReal();
+			if(node.getChild(0).type == Type.INTEGER) {
+				writeInt();
 
-		} else if(node.getChild(0).type == Type.BOOLEAN) {
-			writeBool();
+			} else if(node.getChild(0).type == Type.REAL) {
+				writeReal();
 
-		} else if(node.getChild(0).type == Type.STRING) {
-			writeStr();
+			} else if(node.getChild(0).type == Type.BOOLEAN) {
+				writeBool();
+			}
+			currentFrame.popiDataStack();
+			currentFrame.popiDataStack();
+			
+		}else{
+			if(node.getChild(0).type == Type.INTEGER) {
+				writeInt();
+
+			} else if(node.getChild(0).type == Type.REAL) {
+				writeReal();
+
+			} else if(node.getChild(0).type == Type.BOOLEAN) {
+				writeBool();
+
+			} else if(node.getChild(0).type == Type.STRING) {
+				writeStr();
+			}
 		}
 		
 		return null;
@@ -608,20 +672,34 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	@Override
 	protected Void visit_writeln_node(AST node){
 		visit(node.getChild(0)); // expr
-	
-		if(node.getChild(0).type == Type.INTEGER) {
-			writeInt();
 
-		} else if(node.getChild(0).type == Type.REAL) {
-			writeReal();
+		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE){
+			if(node.getChild(0).type == Type.INTEGER) {
+				writeInt();
 
-		} else if(node.getChild(0).type == Type.BOOLEAN) {
-			writeBool();
+			} else if(node.getChild(0).type == Type.REAL) {
+				writeReal();
 
+			} else if(node.getChild(0).type == Type.BOOLEAN) {
+				writeBool();
+			}
+			currentFrame.popiDataStack();
+			currentFrame.popiDataStack();
+			
+		}else{
+			if(node.getChild(0).type == Type.INTEGER) {
+				writeInt();
 
-		} else if(node.getChild(0).type == Type.STRING) {
-			writeStr();
-		}
+			} else if(node.getChild(0).type == Type.REAL) {
+				writeReal();
+
+			} else if(node.getChild(0).type == Type.BOOLEAN) {
+				writeBool();
+
+			} else if(node.getChild(0).type == Type.STRING) {
+				writeStr();
+			}
+		}		
 		
 		System.out.println();
 		return null;
@@ -660,9 +738,22 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	// TODO
 	@Override	
 	protected Void visit_var_decl_node(AST node){
-		// Nothing to do.
-		return null;
+		Boolean ehConst = currentFrame.getIdTable().getConst(node.intData); //
+		if(ehConst == true) {
+			visit(node.getChild(0));
+			
+			if(node.getChild(0).type == Type.INTEGER || node.getChild(0).type == Type.BOOLEAN || node.getChild(0).type == Type.STRING) {
+				int value = currentFrame.popiDataStack();
+				currentFrame.storeiDataStackIdMemory(node.intData, value);
+			
+			}else if(node.getChild(0).type == Type.REAL){
+				float value = currentFrame.popfDataStack();
+				currentFrame.storefDataStackIdMemory(node.intData, value);
+			}
+
 	}
+	return null;
+}
 
 	// TODO
 	@Override	

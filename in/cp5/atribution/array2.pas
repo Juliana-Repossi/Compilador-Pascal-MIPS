@@ -20,14 +20,20 @@ const
    PI = 3.14;
    const_int = 3;
    const_bool = true;
-   const_str = 'constante';
+   const_str = 'elaine';
 
 begin
 
 i := 0;
+writeln(PI);
+writeln(const_int);
+writeln(const_bool);
+writeln(const_str);
+
 while i < 3 do
     begin
         vetor1[i]:= i + PI;
+        writeln(vetor1[i]);
         i := i + 1;
     end;
 
@@ -35,6 +41,7 @@ i := 0;
 while i < 5 do
     begin
         vetor2[i]:= true;
+        writeln(vetor2[i]);
         i := i + 1;
     end;
 

@@ -24,10 +24,11 @@ const
    const_str = 'constante';
 
 begin
- i := 0;
-while i < 10 do
+    i := 7;
+    while i < 10 do
     begin
-        vetor[i]:= i;
+        vetor[i]:= i + 1;
+        writeln(vetor[i]);
         i := i + 1;
     end;
 end.

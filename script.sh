@@ -26,7 +26,8 @@ for dir in $IN/*; do
         echo Running $base
         dotfile=$OUT/$basedir/${base/.pas/.dot}
         pdffile=$OUT/$basedir/${base/.pas/.pdf}
-        make run < $infile 2> $dotfile > /dev/null
+        # make run < $infile 2> $dotfile > /dev/null
+        make run FILE=$infile 2> $dotfile > /dev/null
         dot -Tpdf $dotfile -o $pdffile 2> /dev/null
     done
 done 

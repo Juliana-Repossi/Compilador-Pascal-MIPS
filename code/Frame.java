@@ -48,6 +48,7 @@ public class Frame {
 
     public void storeiDataStackIdMemory(int addr, int value) {
 		idMemory.storei(addr, value);
+
 	}
 
     public void storefDataStackIdMemory(int addr, float value) {
@@ -77,6 +78,16 @@ public class Frame {
     public float loadfDataStackArrayMemory(int addr) {
 		return arrayMemory.loadf(addr);
 	}
+
+    public Void imprime(){
+        this.idMemory.imprime();
+        return null;
+    }
+
+    public Void imprimeStack() {
+        System.out.println(this.stack.toString());
+        return null;
+    }
 	
 	
 

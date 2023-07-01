@@ -93,8 +93,5 @@ node28 -> node32;
 node46[label="call_procedure@sum0"];
 node47[label="(integer) int_val0"];
 node46 -> node47;
-node48[label="(array of integer) j@0"];
-node46 -> node48;
-node28 -> node46;
-node0 -> node28;
-}
+node48[label="(array of integer) ERROR: Fall through in NodeKind enumeration!
+make: *** [Makefile:44: run] Error 1

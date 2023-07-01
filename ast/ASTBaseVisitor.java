@@ -25,7 +25,8 @@ public abstract class ASTBaseVisitor<T> {
 		switch(node.kind) {
 			case I2R_NODE: return visit_I2R_node(node);
 			case ASSIGN_NODE: return visit_assign_node(node);
-			case VAR_USE_NODE: return visit_var_list_node(node);
+			case VAR_USE_NODE: return visit_var_use_node(node);
+			case VAR_USE_ARRAY_NODE: return visit_var_use_array_node(node);
 			case ACCESS_ARRAY_USE_NODE: return visit_access_array_use_node(node);
 			case NOTEQUAL_NODE: return visit_not_equal_node(node);
 			case EQUAL_NODE: return visit_equal_node(node);
@@ -114,5 +115,6 @@ public abstract class ASTBaseVisitor<T> {
 	protected abstract T visit_call_procedure_node(AST node);
 	protected abstract T visit_call_function_node(AST node);
 	protected abstract T visit_array_decl_node(AST node);
+	protected abstract T visit_var_use_array_node(AST node);
 }
 	

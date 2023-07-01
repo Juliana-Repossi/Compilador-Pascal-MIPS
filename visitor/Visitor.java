@@ -161,11 +161,13 @@ public class Visitor extends PascalParserBaseVisitor<AST>
         AST value = null;
         AST child = null;
         int index;
-
+        AST const_value = null;
+        
         for(int i = 0 ; i < ctx.ID().size(); i ++){
             value = visit(ctx.val_simple(i));
             index = addIdTable(ctx.ID(i).getText(),currentLine,currentType,true,-1);
-            child = new AST(NodeKind.VAR_DECL_NODE, index,value.type);  
+            child = new AST(NodeKind.VAR_DECL_NODE, index,value.type);
+            child.addChild(value); // const value
             ast.addChild(child);    
         }
         return ast;
@@ -417,7 +419,8 @@ public class Visitor extends PascalParserBaseVisitor<AST>
 
         } else if(currentArrayTable.lookupArray(ctx.ID().getText()) != -1) {
             line = currentArrayTable.lookupArray(ctx.ID().getText());
-            ast = new AST(NodeKind.VAR_USE_NODE,line,currentArrayTable.getType(line));
+            ast = new AST(NodeKind.VAR_USE_ARRAY_NODE,line,currentArrayTable.getType(line));
+            // ast = new AST(NodeKind.VAR_USE_NODE,line,currentArrayTable.getType(line));
             return ast;
         } else {
             MsgErros.erroInesperado(ctx.getStart().getLine());

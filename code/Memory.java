@@ -37,5 +37,12 @@ public class Memory extends Vector<Word> {
 	public float loadf(int addr) {
 		return this.get(addr).toFloat();
 	}
+
+	public void imprime(){
+		for(int i=0; i<13;i++){
+			System.out.println(i + "-" + this.get(i).toInt());
+			// System.out.println(this.get(i).toInt());
+		}
+	}
 	
 }
