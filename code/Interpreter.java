@@ -50,6 +50,10 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	protected Void visit_I2R_node(AST node){
 		visit(node.getChild(0)); 
 		float floatVal = (float) currentFrame.popiDataStack();
+		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE){
+			currentFrame.popiDataStack();
+			currentFrame.popiDataStack();
+		}
 		currentFrame.pushfDataStack(floatVal);
 		return null;
 	}
@@ -206,7 +210,7 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		visit(node.getChild(0)); // expr
 
 		boolean bool_result;
-
+		
 		if(node.getChild(1).type == Type.STRING) {
 			int index1 = currentFrame.popiDataStack();
 			int index2 = currentFrame.popiDataStack();
@@ -215,17 +219,47 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			bool_result = !str1.equals(str2);
 
 		} else if(node.getChild(1).type == Type.REAL) {
-			bool_result = currentFrame.popfDataStack() != currentFrame.popfDataStack();
-		}else{ // boolean ou int
-			bool_result = currentFrame.popiDataStack() != currentFrame.popiDataStack();
-		}
-		
+			float float_expr0 = currentFrame.popfDataStack(); //value's pop expr0
+			
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack(); //
+				currentFrame.popfDataStack();
+			}
+
+			float float_expr1 = currentFrame.popfDataStack(); //value's pop expr1
+
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			bool_result = float_expr0 != float_expr1;
+			
+		} else{ // boolean ou int
+			int expr0 = currentFrame.popiDataStack();
+			
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			int expr1 = currentFrame.popiDataStack();
+			
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			bool_result = expr0 != expr1;
+		}//else end
+
 		if(bool_result == true) {
 			currentFrame.pushiDataStack(1);
 
 		} else if(bool_result == false) {
 			currentFrame.pushiDataStack(0);	
 		}
+
 		return null;
 	}
 
@@ -245,9 +279,38 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			bool_result = str1.equals(str2);
 
 		} else if(node.getChild(1).type == Type.REAL) {
-			bool_result = currentFrame.popfDataStack() == currentFrame.popfDataStack();
+			float float_expr0 = currentFrame.popfDataStack(); //value's pop expr0
+			
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack(); //
+				currentFrame.popfDataStack();
+			}
+
+			float float_expr1 = currentFrame.popfDataStack(); //value's pop expr1
+
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			bool_result = float_expr0 == float_expr1;
+
 		}else{ // boolean ou int
-			bool_result = currentFrame.popiDataStack() == currentFrame.popiDataStack();
+			int expr0 = currentFrame.popiDataStack();
+			
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			int expr1 = currentFrame.popiDataStack();
+			
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			bool_result = expr0 == expr1;
 		}
 		
 		if(bool_result == true) {
@@ -282,9 +345,38 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			}
 
 		} else if(node.getChild(1).type == Type.REAL) {
-			bool_result = currentFrame.popfDataStack() < currentFrame.popfDataStack();
+			float float_expr0 = currentFrame.popfDataStack(); //value's pop expr0
+			
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack(); //
+				currentFrame.popfDataStack();
+			}
+
+			float float_expr1 = currentFrame.popfDataStack(); //value's pop expr1
+
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			bool_result = float_expr0 < float_expr1;
+			
 		}else{ // integer ou boolean
-			bool_result = currentFrame.popiDataStack() < currentFrame.popiDataStack();
+			int expr0 = currentFrame.popiDataStack();
+			
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			int expr1 = currentFrame.popiDataStack();
+			
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			bool_result = expr0 < expr1;
 		}
 		
 		if(bool_result == true) {
@@ -319,9 +411,37 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			}
 
 		} else if(node.getChild(1).type == Type.REAL) {
-			bool_result = currentFrame.popfDataStack() > currentFrame.popfDataStack();
+			float float_expr0 = currentFrame.popfDataStack(); //value's pop expr0
+			
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack(); //
+				currentFrame.popfDataStack();
+			}
+
+			float float_expr1 = currentFrame.popfDataStack(); //value's pop expr1
+
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			bool_result = float_expr0 > float_expr1;
 		}else{ // integer ou boolean
-			bool_result = currentFrame.popiDataStack() > currentFrame.popiDataStack();
+			int expr0 = currentFrame.popiDataStack();
+			
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			int expr1 = currentFrame.popiDataStack();
+			
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			bool_result = expr0 > expr1;
 		}
 		
 		if(bool_result == true) {
@@ -356,9 +476,37 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			}
 
 		} else if(node.getChild(1).type == Type.REAL) {
-			bool_result = currentFrame.popfDataStack() <= currentFrame.popfDataStack();
+			float float_expr0 = currentFrame.popfDataStack(); //value's pop expr0
+			
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack(); //
+				currentFrame.popfDataStack();
+			}
+
+			float float_expr1 = currentFrame.popfDataStack(); //value's pop expr1
+
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			bool_result = float_expr0 <= float_expr1;
 		}else{ // integer ou boolean
-			bool_result = currentFrame.popiDataStack() <= currentFrame.popiDataStack();
+			int expr0 = currentFrame.popiDataStack();
+			
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			int expr1 = currentFrame.popiDataStack();
+			
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			bool_result = expr0 <= expr1;
 		}
 		
 		if(bool_result == true) {
@@ -393,9 +541,37 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			}
 
 		} else if(node.getChild(1).type == Type.REAL) {
-			bool_result = currentFrame.popfDataStack() >= currentFrame.popfDataStack();
+			float float_expr0 = currentFrame.popfDataStack(); //value's pop expr0
+			
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack(); //
+				currentFrame.popfDataStack();
+			}
+
+			float float_expr1 = currentFrame.popfDataStack(); //value's pop expr1
+
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			bool_result = float_expr0 >= float_expr1;
 		}else{ // integer ou boolean
-			bool_result = currentFrame.popiDataStack() >= currentFrame.popiDataStack();
+			int expr0 = currentFrame.popiDataStack();
+			
+			if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			int expr1 = currentFrame.popiDataStack();
+			
+			if(node.getChild(1).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+				currentFrame.popfDataStack();
+				currentFrame.popfDataStack();
+			}
+
+			bool_result = expr0 >= expr1;
 		}
 		
 		if(bool_result == true) {
@@ -1121,3 +1297,5 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		return unescapedStr;
 	}
 }
+
+
