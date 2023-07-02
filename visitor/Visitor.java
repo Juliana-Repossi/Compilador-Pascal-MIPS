@@ -659,6 +659,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
             visit(ctx.type_simple());
             id = funcTable.addFunc(ctx.ID().getText(), currentType, ctx.getStart().getLine());
             ast = new AST(NodeKind.FUNCTION_NODE, id, funcTable.getTypeReturn(id));  
+            funcTable.setNodeFunction(ast,id);
 
             //trocar as tabelas correntes
             changeCurrentFunctionProcedure(funcTable.getIdTable(id),funcTable.getArrayTable(id),1);

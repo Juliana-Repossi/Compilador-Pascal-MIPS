@@ -137,27 +137,32 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		return null;
 	}
 
+
 	// TODO
 	@Override
 	protected Void visit_var_use_array_node(AST node){
-		Type type = node.type;
-		int intValue;
-		float floatValue;
+		// Type type = node.type;
+		// int intValue;
+		// float floatValue;
 
-		int indexArray = node.intData;
+		// int indexArray = node.intData;
 
-		if(type == Type.INTEGER){
-			intValue = currentFrame.loadiDataStackArrayMemory(node.intData);
-			currentFrame.pushiDataStack(intValue);
+		// if(type == Type.INTEGER){
+		// 	intValue = currentFrame.loadiDataStackArrayMemory(node.intData);
+		// 	currentFrame.pushiDataStack(intValue);
 
-		}else if(type == Type.REAL){
-			floatValue = currentFrame.loadfDataStackArrayMemory(node.intData);
-			currentFrame.pushfDataStack(floatValue);
+		// }else if(type == Type.REAL){
+		// 	floatValue = currentFrame.loadfDataStackArrayMemory(node.intData);
+		// 	currentFrame.pushfDataStack(floatValue);
 
-		}else if(type == Type.BOOLEAN){
-			intValue = currentFrame.loadiDataStackArrayMemory(node.intData);
-			currentFrame.pushiDataStack(intValue);
-		}
+		// }else if(type == Type.BOOLEAN){
+		// 	intValue = currentFrame.loadiDataStackArrayMemory(node.intData);
+		// 	currentFrame.pushiDataStack(intValue);
+		// }
+
+
+
+
 
 		return null;
 	}
@@ -1114,9 +1119,9 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 				currentFrame.storefDataStackIdMemory(node.intData, value);
 			}
 
+		}
+		return null;
 	}
-	return null;
-}
 
 	// TODO
 	@Override	
@@ -1220,28 +1225,175 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	protected Void visit_parameters_node(AST node){
 		return null;
 	}
+
+	private Void initiliaze_memory_function_procedure(){
+		int i=0;
+		while (!currentFrame.isEmptyDataStack()){
+
+			Type type = currentFrame.getIdTable().getTypeByPositionArgument(i);
+			
+			if(type != null){
+				//inicializa o valor na idTable
+				if(type == Type.INTEGER){
+					currentFrame.storeiDataStackIdMemory(i,currentFrame.stack.popi());
+
+				} else if(type == type.REAL){
+					currentFrame.storefDataStackIdMemory(i,currentFrame.stack.popf());
+
+				} else if(type == type.STRING){
+					currentFrame.storeiDataStackIdMemory(i,currentFrame.stack.popi());
+
+				} else if(type == type.BOOLEAN){
+					currentFrame.storeiDataStackIdMemory(i,currentFrame.stack.popi());
+				}
+			}
+			i +=1;			
+		}
+		return null;
+	}
 		
 	// TODO
 	@Override	
 	protected Void visit_function_node(AST node){
+		Type typeReturn = node.type;
+		
+		//setar a memória com os parametros passados (tirando arrays)
+		initiliaze_memory_function_procedure();
+
+		visit(node.getChild(node.getChildrenSize()-1)); // visitando block
+		
+		//recuperar o valor do retono 
+		if(typeReturn == Type.INTEGER){
+			int intReturn = currentFrame.loadiDataStackIdMemory(0);
+			currentFrame.frameDad.pushiDataStack(intReturn);
+					
+		} else if(typeReturn == Type.REAL){
+			float floatReturn = currentFrame.loadfDataStackIdMemory(0);
+			currentFrame.frameDad.pushfDataStack(floatReturn);
+
+		} else if(typeReturn == Type.STRING){
+			int stringReturn =currentFrame.loadiDataStackIdMemory(0);
+			currentFrame.frameDad.pushiDataStack(stringReturn);
+
+		} else if(typeReturn == Type.BOOLEAN){
+			int boolReturn =currentFrame.loadiDataStackIdMemory(0);
+			currentFrame.frameDad.pushiDataStack(boolReturn);
+		}
+		
+		//destruir o frame
+		frameStack.popFrame();
+
 		return null;
 	}
 		
 	// TODO
 	@Override	
 	protected Void visit_procedure_node(AST node){
+		
+		//setar a memória com os parametros passados (tirando arrays)
+		initiliaze_memory_function_procedure();
+
+		visit(node.getChild(node.getChildrenSize()-1)); // visitando block
+				
+		//destruir o frame
+		frameStack.popFrame();
+
 		return null;
 	}
 		
 	// TODO
 	@Override	
 	protected Void visit_call_procedure_node(AST node){
+		Frame dadFrame = currentFrame;
+		currentFrame = frameStack.pushFrame(dadFrame, pt.getIdTable(node.intData), pt.getArrayTable(node.intData));
+		System.out.println("Foi");
+
+
+		AST nodeProcedure = pt.getNodeProcedure(node.intData);
+
+		for (int i=node.getChildrenSize() - 1; i<=0; i--){
+
+			//se for um array passado por referencia
+			if(node.getChild(i).kind == NodeKind.VAR_USE_ARRAY_NODE)
+			{
+				//atualizar o frame e a posição de memória que o array começa
+				//para passar por referencia
+
+				//verificar a qual frame o array está relacionado
+				ArrayTable currentArrayTable = currentFrame.getArrayTable();
+				Frame arrayFrame = currentArrayTable.getFrame(node.getChild(i).intData);
+
+				//declaração local do pai
+				if( arrayFrame == null){
+					pt.getArrayTable(node.intData).setFrame(node.getChild(i).intData,dadFrame);
+					//pegar a posição de memória que ele começa
+					int position = currentArrayTable.getMemoryPosition(node.getChild(i).intData);
+					pt.getArrayTable(node.intData).setMemoryPosition(node.getChild(i).intData,position);
+				}else{
+					pt.getArrayTable(node.intData).setFrame(node.getChild(i).intData,arrayFrame);
+					//pegar a posição de memória que ele começa
+					int position = arrayFrame.getArrayTable().getMemoryPosition(node.getChild(i).intData);
+					pt.getArrayTable(node.intData).setMemoryPosition(node.getChild(i).intData,position);
+				}
+
+			}else{
+				visit(node.getChild(i));
+			}
+		}
+
+		visit(nodeProcedure);
+		
+		System.out.println("Voltou");
+		
+		currentFrame = dadFrame;
 		return null;
 	}
 		
 	// TODO
 	@Override	
 	protected Void visit_call_function_node(AST node){
+		Frame dadFrame = currentFrame;
+		currentFrame = frameStack.pushFrame(dadFrame,ft.getIdTable(node.intData),ft.getArrayTable(node.intData));
+		System.out.println("Foi");
+
+		//PROCURAR A FUNÇÃO	
+		AST nodeFunction = ft.getNodeFunction(node.intData);
+
+		for (int i=node.getChildrenSize() - 1; i<=0; i--){
+
+			//se for um array passado por referencia
+			if(node.getChild(i).kind == NodeKind.VAR_USE_ARRAY_NODE)
+			{
+				//atualizar o frame e a posição de memória que o array começa
+				//para passar por referencia
+
+				//verificar a qual frame o array está relacionado
+				ArrayTable currentArrayTable = currentFrame.getArrayTable();
+				Frame arrayFrame = currentArrayTable.getFrame(node.getChild(i).intData);
+
+				//declaração local do pai
+				if( arrayFrame == null){
+					ft.getArrayTable(node.intData).setFrame(node.getChild(i).intData,dadFrame);
+					//pegar a posição de memória que ele começa
+					int position = currentArrayTable.getMemoryPosition(node.getChild(i).intData);
+					ft.getArrayTable(node.intData).setMemoryPosition(node.getChild(i).intData,position);
+				}else{
+					pt.getArrayTable(node.intData).setFrame(node.getChild(i).intData,arrayFrame);
+					//pegar a posição de memória que ele começa
+					int position = arrayFrame.getArrayTable().getMemoryPosition(node.getChild(i).intData);
+					ft.getArrayTable(node.intData).setMemoryPosition(node.getChild(i).intData,position);
+				}
+
+			}else{
+				visit(node.getChild(i));
+			}
+		}
+
+		visit(nodeFunction);
+		
+		System.out.println("Voltou");
+		
+		currentFrame = dadFrame;
 		return null;
 	}
 		

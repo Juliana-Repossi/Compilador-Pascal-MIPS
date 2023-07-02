@@ -84,7 +84,7 @@ public final class IdTable {
 		private final int line;
 		private final Type type;
 		private final Boolean ehConst;
-		private final int positionArgument; // -1 não é argumento de função; > -1 é argumento de função
+		private final int positionArgument; // -1 não é argumento de função; > -1 é a posição do argumento na função
 
 		Entry(String name, int line, Type type, Boolean ehConst, int positionArgument) {
 			this.name = name;

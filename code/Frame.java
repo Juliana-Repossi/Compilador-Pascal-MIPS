@@ -6,17 +6,17 @@ import ast.AST;
 
 public class Frame {
 
-    protected AST node;
+    protected Frame frameDad;
     protected Memory idMemory;
     protected Memory arrayMemory;
     protected DataStack stack;
     private final IdTable it;
 	private final ArrayTable at;
 
-	public Frame(AST node, IdTable it, ArrayTable at){
+	public Frame(Frame frameDad, IdTable it, ArrayTable at){
       this.idMemory = new Memory(it.getSize());
 	  this.arrayMemory = new Memory(at.calculateMemory());
-      this.node = node;
+      this.frameDad = frameDad;
       this.stack = new DataStack();
       this.it = it;
 	  this.at = at;
@@ -44,6 +44,14 @@ public class Frame {
 
     public float popfDataStack(){
         return stack.popf();
+    }
+
+    public boolean isEmptyDataStack() {
+        return stack.isEmpty();
+    }
+
+    public Frame getFrameDad() {
+        return this.frameDad;
     }
 
     public void storeiDataStackIdMemory(int addr, int value) {

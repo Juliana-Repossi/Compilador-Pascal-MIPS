@@ -6,6 +6,8 @@ import java.util.List;
 
 import types.Type;
 
+import code.Frame;
+
 public final class ArrayTable {
 	// No mundo real isto certamente deveria ser um hash...
 	// Implementação da classe não é exatamente Javanesca porque
@@ -29,10 +31,12 @@ public final class ArrayTable {
 
 		table.add(entryArray);
 
-		if(idxAdded == 0){
-			setMemoryPosition(idxAdded,0);
-		}else{
-			setMemoryPosition(idxAdded, getMemoryPosition(idxAdded-1) + getSize(idxAdded-1));
+		if(positionArgument == -1){
+			if(idxAdded == 0){
+				setMemoryPosition(idxAdded,0);
+			}else{
+				setMemoryPosition(idxAdded, getMemoryPosition(idxAdded-1) + getSize(idxAdded-1));
+			}
 		}
 
 		return idxAdded;
@@ -44,6 +48,14 @@ public final class ArrayTable {
 
 	public void setMemoryPosition(int index, int value){ //value is position memory
 		table.get(index).positionMemory = value;
+	}
+
+	public Frame getFrame(int index) {
+		return table.get(index).frame;
+	}
+
+	public void setFrame(int index, Frame frame){
+		table.get(index).frame = frame;
 	}
 	
 	public int getSizeArrayTable() {
@@ -118,7 +130,10 @@ public final class ArrayTable {
 	public int calculateMemory(){
 		int sum_memory = 0;
 		for (int i = 0; i< this.getSizeArrayTable(); i++){
-			sum_memory += this.getSize(i);
+			if(this.getPositionArgument(i) == -1) // alocando memória apenas para arrays locais
+			{
+				sum_memory += this.getSize(i);
+			}
 		}
 		return sum_memory;
 	}
@@ -135,7 +150,7 @@ public final class ArrayTable {
 		// > -1 - posição do argumento na lista de arg da função
 		private final int positionArgument;
 		private int positionMemory;
-
+		private Frame frame;
 
 		EntryArray(String name, int line, Type type, Type typeElement, int size, int positionArgument) {
 			this.name = name;
@@ -145,6 +160,7 @@ public final class ArrayTable {
 			this.size = size;
 			this.positionArgument = positionArgument;
 			this.positionMemory = -1;
+			this.frame = null;
 		}
 	}
 }

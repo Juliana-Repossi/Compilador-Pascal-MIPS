@@ -16,8 +16,8 @@ import ast.AST;
 public final class FrameStack extends Stack<Frame> {
 	// No mundo real esses métodos precisam de verificações de erros.
 	
-	public Frame pushFrame(AST node, IdTable it, ArrayTable at) {
-        Frame frame = new Frame(node,it,at);
+	public Frame pushFrame(Frame frameDad, IdTable it, ArrayTable at) {
+        Frame frame = new Frame(frameDad,it,at);
 		super.push(frame);
         return frame;
 	}

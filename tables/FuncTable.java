@@ -101,6 +101,14 @@ public final class FuncTable {
 	public void setArraySize(int index,String array_name, int size){
 		getArrayTable(index).setSizeArray(size,array_name);
 	}
+
+	public void setNodeFunction(AST node,int index){
+		table.get(index).node = node;
+	}
+
+	public AST getNodeFunction(int index){
+		return table.get(index).node;
+	}
 	
 	private static final class EntryFunc {
     	private final String name;

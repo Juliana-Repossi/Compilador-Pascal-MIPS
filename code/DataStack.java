@@ -28,6 +28,10 @@ public final class DataStack extends Stack<Word> {
 		return super.pop().toFloat();
 	}
 
+	public boolean isEmpty() {
+		return this.size() == 0;
+	}
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		Formatter f = new Formatter(sb);
