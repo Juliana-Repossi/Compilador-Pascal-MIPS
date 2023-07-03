@@ -9,7 +9,7 @@ BIN_PATH=bin
 
 DATA=$ROOT
 IN=$DATA/in/Certos/
-OUT=$DATA/out_correct/$TEST_PATH
+OUT=$DATA/out_correct
 #IN=$DATA/in/Certos
 
 for dir in $IN/*; do
@@ -23,7 +23,7 @@ for dir in $IN/*; do
     for infile in $dir/*.pas; do
         base=$(basename $infile)
 
-        outfile=$OUT/${base/.pas/.txt}
+        outfile=$OUT/$basedir/${base/.pas/.txt}
         echo Running $base
         # dotfile=$OUT/$basedir/${base/.pas/.dot}
         # pdffile=$OUT/$basedir/${base/.pas/.pdf}
