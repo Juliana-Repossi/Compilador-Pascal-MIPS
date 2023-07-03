@@ -1,0 +1,7 @@
+read (integer): read (real): read (string): read (access array integer): read (access array real): 2
+9.5
+false
+Compiladores
+10
+12.5555
+false

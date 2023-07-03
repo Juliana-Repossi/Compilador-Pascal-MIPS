@@ -67,23 +67,35 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		int positionMemory;
 
 		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
-			visit(node.getChild(0));
+			visit(node.getChild(0)); // acesso do array
 			int value = currentFrame.popiDataStack(); // apenas retirando, este valor não é utilizado aqui
 			int arrayIndex = currentFrame.popiDataStack();
 			int accessArray = currentFrame.popiDataStack();
-			positionMemory = currentFrame.getArrayTable().getMemoryPosition(arrayIndex) + accessArray;
 
+			Frame arrayFrame = currentFrame.getArrayTable().getFrame(arrayIndex);
+			//verificar array por referencia ou local
+			if(arrayFrame == null){
+				//declaração local
+				arrayFrame = currentFrame;
+			}
+			//else{
+			// 	//passado por referencia
+			// 	arrayIndex = currentFrame.getArrayTable().getMemoryPosition(arrayIndex);
+			// }
+
+			positionMemory = currentFrame.getArrayTable().getMemoryPosition(arrayIndex) + accessArray;
+				
 			if(node.getChild(0).type == Type.INTEGER) {
 				resultInt = currentFrame.popiDataStack();
-				currentFrame.storeiDataStackArrayMemory(positionMemory, resultInt);
+				arrayFrame.storeiDataStackArrayMemory(positionMemory, resultInt);
 			
 			} else if(node.getChild(0).type == Type.REAL) {
 				resultFloat = currentFrame.popfDataStack();
-				currentFrame.storefDataStackArrayMemory(positionMemory, resultFloat);
+				arrayFrame.storefDataStackArrayMemory(positionMemory, resultFloat);
 		
 			} else if(node.getChild(0).type == Type.BOOLEAN) {
 				resultInt = currentFrame.popiDataStack();
-				currentFrame.storeiDataStackArrayMemory(positionMemory, resultInt);
+				arrayFrame.storeiDataStackArrayMemory(positionMemory, resultInt);
 			}
 			
 		}else if (node.getChild(0).kind == NodeKind.VAR_USE_NODE){
@@ -113,6 +125,7 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	// TODO
 	@Override
 	protected Void visit_var_use_node(AST node){
+
 		Type type = node.type;
 		int intValue;
 		float floatValue;
@@ -141,28 +154,8 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	// TODO
 	@Override
 	protected Void visit_var_use_array_node(AST node){
-		// Type type = node.type;
-		// int intValue;
-		// float floatValue;
-
-		// int indexArray = node.intData;
-
-		// if(type == Type.INTEGER){
-		// 	intValue = currentFrame.loadiDataStackArrayMemory(node.intData);
-		// 	currentFrame.pushiDataStack(intValue);
-
-		// }else if(type == Type.REAL){
-		// 	floatValue = currentFrame.loadfDataStackArrayMemory(node.intData);
-		// 	currentFrame.pushfDataStack(floatValue);
-
-		// }else if(type == Type.BOOLEAN){
-		// 	intValue = currentFrame.loadiDataStackArrayMemory(node.intData);
-		// 	currentFrame.pushiDataStack(intValue);
-		// }
-
-
-
-
+		
+		currentFrame.pushiDataStack(node.intData);
 
 		return null;
 	}
@@ -178,13 +171,24 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		visit(node.getChild(0)); // expr
 		currentFrame.pushiDataStack(node.intData);
 
-		int indexArray = currentFrame.popiDataStack();
-		int acessArray = currentFrame.popiDataStack();
+		int indexArray = currentFrame.popiDataStack(); // é o index de array na tabela do frame local
+		int acessArray = currentFrame.popiDataStack(); // é a posição que está sendo acessada
+
+		Frame arrayFrame = currentFrame.getArrayTable().getFrame(indexArray);
+		int memoryPosition = currentFrame.getArrayTable().getMemoryPosition(indexArray);
+		
+		//verificar array por referencia ou local
+		if(arrayFrame == null){
+			//declaração local
+			// System.out.println("ENTROU ARRAYFRAME NULL");
+			arrayFrame = currentFrame;
+		}
 
 		int sizeArray = currentFrame.getArrayTable().getSizeArray(indexArray);
 		String idArray = currentFrame.getArrayTable().getName(indexArray);
 
 		if(acessArray < 0 || acessArray >= sizeArray) {
+
 			MsgErros.segmentationFault(idArray, acessArray, sizeArray);
 		}
 
@@ -192,16 +196,19 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		currentFrame.pushiDataStack(indexArray);
 
 		if(node.type == Type.INTEGER){
-			int intValue = currentFrame.loadiDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
+			// int intValue = currentFrame.loadiDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
+			// currentFrame.pushiDataStack(intValue);
+			int intValue = arrayFrame.loadiDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
 			currentFrame.pushiDataStack(intValue);
 
 		}else if(node.type == Type.REAL){
-			float floatValue = currentFrame.loadfDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
-			
+			// float floatValue = currentFrame.loadfDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
+			float floatValue = arrayFrame.loadfDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
 			currentFrame.pushfDataStack(floatValue);
 
 		}else if(node.type == Type.BOOLEAN){
-			int intValue = currentFrame.loadiDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
+			// int intValue = currentFrame.loadiDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
+			int intValue = arrayFrame.loadiDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
 			currentFrame.pushiDataStack(intValue);
 		}
 
@@ -623,6 +630,8 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	@Override
 	protected Void visit_int_val_node(AST node){
 		currentFrame.pushiDataStack(node.intData);
+		// System.out.println("Entrou int val");
+		//currentFrame.imprimeStack();
 		return null;
 	}
 
@@ -960,24 +969,32 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			int value = currentFrame.popiDataStack(); // apenas retirando, este valor não é utilizado aqui
 			int arrayIndex = currentFrame.popiDataStack();
 			int accessArray = currentFrame.popiDataStack();
+
+			Frame arrayFrame = currentFrame.getArrayTable().getFrame(arrayIndex);
+			//verificar array por referencia ou local
+			if(arrayFrame == null){
+				//declaração local
+				arrayFrame = currentFrame;
+			}else{
+				//passado por referencia
+				arrayIndex = currentFrame.getArrayTable().getMemoryPosition(arrayIndex);
+			}
+
 			positionMemory = currentFrame.getArrayTable().getMemoryPosition(arrayIndex) + accessArray;
 			
 			if(node.getChild(0).type == Type.INTEGER) {
 				System.out.printf("read (access array integer): ");
 				resultInt = in.nextInt();
-				currentFrame.storeiDataStackArrayMemory(positionMemory, resultInt);
+				arrayFrame.storeiDataStackArrayMemory(positionMemory, resultInt);
 			
 			} else if(node.getChild(0).type == Type.REAL) {
 				System.out.printf("read (access array real): ");
 				resultFloat = in.nextFloat();
-				currentFrame.storefDataStackArrayMemory(positionMemory, resultFloat);
+				arrayFrame.storefDataStackArrayMemory(positionMemory, resultFloat);
 			} 
 
 		} else if(node.getChild(0).kind == NodeKind.VAR_USE_NODE) {
 			positionMemory = node.getChild(0).intData;
-			System.out.printf("node type");
-
-			System.out.println(node.getChild(0).type);
 
 			if(node.getChild(0).type == Type.INTEGER){
 				System.out.printf("read (integer): ");
@@ -1211,44 +1228,68 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	// TODO
 	@Override	
 	protected Void visit_array_parameter_node(AST node){
+		// Nothing to do.
 		return null;
 	}
 		
 	// TODO
 	@Override	
 	protected Void visit_var_pararameter_node(AST node){
+		// Nothing to do.
 		return null;
 	}
 		
 	// TODO
 	@Override	
 	protected Void visit_parameters_node(AST node){
+		// Nothing to do.
 		return null;
 	}
 
-	private Void initiliaze_memory_function_procedure(){
+	private Void initiliaze_memory_function_procedure(AST node){
 		int i=0;
-		while (!currentFrame.isEmptyDataStack()){
-
+		//inicializa a memoria com os argumentos
+		while (!currentFrame.isEmptyDataStack()){		
+			// currentFrame.imprimeStack();
 			Type type = currentFrame.getIdTable().getTypeByPositionArgument(i);
 			
 			if(type != null){
+				
+				int line = currentFrame.getIdTable().getLineByPositionArgument(i);
 				//inicializa o valor na idTable
 				if(type == Type.INTEGER){
-					currentFrame.storeiDataStackIdMemory(i,currentFrame.stack.popi());
+					currentFrame.storeiDataStackIdMemory(line,currentFrame.popiDataStack());
 
 				} else if(type == type.REAL){
-					currentFrame.storefDataStackIdMemory(i,currentFrame.stack.popf());
+					currentFrame.storefDataStackIdMemory(line,currentFrame.popfDataStack());
 
 				} else if(type == type.STRING){
-					currentFrame.storeiDataStackIdMemory(i,currentFrame.stack.popi());
+					currentFrame.storeiDataStackIdMemory(line,currentFrame.popiDataStack());
 
 				} else if(type == type.BOOLEAN){
-					currentFrame.storeiDataStackIdMemory(i,currentFrame.stack.popi());
+					currentFrame.storeiDataStackIdMemory(line,currentFrame.popiDataStack());
 				}
 			}
-			i +=1;			
+			i++;			
 		}
+
+
+		//inicializa as posições de memoria dos arrays
+		int posit = 0;
+		ArrayTable  at = currentFrame.getArrayTable();
+
+
+		for(int j=0; j < at.getSizeArrayTable(); j++){
+			
+			if(at.getPositionArgument(j) == -1){
+				at.setMemoryPosition(j,posit);
+				posit = posit + at.getSize(j); 
+			}
+		}
+			
+		//inicializa a memoria com as constantes
+		visit(node.getChild(1));
+		
 		return null;
 	}
 		
@@ -1258,7 +1299,7 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		Type typeReturn = node.type;
 		
 		//setar a memória com os parametros passados (tirando arrays)
-		initiliaze_memory_function_procedure();
+		initiliaze_memory_function_procedure(node);
 
 		visit(node.getChild(node.getChildrenSize()-1)); // visitando block
 		
@@ -1276,7 +1317,7 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			currentFrame.frameDad.pushiDataStack(stringReturn);
 
 		} else if(typeReturn == Type.BOOLEAN){
-			int boolReturn =currentFrame.loadiDataStackIdMemory(0);
+			int boolReturn = currentFrame.loadiDataStackIdMemory(0);
 			currentFrame.frameDad.pushiDataStack(boolReturn);
 		}
 		
@@ -1291,7 +1332,7 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	protected Void visit_procedure_node(AST node){
 		
 		//setar a memória com os parametros passados (tirando arrays)
-		initiliaze_memory_function_procedure();
+		initiliaze_memory_function_procedure(node);
 
 		visit(node.getChild(node.getChildrenSize()-1)); // visitando block
 				
@@ -1303,48 +1344,87 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		
 	// TODO
 	@Override	
-	protected Void visit_call_procedure_node(AST node){
-		Frame dadFrame = currentFrame;
-		currentFrame = frameStack.pushFrame(dadFrame, pt.getIdTable(node.intData), pt.getArrayTable(node.intData));
-		System.out.println("Foi");
+	protected Void visit_call_procedure_node(AST node){		
 
+		Frame procFrame = frameStack.pushFrame(currentFrame, pt.getIdTable(node.intData), pt.getArrayTable(node.intData));
+		
+		AST astProcedure = pt.getNodeProcedure(node.intData);
 
-		AST nodeProcedure = pt.getNodeProcedure(node.intData);
+		//passar os parametros para a função
+		for (int i= node.getChildrenSize() - 1; i>=0 ; i--){
+			
+			if(node.getChild(i).kind == NodeKind.VAR_USE_ARRAY_NODE){
+				//passar um array por referencia
+				//verificar se ele já é um array passado por referencia
+				visit(node.getChild(i));
+				int lineArrayDadFrame = currentFrame.popiDataStack();
+				Frame frameArray = currentFrame.getArrayTable().getFrame(lineArrayDadFrame);
+				int positionMemory = currentFrame.getArrayTable().getMemoryPosition(lineArrayDadFrame);
+				int line = procFrame.getArrayTable().searchPositionArgument(i);
 
-		for (int i=node.getChildrenSize() - 1; i<=0; i--){
-
-			//se for um array passado por referencia
-			if(node.getChild(i).kind == NodeKind.VAR_USE_ARRAY_NODE)
-			{
-				//atualizar o frame e a posição de memória que o array começa
-				//para passar por referencia
-
-				//verificar a qual frame o array está relacionado
-				ArrayTable currentArrayTable = currentFrame.getArrayTable();
-				Frame arrayFrame = currentArrayTable.getFrame(node.getChild(i).intData);
-
-				//declaração local do pai
-				if( arrayFrame == null){
-					pt.getArrayTable(node.intData).setFrame(node.getChild(i).intData,dadFrame);
-					//pegar a posição de memória que ele começa
-					int position = currentArrayTable.getMemoryPosition(node.getChild(i).intData);
-					pt.getArrayTable(node.intData).setMemoryPosition(node.getChild(i).intData,position);
+				// setando o size do array para a função passada por referência na tabela de funções
+				int sizeArray = currentFrame.getArrayTable().getSizeArray(lineArrayDadFrame);
+				procFrame.getArrayTable().setSizeArrayByLine(line, sizeArray);
+				
+				if(frameArray == null){
+					procFrame.getArrayTable().setFrame(line,currentFrame);
+					procFrame.getArrayTable().setMemoryPosition(line,positionMemory);
+					
 				}else{
-					pt.getArrayTable(node.intData).setFrame(node.getChild(i).intData,arrayFrame);
-					//pegar a posição de memória que ele começa
-					int position = arrayFrame.getArrayTable().getMemoryPosition(node.getChild(i).intData);
-					pt.getArrayTable(node.intData).setMemoryPosition(node.getChild(i).intData,position);
+					//já foi passado por referencia
+					procFrame.getArrayTable().setFrame(line,frameArray);
+					procFrame.getArrayTable().setMemoryPosition(line,positionMemory);
 				}
 
+
 			}else{
+				//tipo simples - passagem por cópia
 				visit(node.getChild(i));
+
+				if(node.getChild(i).type == Type.INTEGER) {
+						int int_expr = currentFrame.popiDataStack();
+						procFrame.pushiDataStack(int_expr);
+						
+					} else if(node.getChild(i).type == Type.REAL) {
+						float float_expr = currentFrame.popfDataStack();
+						procFrame.pushfDataStack(float_expr);
+
+					} else if(node.getChild(i).type == Type.BOOLEAN){
+						int bool_expr = currentFrame.popiDataStack();
+						procFrame.pushiDataStack(bool_expr);
+
+					} else if(node.getChild(i).type == Type.STRING){
+						int str_expr = currentFrame.popiDataStack();
+						procFrame.pushiDataStack(str_expr);
+					}
+				
+				if(node.getChild(i).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+					// estamos interessados apenas no valor do acesso
+					if(node.getChild(i).type == Type.INTEGER) {
+						int int_expr = currentFrame.popiDataStack();
+						currentFrame.popiDataStack();
+						currentFrame.popiDataStack();
+						procFrame.pushiDataStack(int_expr);
+						
+					} else if(node.getChild(i).type == Type.REAL) {
+						float float_expr = currentFrame.popfDataStack();
+						currentFrame.popfDataStack();
+						currentFrame.popfDataStack();
+						procFrame.pushfDataStack(float_expr);
+
+					} else if(node.getChild(i).type == Type.BOOLEAN){
+						int bool_expr = currentFrame.popiDataStack();
+						currentFrame.popiDataStack();
+						currentFrame.popiDataStack();
+						procFrame.pushiDataStack(bool_expr);
+					}
+				}
 			}
 		}
-
-		visit(nodeProcedure);
 		
-		System.out.println("Voltou");
-		
+		Frame dadFrame = currentFrame;
+		currentFrame = procFrame;
+		visit(astProcedure);
 		currentFrame = dadFrame;
 		return null;
 	}
@@ -1352,47 +1432,88 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	// TODO
 	@Override	
 	protected Void visit_call_function_node(AST node){
-		Frame dadFrame = currentFrame;
-		currentFrame = frameStack.pushFrame(dadFrame,ft.getIdTable(node.intData),ft.getArrayTable(node.intData));
-		System.out.println("Foi");
+		
+		Frame funcFrame = frameStack.pushFrame(currentFrame, ft.getIdTable(node.intData), ft.getArrayTable(node.intData));
 
-		//PROCURAR A FUNÇÃO	
-		AST nodeFunction = ft.getNodeFunction(node.intData);
+		AST astFunction = ft.getNodeFunction(node.intData);
 
-		for (int i=node.getChildrenSize() - 1; i<=0; i--){
+		//passar os parametros para a função
+		for (int i= node.getChildrenSize() - 1; i>=0 ; i--){
+			
+			if(node.getChild(i).kind == NodeKind.VAR_USE_ARRAY_NODE){
+				//passar um array por referencia
+				//verificar se ele já é um array passado por referencia
+				visit(node.getChild(i));
+				int lineArrayDadFrame = currentFrame.popiDataStack();
+				Frame frameArray = currentFrame.getArrayTable().getFrame(lineArrayDadFrame);
+				int positionMemory = currentFrame.getArrayTable().getMemoryPosition(lineArrayDadFrame);
+				int line = funcFrame.getArrayTable().searchPositionArgument(i);
 
-			//se for um array passado por referencia
-			if(node.getChild(i).kind == NodeKind.VAR_USE_ARRAY_NODE)
-			{
-				//atualizar o frame e a posição de memória que o array começa
-				//para passar por referencia
-
-				//verificar a qual frame o array está relacionado
-				ArrayTable currentArrayTable = currentFrame.getArrayTable();
-				Frame arrayFrame = currentArrayTable.getFrame(node.getChild(i).intData);
-
-				//declaração local do pai
-				if( arrayFrame == null){
-					ft.getArrayTable(node.intData).setFrame(node.getChild(i).intData,dadFrame);
-					//pegar a posição de memória que ele começa
-					int position = currentArrayTable.getMemoryPosition(node.getChild(i).intData);
-					ft.getArrayTable(node.intData).setMemoryPosition(node.getChild(i).intData,position);
+				// setando o size do array para a função passada por referência na tabela de funções
+				int sizeArray = currentFrame.getArrayTable().getSizeArray(lineArrayDadFrame);
+				funcFrame.getArrayTable().setSizeArrayByLine(line, sizeArray);
+				
+				if(frameArray == null){
+					funcFrame.getArrayTable().setFrame(line,currentFrame);
+					funcFrame.getArrayTable().setMemoryPosition(line,positionMemory);
+					
 				}else{
-					pt.getArrayTable(node.intData).setFrame(node.getChild(i).intData,arrayFrame);
-					//pegar a posição de memória que ele começa
-					int position = arrayFrame.getArrayTable().getMemoryPosition(node.getChild(i).intData);
-					ft.getArrayTable(node.intData).setMemoryPosition(node.getChild(i).intData,position);
+					//já foi passado por referencia
+					funcFrame.getArrayTable().setFrame(line,frameArray);
+					funcFrame.getArrayTable().setMemoryPosition(line,positionMemory);
 				}
 
+
 			}else{
+				//tipo simples - passagem por cópia
 				visit(node.getChild(i));
+
+				if(node.getChild(i).type == Type.INTEGER) {
+						int int_expr = currentFrame.popiDataStack();
+						funcFrame.pushiDataStack(int_expr);
+						
+					} else if(node.getChild(i).type == Type.REAL) {
+						float float_expr = currentFrame.popfDataStack();
+						funcFrame.pushfDataStack(float_expr);
+
+					} else if(node.getChild(i).type == Type.BOOLEAN){
+						int bool_expr = currentFrame.popiDataStack();
+						funcFrame.pushiDataStack(bool_expr);
+
+					} else if(node.getChild(i).type == Type.STRING){
+						int str_expr = currentFrame.popiDataStack();
+						funcFrame.pushiDataStack(str_expr);
+					}
+				
+				if(node.getChild(i).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+					// estamos interessados apenas no valor do acesso
+					if(node.getChild(i).type == Type.INTEGER) {
+						int int_expr = currentFrame.popiDataStack();
+						currentFrame.popiDataStack();
+						currentFrame.popiDataStack();
+						funcFrame.pushiDataStack(int_expr);
+						
+					} else if(node.getChild(i).type == Type.REAL) {
+						float float_expr = currentFrame.popfDataStack();
+						currentFrame.popfDataStack();
+						currentFrame.popfDataStack();
+						funcFrame.pushfDataStack(float_expr);
+
+					} else if(node.getChild(i).type == Type.BOOLEAN){
+						int bool_expr = currentFrame.popiDataStack();
+						currentFrame.popiDataStack();
+						currentFrame.popiDataStack();
+						funcFrame.pushiDataStack(bool_expr);
+					}
+				}
 			}
 		}
+		
+		Frame dadFrame = currentFrame;
+		currentFrame = funcFrame;
 
-		visit(nodeFunction);
-		
-		System.out.println("Voltou");
-		
+		visit(astFunction);
+
 		currentFrame = dadFrame;
 		return null;
 	}
@@ -1449,5 +1570,3 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		return unescapedStr;
 	}
 }
-
-

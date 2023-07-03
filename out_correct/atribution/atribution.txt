@@ -1,0 +1,14 @@
+3
+3.7
+true
+Minha String
+2
+3
+3.14
+6.5
+true
+false
+string1
+string2
+string1 string2 Minha String
+false

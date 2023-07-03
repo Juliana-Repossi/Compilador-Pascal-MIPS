@@ -23,6 +23,14 @@ public final class ArrayTable {
 		}
 		return -1;
 	}
+	public int searchPositionArgument(int positionArgument) {
+		for (int i = 0; i < table.size(); i++) {
+			if (table.get(i).positionArgument == positionArgument) {
+				return i;
+			}
+		}
+		return -1;
+	}
 
 	public int addArray(String s, int line, Type type, Type typeElement, int size, int positionArgument) {
 		
@@ -105,9 +113,14 @@ public final class ArrayTable {
 		}
 		return null;
 	}
+	
 
 	public int getSizeArray(int i) {
 		return table.get(i).size;
+	}
+
+	public void setSizeArrayByLine(int line, int size) {
+		table.get(line).size = size ;
 	}
 
 	public void setSizeArray(int size, String name_array){
@@ -120,8 +133,8 @@ public final class ArrayTable {
 		Formatter f = new Formatter(sb);
 		f.format("Array table:\n");
 		for (int i = 0; i < table.size(); i++) {
-			f.format("Entry %d -- name: %s, line: %d, type: %s, typeElement: %s, size: %d, positionArgument: %d\n", i,
-	                 getName(i), getLine(i), getType(i).toString(), getTypeElement(i).toString(), getSize(i), getPositionArgument(i));
+			f.format("Entry %d -- name: %s, line: %d, type: %s, typeElement: %s, size: %d, positionArgument: %d positionMemory: %d\n", i,
+	                 getName(i), getLine(i), getType(i).toString(), getTypeElement(i).toString(), getSize(i), getPositionArgument(i), getMemoryPosition(i));
 		}
 		f.close();
 		return sb.toString();

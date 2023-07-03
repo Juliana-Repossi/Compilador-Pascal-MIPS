@@ -67,6 +67,15 @@ public final class IdTable {
 		return null;
 	}
 
+	public int getLineByPositionArgument(int position) {
+		for(int i = 0; i < table.size(); i++) {
+			if(getPositionArgument(i) == position) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		Formatter f = new Formatter(sb);

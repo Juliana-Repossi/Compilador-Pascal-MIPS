@@ -499,6 +499,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
             int id = procTable.addProc(ctx.ID().getText(),0,ctx.getStart().getLine());
 
             ast = new AST(NodeKind.PROCEDURE_NODE,id,Type.NO_TYPE);
+            procTable.setNodeProcedure(ast,id);
 
             //trocar as tabelas correntes
             changeCurrentFunctionProcedure(procTable.getIdTable(id),procTable.getArrayTable(id),2);
@@ -719,7 +720,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
             if(funcTable.getQtdParameters(index) != ctx.expr().size()){
                 MsgErros.incompatibleQtdParameters(ctx.getStart().getLine(),funcTable.getQtdParameters(index),ctx.expr().size());
             }
-
+            //parameters
             for(int i = 0; ctx.expr(i) != null; i++) {
                 child = visit(ctx.expr(i));
                 Type type = funcTable.getTypeByArgument(i, ctx.ID().getText());

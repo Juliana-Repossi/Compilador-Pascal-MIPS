@@ -45,16 +45,16 @@ public class Main {
 		Visitor visitor = new Visitor();
 		AST ast = visitor.visit(tree);
 
-		System.out.println("PARSE SUCCESSFUL!");
-		System.out.println("\n\n");
-		System.out.println(visitor.getStrTable().toString());
-		System.out.println(visitor.getIdTable().toString());
-		System.out.println(visitor.getArrayTable().toString());
-		System.out.println(visitor.getFuncTable().toString());
-		System.out.println(visitor.getProcTable().toString());
+		// System.out.println("PARSE SUCCESSFUL!");
+		// System.out.println("\n\n");
+		// System.out.println(visitor.getStrTable().toString());
+		// System.out.println(visitor.getIdTable().toString());
+		// System.out.println(visitor.getArrayTable().toString());
+		// System.out.println(visitor.getFuncTable().toString());
+		// System.out.println(visitor.getProcTable().toString());
 		// AST.printDot(ast, visitor.getArrayTable(), visitor.getIdTable(), visitor.getFuncTable(), visitor.getProcTable());
 	
-		// Interpreter interpreter = new Interpreter(visitor.getStrTable(), visitor.getIdTable(), visitor.getArrayTable(), visitor.getFuncTable(), visitor.getProcTable());
-		// interpreter.execute(ast);
+		Interpreter interpreter = new Interpreter(visitor.getStrTable(), visitor.getIdTable(), visitor.getArrayTable(), visitor.getFuncTable(), visitor.getProcTable());
+		interpreter.execute(ast);
 	}
 }

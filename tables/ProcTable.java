@@ -57,7 +57,7 @@ public final class ProcTable {
 
 		for (int i = 0; i < table.size(); i++) {
 			f.format("\n------------------------------------------------------------\n");
-			f.format("Entry %d -- name: %s, qtdParameters: %d, line: %d \n", i, getName(i), getQtdParameters(i), getLine(i));
+			f.format("Entry %d -- name: %s, qtdParameters: %d, line: %d\n", i, getName(i), getQtdParameters(i), getLine(i));
 			f.format("    %s\n", getIdTable(i).toString());
 			f.format("    %s\n", getArrayTable(i).toString());
 		}
