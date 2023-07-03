@@ -78,10 +78,6 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 				//declaração local
 				arrayFrame = currentFrame;
 			}
-			//else{
-			// 	//passado por referencia
-			// 	arrayIndex = currentFrame.getArrayTable().getMemoryPosition(arrayIndex);
-			// }
 
 			positionMemory = currentFrame.getArrayTable().getMemoryPosition(arrayIndex) + accessArray;
 				
@@ -196,18 +192,15 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 		currentFrame.pushiDataStack(indexArray);
 
 		if(node.type == Type.INTEGER){
-			// int intValue = currentFrame.loadiDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
-			// currentFrame.pushiDataStack(intValue);
+
 			int intValue = arrayFrame.loadiDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
 			currentFrame.pushiDataStack(intValue);
 
 		}else if(node.type == Type.REAL){
-			// float floatValue = currentFrame.loadfDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
 			float floatValue = arrayFrame.loadfDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
 			currentFrame.pushfDataStack(floatValue);
 
 		}else if(node.type == Type.BOOLEAN){
-			// int intValue = currentFrame.loadiDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
 			int intValue = arrayFrame.loadiDataStackArrayMemory(currentFrame.getArrayTable().getMemoryPosition(indexArray) + acessArray);
 			currentFrame.pushiDataStack(intValue);
 		}
@@ -630,8 +623,6 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 	@Override
 	protected Void visit_int_val_node(AST node){
 		currentFrame.pushiDataStack(node.intData);
-		// System.out.println("Entrou int val");
-		//currentFrame.imprimeStack();
 		return null;
 	}
 
@@ -757,25 +748,7 @@ public class Interpreter extends ASTBaseVisitor<Void> {
 			currentFrame.pushfDataStack(minusResult);
 		}
 		
-
 		return null;
-		
-		
-		
-		// visit(node.getChild(1));
-		// visit(node.getChild(0));
-
-
-
-		// if(node.type == Type.INTEGER) {
-		// 	int overResult = currentFrame.popiDataStack()  - currentFrame.popiDataStack();
-		// 	currentFrame.pushiDataStack(overResult);
-		
-		// } else if(node.type == Type.REAL) {
-		// 	float overResult = currentFrame.popfDataStack() - currentFrame.popfDataStack();
-		// 	currentFrame.pushfDataStack(overResult);
-		// }
-		// return null;
 	}
 
 	// TODO
