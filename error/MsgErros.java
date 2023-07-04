@@ -70,7 +70,17 @@ public final class MsgErros {
     }
 
     public static void writeErrorTypeExprNotAccepted(int line, Type type){
-        System.out.println("(" + line + ") - Expressão do tipo  " + type + "não é aceita na escrita.");
+        System.out.println("(" + line + ") - Expressão do tipo  " + type + " não é aceita na escrita.");
         System.exit(16);
+    }
+
+    public static void assignConstantError(int line, String constName) {
+        System.out.println("(" + line + ") - A constante " + constName + " está recebendo uma atribuição.");
+        System.exit(17);
+    }
+
+    public static void segmentationFault(String idArray, int index, int size) {
+        System.out.println("(SEGFAULT) - Acesso " + idArray + "[" + index + "] inválido. Este array possui tamanho " + size + ".");
+        System.exit(18);
     }
 }

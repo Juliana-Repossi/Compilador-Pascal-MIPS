@@ -9,6 +9,8 @@ import tables.StrTable;
 import tables.IdTable;
 import tables.ArrayTable;
 
+import ast.AST;
+
 public final class FuncTable {
 
 	// No mundo real isto certamente deveria ser um hash...
@@ -99,6 +101,14 @@ public final class FuncTable {
 	public void setArraySize(int index,String array_name, int size){
 		getArrayTable(index).setSizeArray(size,array_name);
 	}
+
+	public void setNodeFunction(AST node,int index){
+		table.get(index).node = node;
+	}
+
+	public AST getNodeFunction(int index){
+		return table.get(index).node;
+	}
 	
 	private static final class EntryFunc {
     	private final String name;
@@ -107,6 +117,7 @@ public final class FuncTable {
 		private final int line;
     	private final IdTable idTable;
 		private final ArrayTable arrayTable;
+		private AST node;
 		
 		EntryFunc(String name, int qtdParameters, Type typeReturn, int line) {
 			this.name = name;
@@ -115,6 +126,7 @@ public final class FuncTable {
 			this.line = line;
 			this.idTable = new IdTable();
 			this.arrayTable = new ArrayTable();
+			this.node = null;
 		}
 	}
 }

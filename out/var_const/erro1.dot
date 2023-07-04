@@ -1,0 +1,2 @@
+line 10:28 mismatched input 'string' expecting {'integer', 'real', 'boolean'}
+make: *** [Makefile:44: run] Error 2

@@ -109,7 +109,6 @@ public class Visitor extends PascalParserBaseVisitor<AST>
         return visit(ctx.program_pascal());
     }
 
-
     @Override 
     public AST visitProgram_pascal(PascalParser.Program_pascalContext ctx) {
         AST ast = new AST(NodeKind.PROGRAM_NODE,0,Type.NO_TYPE);
@@ -162,11 +161,13 @@ public class Visitor extends PascalParserBaseVisitor<AST>
         AST value = null;
         AST child = null;
         int index;
-
+        AST const_value = null;
+        
         for(int i = 0 ; i < ctx.ID().size(); i ++){
             value = visit(ctx.val_simple(i));
             index = addIdTable(ctx.ID(i).getText(),currentLine,currentType,true,-1);
-            child = new AST(NodeKind.VAR_DECL_NODE, index,value.type);  
+            child = new AST(NodeKind.VAR_DECL_NODE, index,value.type);
+            child.addChild(value); // const value
             ast.addChild(child);    
         }
         return ast;
@@ -356,6 +357,11 @@ public class Visitor extends PascalParserBaseVisitor<AST>
         if(ctx.ID() != null)
         {
             index = checkId(ctx.ID().getText(),ctx.getStart().getLine());
+            
+            if(currentIdTable.getConst(index) == true) {
+                MsgErros.assignConstantError(currentLine, ctx.ID().getText());
+            }
+            
             type1 = currentIdTable.getTypeByName(ctx.ID().getText());
             left = new AST(NodeKind.VAR_USE_NODE,index,type1);
             ast.addChild(left);   
@@ -396,7 +402,6 @@ public class Visitor extends PascalParserBaseVisitor<AST>
         {
             MsgErros.typeIndexError(ctx.getStart().getLine());
         }
-        // Type type = currentArrayTable.getType(index);
         Type type = currentArrayTable.getTypeElement(index);
         AST ast = new AST(NodeKind.ACCESS_ARRAY_USE_NODE, index, type);
         ast.addChild(element); // informação da expressão para acessar o index correto do array
@@ -419,7 +424,8 @@ public class Visitor extends PascalParserBaseVisitor<AST>
 
         } else if(currentArrayTable.lookupArray(ctx.ID().getText()) != -1) {
             line = currentArrayTable.lookupArray(ctx.ID().getText());
-            ast = new AST(NodeKind.VAR_USE_NODE,line,currentArrayTable.getType(line));
+            ast = new AST(NodeKind.VAR_USE_ARRAY_NODE,line,currentArrayTable.getType(line));
+            // ast = new AST(NodeKind.VAR_USE_NODE,line,currentArrayTable.getType(line));
             return ast;
         } else {
             MsgErros.erroInesperado(ctx.getStart().getLine());
@@ -493,6 +499,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
             int id = procTable.addProc(ctx.ID().getText(),0,ctx.getStart().getLine());
 
             ast = new AST(NodeKind.PROCEDURE_NODE,id,Type.NO_TYPE);
+            procTable.setNodeProcedure(ast,id);
 
             //trocar as tabelas correntes
             changeCurrentFunctionProcedure(procTable.getIdTable(id),procTable.getArrayTable(id),2);
@@ -653,6 +660,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
             visit(ctx.type_simple());
             id = funcTable.addFunc(ctx.ID().getText(), currentType, ctx.getStart().getLine());
             ast = new AST(NodeKind.FUNCTION_NODE, id, funcTable.getTypeReturn(id));  
+            funcTable.setNodeFunction(ast,id);
 
             //trocar as tabelas correntes
             changeCurrentFunctionProcedure(funcTable.getIdTable(id),funcTable.getArrayTable(id),1);
@@ -712,7 +720,7 @@ public class Visitor extends PascalParserBaseVisitor<AST>
             if(funcTable.getQtdParameters(index) != ctx.expr().size()){
                 MsgErros.incompatibleQtdParameters(ctx.getStart().getLine(),funcTable.getQtdParameters(index),ctx.expr().size());
             }
-
+            //parameters
             for(int i = 0; ctx.expr(i) != null; i++) {
                 child = visit(ctx.expr(i));
                 Type type = funcTable.getTypeByArgument(i, ctx.ID().getText());

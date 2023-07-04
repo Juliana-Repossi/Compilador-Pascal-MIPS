@@ -1,0 +1,2 @@
+line 1:0 mismatched input '<EOF>' expecting 'program'
+make: *** [Makefile:44: run] Error 2

@@ -12,11 +12,15 @@ import parser.PascalParser;
 import visitor.Visitor;
 
 
+import ast.AST;
+import code.Interpreter;
+
+
 
 public class Main {
     public static void main(String[] args) throws IOException {
 		// Cria um CharStream que lê os caracteres de stdin.
-		CharStream input = CharStreams.fromStream(System.in);
+		CharStream input = CharStreams.fromFileName(args[0]);
 
 		// Cria um lexer que consome a entrada do CharStream.
 		PascalLexer lexer = new PascalLexer(input);
@@ -41,13 +45,16 @@ public class Main {
 		Visitor visitor = new Visitor();
 		AST ast = visitor.visit(tree);
 
-		System.out.println("PARSE SUCCESSFUL!");
-		System.out.println("\n\n");
-		System.out.println(visitor.getStrTable().toString());
-		System.out.println(visitor.getIdTable().toString());
-		System.out.println(visitor.getArrayTable().toString());
-		System.out.println(visitor.getFuncTable().toString());
-		System.out.println(visitor.getProcTable().toString());
-		AST.printDot(ast, visitor.getArrayTable(), visitor.getIdTable(), visitor.getFuncTable(), visitor.getProcTable());
+		// System.out.println("PARSE SUCCESSFUL!");
+		// System.out.println("\n\n");
+		// System.out.println(visitor.getStrTable().toString());
+		// System.out.println(visitor.getIdTable().toString());
+		// System.out.println(visitor.getArrayTable().toString());
+		// System.out.println(visitor.getFuncTable().toString());
+		// System.out.println(visitor.getProcTable().toString());
+		// AST.printDot(ast, visitor.getArrayTable(), visitor.getIdTable(), visitor.getFuncTable(), visitor.getProcTable());
+	
+		Interpreter interpreter = new Interpreter(visitor.getStrTable(), visitor.getIdTable(), visitor.getArrayTable(), visitor.getFuncTable(), visitor.getProcTable());
+		interpreter.execute(ast);
 	}
 }

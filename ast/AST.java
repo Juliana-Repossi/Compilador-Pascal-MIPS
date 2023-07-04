@@ -35,6 +35,10 @@ public class AST {
 		this.children = new ArrayList<AST>();
 	}
 
+	public int getChildrenSize(){
+		return this.children.size();
+	}
+
 	// Cria o nó com um dado inteiro.
 	public AST(NodeKind kind, int intData, Type type) {
 		this(kind, intData, 0.0f, type);

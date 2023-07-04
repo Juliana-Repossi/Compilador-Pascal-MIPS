@@ -1,0 +1,12 @@
+3.14
+3
+true
+elaine
+3.14
+4.1400003
+5.1400003
+true
+true
+true
+true
+true
