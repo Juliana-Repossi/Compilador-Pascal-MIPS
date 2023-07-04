@@ -1,6 +1,8 @@
 #!/bin/bash
-ROOT=/home/filipe/git/Compilador-Pascal-MIPS
-# ROOT=/home/fgasouza/compiladores-labs/lab5
+# ROOT=/home/fgasouza/compiladores-labs/lab3
+# ROOT=/home/filipe/git/Compilador-Pascal-MIPS
+ROOT=/home/jcrepossi/Compilador-Pascal-MIPS
+# ROOT=/home/juliana/Compilador-Pascal-MIPS
 # ROOT=/home/elaine/git/Compilador-Pascal-MIPS
 ANTLR_PATH=$ROOT/tools/antlr-4.11.1-complete.jar
 CLASS_PATH_OPTION="-cp .:$ANTLR_PATH"
