@@ -122,7 +122,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	protected Void visit_I2R_node(AST node){
         int register_int = visit(node.getChild(0));
 		int register = newFloatReg();
-		emit(WIDf,register,register_int);
+		emit(OpCode.WIDf,register,register_int);
 		return register;
 	}
 
@@ -143,10 +143,10 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
             int regPos = visit(node.getChild(0).getChild(0));
 
 			if(node.getChild(0).type == Type.REAL) {
-				emit(STWf, regAddres, register);
+				emit(OpCode.STWf, regAddres, register);
                 
 			} else {
-				emit(STWi, regAddres, register);
+				emit(OpCode.STWi, regAddres, register);
             }
 			
 		}else if (node.getChild(0).kind == NodeKind.VAR_USE_NODE){
@@ -182,8 +182,6 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	@Override
 	protected Void visit_var_use_node(AST node){
 
-		
-
 		return null;
 	}
 
@@ -213,29 +211,80 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	@Override
 	protected Void visit_not_equal_node(AST node){
 		
-
-		return null;
 	}
 
 	// TODO
 	@Override
-	protected Void visit_equal_node(AST node){
+	protected Integer visit_equal_node(AST node){
 		
-		return null;
+		int reg1 = visit(node.getChild(1)); // expr
+		int reg2 = visit(node.getChild(0)); // expr
+
+		if(node.getChild(1).type == Type.REAL) {
+			int resul_register = newIntReg();
+			emit(OpCode.EQUf,resul_register,reg1,reg2 );
+			return resul_register;
+
+		}else if(node.getChild(1).type == Type.STRING) {
+			int resul_register = newIntReg();
+			emit(OpCode.EQUs,resul_register,reg1,reg2);
+			return resul_register;
+
+		}else { //BOOLEAN, INT
+			int resul_register = newIntReg();
+			emit(OpCode.EQUi,resul_register,reg1,reg2);
+			return resul_register;
+		}
+        return -1; 
 	}
 
-	// TODO
 	@Override
-	protected Void visit_less_than_node(AST node){
-		
-		return null;
+	protected Integer visit_less_than_node(AST node){
+		int register1 = visit(node.getChild(0)); // expr0
+		int register2 = visit(node.getChild(1)); // expr1
+
+		if(node.getChild(1).type == Type.STRING) {
+			int resul_register = newIntReg();
+			emit(OpCode.LTHs,resul_register,register1,register2); //see command slt for strings*****
+			return resul_register;
+
+		}
+		else if(node.getChild(1).type  == Type.REAL) {
+			int resul_register = newFloatReg();
+			emit(OpCode.SLT,resul_register,register1,register2);
+			return resul_register;
+
+		}else { //Integer or Boolena
+			int resul_register = newIntReg();
+			emit(OpCode.SLT,resul_register,register1,register2);
+			return resul_register;
+		} 
+        return -1;
 	}
 
 	// TODO
 	@Override
 	protected Void visit_greater_than_node(AST node){
-		
-		return null;
+		// int register1 = visit(node.getChild(0)); // expr0
+		// int register2 = visit(node.getChild(1)); // expr1
+
+		// if(node.getChild(1).type == Type.STRING) {
+		// 	int resul_register = newIntReg();
+		// 	emit(OpCode.LTHs, resul_register,register1,register2);
+		// 	return resul_register;
+
+		// }
+		// else if(node.getChild(1).type  == Type.REAL) {
+		// 	int resul_register = newIntReg();
+		// 	emit(OpCode.LTHf,resul_register,register1,register2);
+		// 	return resul_register;
+
+		// }else { //Integer or Boolena
+		// 	int resul_register = newIntReg();
+		// 	emit(OpCode.LTHi,resul_register,register1,register2);
+		// 	return resul_register;
+		// } 
+        // return -1;
 	}
 
 	// TODO
@@ -259,11 +308,12 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 		return null;
 	}
 
-	// TODO
 	@Override
-	protected Void visit_bool_val_node(AST node){
+	protected Integer visit_bool_val_node(AST node){
+		int reg_int = newIntReg();
+		emit(OpCode.LDIi, reg_int , node.intData);
+	    return reg_int;
 		
-		return null;
 	}
 
 	// TODO
@@ -275,13 +325,15 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
 	// TODO
 	@Override
-	protected Void visit_int_val_node(AST node){
-		return null;
+	protected Integer visit_int_val_node(AST node){
+		int reg_int = newIntReg();
+		emit(OpCode.LDIi, reg_int , node.intData);
+	    return reg_int;
 	}
 
 	// TODO
 	@Override
-	protected Void visit_plus_node(AST node){
+	protected Integer visit_plus_node(AST node){
         int reg0 = visit(node.getChild(0));
         int reg1 = visit(node.getChild(1));
         
@@ -309,7 +361,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
 	// TODO
 	@Override
-	protected Void visit_minus_node(AST node){
+	protected Integer visit_minus_node(AST node){
 
 		int reg0 = visit(node.getChild(0)); //expr
 		int reg1 = visit(node.getChild(1)); //expr
@@ -327,7 +379,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
 	// TODO
 	@Override
-	protected Void visit_asterisk_node(AST node){
+	protected Integer visit_asterisk_node(AST node){
 
         int reg0 = visit(node.getChild(0)); //expr
 		int reg1 = visit(node.getChild(1)); //expr
@@ -345,7 +397,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
 	// TODO
 	@Override
-	protected Void visit_slash_node(AST node){
+	protected Integer visit_slash_node(AST node){
 		int reg0 = visit(node.getChild(0)); //expr
 		int reg1 = visit(node.getChild(1)); //expr
      
@@ -392,67 +444,49 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	// TODO
 	@Override
 	protected Void visit_read_node(AST node) {
-		
-		return null;
+	
 	}
 
 	// TODO
 	@Override
 	protected Void visit_write_node(AST node){
-		int register_value = visit(node.getChild(0));
 	
-		if(node.getChild(0).type == Type.INT_TYPE) {
-			emit(CALL, 1 ,register_value); //1 : Write Integer
-			return -1;
-
-		} else if(node.getChild(0).type == Type.REAL_TYPE) {
-			emit(CALL, 2 ,register_value); //2: Write Real
-			return -1;
-
-		} else if(node.getChild(0).type == Type.BOOL_TYPE) {
-			emit(CALL, 1 ,register_value); //1 : Write Integer
-			return -1;
-
-		} else if(node.getChild(0).type == Type.STR_TYPE) {
-			emit(CALL, 4,register_value);  //  4   Write String
-			return -1;
-		}
 		
-		return -1;
 	}
 
 	// TODO
 	@Override
 	protected Void visit_writeln_node(AST node){
         int register_value = visit(node.getChild(0));
-        String new_line = "\n" ;
+        // String new_line = "\n" ;
         //fazer registrador de nova linha
 
 		if(node.getChild(0).type == Type.INT_TYPE) {
-			emit(CALL, 1 ,register_value); //1 : Write Integer
+			emit(OpCode.CALL, 1 ,register_value); //1 : Write Integer
 			return -1;
 
 		} else if(node.getChild(0).type == Type.REAL_TYPE) {
-			emit(CALL, 2 ,register_value); //2: Write Real
+			emit(OpCode.CALL, 2 ,register_value); //2: Write Real
 			return -1;
 
 		} else if(node.getChild(0).type == Type.BOOL_TYPE) {
-			emit(CALL, 1 ,register_value); //1 : Write Integer
+			emit(OpCode.CALL, 1 ,register_value); //1 : Write Integer
 			return -1;
 
 		} else if(node.getChild(0).type == Type.STR_TYPE) {
-			emit(CALL, 4,register_value);  //  4   Write String
+			emit(OpCode.CALL, 4,register_value);  //  4   Write String
 			return -1;
 		}
-		emit(CALL, 4, "\n");
+		// emit(CALL, 4, reg_new_line);
 		return -1;
 	}
 
-	// TODO
+	
 	@Override
-	protected Void visit_real_val_node(AST node){
-		
-		return null;
+	protected Integer visit_real_val_node(AST node){
+		int reg_float = newFloatReg();
+		emit(OpCode.LDIf, reg_float , node.floatData);
+	    return reg_float;
 	}
 
 	// TODO
@@ -466,7 +500,6 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	@Override	
 	protected Void visit_str_val_node(AST node){
 		
-		return null;
 	}
 		
 	// TODO
@@ -476,26 +509,41 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 		return null;
 	}
 
-	// TODO
+	
 	@Override	
-	protected Void visit_not_node(AST node){
+	protected Integer visit_not_node(AST node){
+		int reg0 = visit(node.getChild(0)); 
+		int reg_result = newIntReg();
+
+		int zero = newIntReg();
+		OpCode.LDIi(zero, 0);
 		
-		return null;
+		emit(OpCode.NOR, reg_result, reg0, zero);
+
+		return -1;
 	}
 		
-	// TODO
+	
 	@Override	
-	protected Void visit_and_node(AST node){
+	protected Integer visit_and_node(AST node){
+		int reg1 = visit(node.getChild(1)); //rightChild
+		int reg0 = visit(node.getChild(0)); //leftChild
+		int reg_result = newIntReg();
 		
-		
-		return null;
+		emit(OpCode.AND, reg_result, reg1, reg0);
+		return -1;
 	}
 		
-	// TODO
+	
 	@Override	
-	protected Void visit_or_node(AST node){
+	protected Integer visit_or_node(AST node){
 		
-		return null;
+		int reg1 = visit(node.getChild(1)); //rightChild
+		int reg0 = visit(node.getChild(0)); //leftChild
+		int reg_result = newIntReg();
+		
+		emit(OpCode.OR, reg_result, reg1, reg0);
+		return -1;
 	}
 		
 	// TODO
@@ -571,7 +619,6 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	// Funções auxiliares para implementar visit_write_node e visit_writeln_node
 
 	private Void writeInt() {
-
 		return null;
 	}
 

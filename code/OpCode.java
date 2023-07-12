@@ -30,7 +30,11 @@ public enum OpCode {
     // Logic ops
 
     // Logical OR
-    OROR("or", 3), 	// OROR ix, iy, iz	; ix <- (bool) iy || (bool) iz
+    //OROR("or", 3), 	// OROR ix, iy, iz	; ix <- (bool) iy || (bool) iz
+    OR("or", 3), 	// OR ix, iy, iz	; ix <- (bool) iy || (bool) iz ***
+    AND("and", 3) ,// AND ix, iy, iz	; ix <- (bool) iy && (bool) iz ***
+    NOR("nor", 2, 0), // NOR is ix, iy, 0 ; ix <- iy || 0 **   //There's no NOT in MIPS, # Perform the logical NOT operation on iy, result in ix
+
     // Equality
     EQUi("EQUi", 3), 	// EQUi ix, iy, iz	; ix <- iy == iz ? 1 : 0
     EQUf("c.eq.s", 3),	// EQUf ix, fy, fz	; ix <- fy == fz ? 1 : 0
@@ -39,6 +43,11 @@ public enum OpCode {
     LTHi("LTHi", 3), 	// LTHi ix, iy, iz	; ix <- iy < iz ? 1 : 0
     LTHf("LTHf", 3), 	// LTHi ix, fy, fz	; ix <- iy < iz ? 1 : 0
     LTHs("LTHs", 3), 	// LTHs ix, iy, iz	; ix <- str_tab[iy] < str_tab[iz] ? 1 : 0
+
+    //SET ON LESS THAN
+    SLT("slt", 3) , // SLT ix, iy, iz	; ix <- iy < iz ? 1 : 0 ***
+    //SET ON GREATHER THAN
+    SGT("blt", 3) ,// SGT ix, iy, iz	; ix <- iy > iz ? 1 : 0 ***
 
     // ---------------------------------------------------
     // Branches and jumps
@@ -93,7 +102,7 @@ public enum OpCode {
 
     CALL("CALL", 2); // CALL code, x
     SYSCALL("syscall", 0); // CALL code, x
-   ADDi("add", 3),	// ADDi ix, iy, iz	; ix <- iy + iz *
+    ADDi("add", 3),	// ADDi ix, iy, iz	; ix <- iy + iz *
     ADDf("add.s", 3),	// ADDf fx, fy, fz	; fx <- fy + fz *
     SUBi("sub", 3),	// SUBi ix, iy, iz	; ix <- iy - iz *
     SUBf("sub.s", 3),	// SUBf fx, fy, fz	; fx <- fy - fz *
@@ -127,5 +136,8 @@ ALL instruction.
 	public String toString() {
 		return this.name;
 	}
+
+    // public static void LDIi(int zero, int i) {
+    // }
 
 }
