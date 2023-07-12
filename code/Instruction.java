@@ -11,12 +11,14 @@ public final class Instruction {
 	public int o1;	// Operands, which can be int or float registers,
 	public int o2;	// int addresses or offsets, or
 	public int o3;	// integer or float constants (must be in an integer repr.)
+	public String Name; //String com nome da variável para acessar a posição de memória desta
 
-	public Instruction(OpCode op, int o1, int o2, int o3) {
+	public Instruction(OpCode op, int o1, int o2, int o3, String Name) {
 		this.op = op;
 		this.o1 = o1;
 		this.o2 = o2;
 		this.o3 = o3;
+		this.Name = Name;
 	}
 	
 	public String toString() {
@@ -24,9 +26,17 @@ public final class Instruction {
 		Formatter f = new Formatter(sb);
 		f.format("%s", this.op.toString());
 		if (this.op.opCount == 1) {
-			f.format(" %d", this.o1);
+			if(!this.Name.equals("")){
+				f.format(" %d", this.Name);
+			}else{
+				f.format(" %d", this.o1);
+			}
 		} else if (this.op.opCount == 2) {
-			f.format(" %d, %d", this.o1, this.o2);
+			if (!this.Name.equals("")){
+				f.format(" %d, %s", this.o1, this.Name);
+			}else{
+				f.format(" %d, %d", this.o1, this.o2);
+			}
 		} else if (this.op.opCount == 3) {
 			f.format(" %d, %d, %d", this.o1, this.o2, this.o3);
 		}

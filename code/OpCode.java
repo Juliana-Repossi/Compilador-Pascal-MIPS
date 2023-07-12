@@ -39,7 +39,9 @@ public enum OpCode {
     LTHi("LTHi", 3), 	// LTHi ix, iy, iz	; ix <- iy < iz ? 1 : 0
     LTHf("LTHf", 3), 	// LTHi ix, fy, fz	; ix <- iy < iz ? 1 : 0
     LTHs("LTHs", 3), 	// LTHs ix, iy, iz	; ix <- str_tab[iy] < str_tab[iz] ? 1 : 0
-
+    
+    SLT("slt", 3),
+    CLTS("c.lt.s", 2),
     // ---------------------------------------------------
     // Branches and jumps
 
@@ -65,6 +67,18 @@ public enum OpCode {
     STWi("sw", 2),  	// STWi addr, ix		; data_mem[addr] <- ix *
     STWf("s.s", 2),  	// STWf addr, fx		; data_mem[addr] <- fx *
 
+    //Load addr (to name data)
+    LA("la", 2),              //LAA register nameData  -  addr_nameData <- nameData;
+
+    MOVf("mov.s", 2),
+    BC1t("bc1t", 1),
+    BC1f("bc1f", 1),
+    // ---------------------------------------------------
+    // Array
+
+    
+    //-----------------------------------------------------------------------
+
     // ---------------------------------------------------
     // Strings
 
@@ -78,8 +92,8 @@ public enum OpCode {
     // sw $R0, offset($R1) //offset eh opcional, valor contido em $R0 eh armazendado em $R1 + o offset
     // //load
     // la $R0, string  //load the adress os string in register R0
-    LOAD("la", 2)
-    STORE("sw", 2)
+    LOAD("la", 2),
+    STORE("sw", 2),
 
     //Concat ---eh uma função
     // la $R0, string1 
@@ -91,9 +105,9 @@ public enum OpCode {
     // ---------------------------------------------------
     // System calls, for I/O (see below)
 
-    CALL("CALL", 2); // CALL code, x
-    SYSCALL("syscall", 0); // CALL code, x
-   ADDi("add", 3),	// ADDi ix, iy, iz	; ix <- iy + iz *
+    CALL("CALL", 2), // CALL code, x
+    SYSCALL("syscall", 0), // CALL code, x
+    ADDi("add", 3),	// ADDi ix, iy, iz	; ix <- iy + iz *
     ADDf("add.s", 3),	// ADDf fx, fy, fz	; fx <- fy + fz *
     SUBi("sub", 3),	// SUBi ix, iy, iz	; ix <- iy - iz *
     SUBf("sub.s", 3),	// SUBf fx, fy, fz	; fx <- fy - fz *

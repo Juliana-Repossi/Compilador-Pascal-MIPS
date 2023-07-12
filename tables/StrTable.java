@@ -26,7 +26,7 @@ public final class StrTable extends ArrayList<String>{
 		}
 		super.add(s);
 		return i;
-	}
+	}	
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

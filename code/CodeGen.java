@@ -5,6 +5,7 @@ import java.io.StreamTokenizer;
 import java.io.StringReader;
 import java.util.Scanner;
 
+import static code.Instruction.INSTR_MEM_SIZE;
 import ast.AST;
 import ast.ASTBaseVisitor;
 import ast.NodeKind;
@@ -16,22 +17,13 @@ import tables.StrTable;
 import types.Type;
 import error.MsgErros;
 
-/*
- * Visitador da AST para geração básica de código. Funciona de
- * forma muito similar ao interpretador do laboratório anterior,
- * mas agora estamos trabalhando com um ambiente de execução
- * com código de 3 endereços. Isto quer dizer que não existe mais
- * pilha e todas as operações são realizadas via registradores.
- *
- * Note que não há uma área de memória de dados no código abaixo.
- * Esta área fica agora na TM, que é a "arquitetura" de execução.
- */
+
 public final class CodeGen extends ASTBaseVisitor<Integer> {
 
 	private final Instruction code[]; // Code memory
-	private final StrTable st;
 	private final IdTable it;
     private final ArrayTable at;
+	private final StrTable st;
     private final FuncTable ft;
     private final ProcTable pt;
 	private OpCode BOTb;
@@ -43,13 +35,18 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	// Usamos um valor arbitrário, mas depois seria necessário
 	// fazer o processo de alocação de registradores. Isto está
 	// fora do escopo da disciplina.
-	private static int intRegsCount;
-	private static int floatRegsCount;
+	private static int tempRegisterCount;
+	private static int floatRegisterCount;
 
-	public CodeGen(StrTable st, VarTable vt) {
+	private static int saveRegisterCount;
+
+	public CodeGen(IdTable it, ArrayTable at,StrTable st,FuncTable ft, ProcTable pt) {
 		this.code = new Instruction[INSTR_MEM_SIZE];
+		this.it = it;
+		this.at = at;
 		this.st = st;
-		this.vt = vt;
+		this.ft = ft;
+		this.pt = pt;
 	}
 
 	// Função principal para geração de código.
@@ -60,7 +57,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 		floatRegsCount = 0;
 	    dumpStrTable();
 	    visit(root);
-	    emit(HALT);
+	    emit(OpCode.HALT);
 	    dumpProgram();
 	}
 
@@ -82,24 +79,37 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	// ----------------------------------------------------------------------------
 	// Emits ----------------------------------------------------------------------
 
-	private void emit(OpCode op, int o1, int o2, int o3) {
-		Instruction instr = new Instruction(op, o1, o2, o3);
+	private void emit(OpCode op, int o1, int o2, int o3, String name) {
+		Instruction instr = new Instruction(op, o1, o2, o3, name);
 		// Em um código para o produção deveria haver uma verificação aqui...
 	    code[nextInstr] = instr;
 	    nextInstr++;
 	}
 
 	private void emit(OpCode op) {
-		emit(op, 0, 0, 0);
+		emit(op, 0, 0, 0, "");
+	}
+
+	private void emit(OpCode op, String name) {
+		emit(op, 0, 0, 0,name);
 	}
 
 	private void emit(OpCode op, int o1) {
-		emit(op, o1, 0, 0);
+		emit(op, o1, 0, 0, "");
 	}
 
-	// private void emit(OpCode op, int o1, int o2) {
-	// 	emit(op, o1, o2, 0);
-	// }
+	private void emit(OpCode op, int o1, String name) {
+		emit(op, o1, 0, 0, name);
+	}
+
+	private void emit(OpCode op, int o1, int o2) {
+		emit(op, o1, o2, 0, "");
+	}
+
+	private void emit(OpCode op, int o1, int o2, int o3) {
+		emit(op, o1, o2, o3, "");
+	}
+
 
 	// private void backpatchJump(int instrAddr, int jumpAddr) {
 	//     code[instrAddr].o1 = jumpAddr;
@@ -110,79 +120,130 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	// }
 
 
-	private int newFloatReg() {
-		return floatRegsCount++;
+	private int newTempRegister() {
+		return tempRegisterCount++;
 	}
 
-    private int newIntReg() {
+	private int newIntReg() {
 		return intRegsCount++;
 	}
 
+	private int adressToArrayLine(int line){
+
+        String arrayName = at.getName(line);
+
+		//carrega o endereço da variavel
+		int addr_base = newIntReg();
+		emit(OpCode.LA,addr_base,arrayName);
+
+		return addr_base;
+	}
+
+	private int atualizaAddrBaseToPosition(int register_addr_base, int position){
+		//calcula o offset do endereço
+		int register_int = newIntReg();
+		emit(OpCode.LDIi,register_int,4);
+
+		int register_position = newIntReg();
+		emit(OpCode.LDIi,register_position,position);
+
+		emit(OpCode.MULi,register_position,register_position,register_int);
+		
+		//soma com o registrador base
+		emit(OpCode.ADDi,register_addr_base,register_addr_base,register_position);
+
+		//libera registradores 
+		intRegsCount -=2;
+
+		return register_addr_base;
+	}
+
+	private int adressToIdLine(int line){
+
+        String var_name = it.getName(line);
+
+		//carrega o endereço da variavel
+		int addr_base = newIntReg();
+		emit(OpCode.LA,addr_base,var_name);
+
+		return addr_base;
+	}
+
+	private int adressToStringLine(int line){
+
+        String string_name = "_" + Integer.toString(line);
+
+		//carrega o endereço da variavel
+		int addr_base = newIntReg();
+		emit(OpCode.LA,addr_base,string_name);
+
+		return addr_base;
+	}
+
+	
+
 	@Override
-	protected Void visit_I2R_node(AST node){
-        int register_int = visit(node.getChild(0));
+	protected Integer visit_I2R_node(AST node){
 		int register = newFloatReg();
-		emit(WIDf,register,register_int);
+        int register_int = visit(node.getChild(0));
+		emit(OpCode.WIDf,register,register_int);
+		intRegsCount --;
 		return register;
 	}
 
 	@Override
-	protected Void visit_assign_node(AST node){
-        int register = visit(node.getChild(1)); // expr
-        
-        
-        
-        
-        
-        int positionMemory;
+	protected Integer visit_assign_node(AST node){
+        int register_expr = visit(node.getChild(1)); // expr     	
         
 		if(node.getChild(0).kind == NodeKind.ACCESS_ARRAY_USE_NODE) {
+			//linha que o array esta declarado na tabela de arrays
 			int line = node.getChild(0).intData;
-            String arrayName = at.getName(line);
 
-            int regPos = visit(node.getChild(0).getChild(0));
+			//carrega o endereço base do array							 
+			int register_addr_base = adressToArrayLine(line);
+            
+			//expressão de acesso a posição do array
+            int position = visit(node.getChild(0).getChild(0));
 
+			register_addr_base = atualizaAddrBaseToPosition(register_addr_base,position);
+			
 			if(node.getChild(0).type == Type.REAL) {
-				emit(STWf, regAddres, register);
-                
+				emit(OpCode.STWf, register_addr_base,register_expr);	
+				//libera registradores
+				floatRegsCount --; //expr
+				intRegsCount --;   //endereço       
 			} else {
-				emit(STWi, regAddres, register);
+				emit(OpCode.STWi, register_addr_base,register_expr);	
+				//libera registradores
+				intRegsCount -=2;   //endereço  e expr  
             }
 			
 		}else if (node.getChild(0).kind == NodeKind.VAR_USE_NODE){
-			positionMemory = node.getChild(0).intData;
 			
-			if(node.getChild(0).type == Type.INTEGER) {
-				resultInt = currentFrame.popiDataStack();
-				currentFrame.storeiDataStackIdMemory(positionMemory, resultInt);
+			//linha que a variável esta declarada na tabela de id
+			int line = node.getChild(0).intData;
+			int register_addr_base = adressToIdLine(line);
 			
-			} else if(node.getChild(0).type == Type.REAL) {
-				resultFloat = currentFrame.popfDataStack();
-				currentFrame.storefDataStackIdMemory(positionMemory, resultFloat);
-
-			} else if(node.getChild(0).type == Type.STRING) {
-				resultInt = currentFrame.popiDataStack();
-				currentFrame.storeiDataStackIdMemory(positionMemory, resultInt);
-				
-			}else if(node.getChild(0).type == Type.BOOLEAN) {
-				resultInt = currentFrame.popiDataStack();
-				currentFrame.storeiDataStackIdMemory(positionMemory, resultInt);
+    			
+			if(node.getChild(0).type == Type.REAL) {
+				emit(OpCode.STWf, register_addr_base,register_expr);
+				//libera registradores
+				floatRegsCount --; //expr
+				intRegsCount --;   //endereço  
+			} else{
+				emit(OpCode.STWi, register_addr_base,register_expr);
+				//libera registradores
+				intRegsCount -=2;   //endereço  e expr  
 			}
 		}
-		
 	    return -1; // This is not an expression, hence no value to return.
-
-        
-		
-		
-		return null;
 	}
 
-	// TODO
 	@Override
-	protected Void visit_var_use_node(AST node){
+	protected Integer visit_var_use_node(AST node){
 
-		
+		int line = node.intData;
+		adressToIdLine(line);
 
 		return null;
 	}
@@ -226,7 +287,25 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
 	// TODO
 	@Override
-	protected Void visit_less_than_node(AST node){
+	protected Integer visit_less_than_node(AST node){
+		int regResult = newIntReg();
+		int regExpr0 = visit(node.getChild(0));
+		int regExpr1 = visit(node.getChild(1));
+
+		if(node.type == Type.STRING) {
+			
+		} else if(node.type == Type.REAL) {
+			emit(OpCode.CLTS, regExpr0, regExpr1);
+			emit(OpCode.MOVf, regResult, "$fcsr");
+
+		} else if(node.type == Type.INTEGER) {
+			emit(OpCode.SLT, regResult, regExpr0, regExpr1);
+			return regResult;
+			
+		} else if(node.type == Type.BOOLEAN) {
+			emit(OpCode.SLT, regResult, regExpr0, regExpr1);
+			return regResult;
+		}
 		
 		return null;
 	}
