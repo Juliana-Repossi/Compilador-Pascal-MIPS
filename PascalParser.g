@@ -130,7 +130,9 @@ type_simple_array:
 |   REAL        #type_simple_array_real
 |   BOOLEAN     #type_simple_array_boolean
 ;
-galarda _simple_integer
+
+type_simple: 
+    INTEGER     #type_simple_integer
 |   REAL        #type_simple_real
 |   BOOLEAN     #type_simple_boolean
 |   STRING      #type_simple_string

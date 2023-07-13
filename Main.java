@@ -13,6 +13,7 @@ import visitor.Visitor;
 
 
 import ast.AST;
+import code.CodeGen;
 import code.Interpreter;
 
 
@@ -54,7 +55,11 @@ public class Main {
 		// System.out.println(visitor.getProcTable().toString());
 		// AST.printDot(ast, visitor.getArrayTable(), visitor.getIdTable(), visitor.getFuncTable(), visitor.getProcTable());
 	
-		Interpreter interpreter = new Interpreter(visitor.getStrTable(), visitor.getIdTable(), visitor.getArrayTable(), visitor.getFuncTable(), visitor.getProcTable());
-		interpreter.execute(ast);
+		// Interpreter interpreter = new Interpreter(visitor.getStrTable(), visitor.getIdTable(), visitor.getArrayTable(), visitor.getFuncTable(), visitor.getProcTable());
+		// interpreter.execute(ast);
+
+		// Executa o gerador de código.
+		CodeGen codeGen = new CodeGen(visitor.getIdTable(), visitor.getArrayTable(),visitor.getStrTable(),visitor.getFuncTable(), visitor.getProcTable());
+		codeGen.execute(ast);
 	}
 }

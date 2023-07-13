@@ -1,4 +1,4 @@
 program ex1;
 begin
-writeln('oi');
+write('oi');
 end.

@@ -1,6 +1,6 @@
 package types;
 
-// Enumeração dos tipos primitivos que podem existir em EZLang.
+// Enumeração dos tipos primitivos que podem existir em Pascal.
 public enum Type {
 	INTEGER,
     REAL,

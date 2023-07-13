@@ -6,8 +6,8 @@ JAVA=java
 YEAR=$(shell pwd | grep -o '20..-.')
 # ROOT=/home/fgasouza/compiladores-labs/lab3
 # ROOT=/home/filipe/git/Compilador-Pascal-MIPS
-ROOT=/home/jcrepossi/Compilador-Pascal-MIPS
-# ROOT=/home/juliana/Compilador-Pascal-MIPS
+#ROOT=/home/jcrepossi/Compilador-Pascal-MIPS
+ ROOT=/home/juliana/Compilador-Pascal-MIPS
 # ROOT=/home/elaine/git/Compilador-Pascal-MIPS
 
 # Caminho para o JAR do ANTLR em labs/tools

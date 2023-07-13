@@ -1,5 +1,6 @@
 package error;
 import types.Type;
+import registers.TypeRegister;
 
 public final class MsgErros {
 
@@ -82,5 +83,10 @@ public final class MsgErros {
     public static void segmentationFault(String idArray, int index, int size) {
         System.out.println("(SEGFAULT) - Acesso " + idArray + "[" + index + "] inválido. Este array possui tamanho " + size + ".");
         System.exit(18);
+    }
+
+    public static void estouroRegister(TypeRegister type){
+        System.out.println("O registrador "+ type +"estorou a faixa de armazenamento");
+        System.exit(19);
     }
 }

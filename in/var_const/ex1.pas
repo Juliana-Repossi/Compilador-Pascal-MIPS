@@ -5,9 +5,9 @@ var
     x3 : boolean;
     x4 : string;
 
-    vetor : array[0..9] of integer;
-    vetor1 : array[0..3] of real;
-    vetor2 : array[0..5] of boolean;
+    // vetor : array[0..9] of integer;
+    // vetor1 : array[0..3] of real;
+    // vetor2 : array[0..5] of boolean;
 
     z1,z2 : integer;    
     z3,z4 : real;
