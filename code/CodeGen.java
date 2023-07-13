@@ -15,14 +15,17 @@ import tables.IdTable;
 import tables.ProcTable;
 import tables.StrTable;
 import types.Type;
+import types.TypeData;
 import error.MsgErros;
 import registers.Registers;
 import registers.TypeRegister;
+import tables.DataTable;
 
 
 public final class CodeGen extends ASTBaseVisitor<Integer> {
 
 	private final Instruction code[]; // Code memory
+	private final DataTable data;
 	private final IdTable it;
     private final ArrayTable at;
 	private final StrTable st;
@@ -34,7 +37,9 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
 
 	public CodeGen(IdTable it, ArrayTable at,StrTable st,FuncTable ft, ProcTable pt) {
+		
 		this.code = new Instruction[INSTR_MEM_SIZE];
+		this.data = new DataTable();
 		this.it = it;
 		this.at = at;
 		this.st = st;
@@ -47,7 +52,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	@Override
 	public void execute(AST root) {
 		nextInstr = 0;
-	    dumpStrTable();
+	    //dumpStrTable();
 	    visit(root);
 	    emit(OpCode.HALT);
 	    dumpProgram();
@@ -57,8 +62,13 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	// Prints ---------------------------------------------------------------------
 
 	void dumpProgram() {
-		//fazer um data aqui
-
+		//.data
+		System.out.printf(data.toString());
+		//.text
+		System.out.printf(".text\n");
+		//.globl main
+		System.out.printf(".globl main\n\n");
+		//instruction
 	    for (int addr = 0; addr < nextInstr; addr++) {
 	    	System.out.printf("%s\n", code[addr].toString());
 	    }
@@ -276,23 +286,127 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 		return register_addr;
 	}
 
-	// TODO
 	@Override
 	protected Integer visit_not_equal_node(AST node){
+		int regResult = registers.alocTypeRegister(TypeRegister.t);
+		int regExpr0 = visit(node.getChild(0));
+		int regExpr1 = visit(node.getChild(1));
+
+		int regChar0 = registers.alocTypeRegister(TypeRegister.t);
+		int regChar1 = registers.alocTypeRegister(TypeRegister.t);
+
+		int regComp = registers.alocTypeRegister(TypeRegister.t);
+
+		if(node.type == Type.STRING) {
+			emit("compare_not_eq_loop");
+			emit(OpCode.LB, regChar0, regExpr0); // deve ter parênteses no toSring no segundo operando
+			emit(OpCode.LB, regChar1, regExpr1); // deve ter parênteses no toSring no segundo operando
+			emit(OpCode.BEQZ, regChar0, "not_eq_check_eq"); // Se chegou ao final da primeira string, verifica igualdade
+			emit(OpCode.BNE, regChar0, regChar1, "not_eq_not_equal"); // Se os caracteres forem diferentes, as strings não são iguais
+
+			emit(OpCode.ADDiu, regChar0, regChar0, "1"); // Avança para o próximo caractere da primeira string
+			emit(OpCode.ADDiu, regChar1, regChar1, "1"); // Avança para o próximo caractere da segunda string
+			emit(OpCode.J, "compare_not_eq_loop");
+
+			emit("not_eq_check_eq"); // é menor, true
+			emit(OpCode.BEQZ, regChar1, "not_equal_str_equal"); // Se chegou ao final da segunda string, as strings são iguais
+			emit(OpCode.J, "not_eq_not_equal"); // Se a primeira string terminou antes da segunda, as strings são diferentes
+
+			emit("not_equal_str_equal");
+			emit(OpCode.LDIi, regResult, "0");
+			emit(OpCode.J, "end_compare_not_eq");
+			
+			emit("not_eq_not_equal");
+			emit(OpCode.LDIi, regResult, "1");
+			emit(OpCode.J, "end_compare_not_eq");
+			emit("end_compare_not_eq");
+
+		} else if(node.type == Type.REAL) {
+			emit(OpCode.CEQS, regExpr0, regExpr1);
+			emit(OpCode.BC1T, "not_equal_eq_floats");
+			emit(OpCode.LDIi, regResult, "0");
+			emit(OpCode.J, "end_compare_not_equal_floats");
+			emit("not_equal_eq_floats");
+			emit(OpCode.LDIi, regResult, "1");
+			emit("end_compare_not_equal_floats");
+
+		} else if(node.type == Type.INTEGER) {
+			emit(OpCode.SEQ, regResult, regExpr0, regExpr1);
+			
+		} else if(node.type == Type.BOOLEAN) {
+			emit(OpCode.SEQ, regResult, regExpr0, regExpr1);
+		}
 		
+		registers.freeTypeRegister(TypeRegister.t);
+		registers.freeTypeRegister(TypeRegister.t);
+		registers.freeTypeRegister(TypeRegister.t);
+		registers.freeTypeRegister(TypeRegister.t);
+		registers.freeTypeRegister(TypeRegister.t);
+		return regResult;
 
 
-		return -1;
 	}
 
-	// TODO
+
 	@Override
 	protected Integer visit_equal_node(AST node){
+		int regResult = registers.alocTypeRegister(TypeRegister.t);
+		int regExpr0 = visit(node.getChild(0));
+		int regExpr1 = visit(node.getChild(1));
+
+		int regChar0 = registers.alocTypeRegister(TypeRegister.t);
+		int regChar1 = registers.alocTypeRegister(TypeRegister.t);
+
+		int regComp = registers.alocTypeRegister(TypeRegister.t);
+
+		if(node.type == Type.STRING) {
+			emit("compare_eq_loop");
+			emit(OpCode.LB, regChar0, regExpr0); // deve ter parênteses no toSring no segundo operando
+			emit(OpCode.LB, regChar1, regExpr1); // deve ter parênteses no toSring no segundo operando
+			emit(OpCode.BEQZ, regChar0, "check_eq"); // Se chegou ao final da primeira string, verifica igualdade
+			emit(OpCode.BNE, regChar0, regChar1, "not_equal"); // Se os caracteres forem diferentes, as strings não são iguais
+
+			emit(OpCode.ADDiu, regChar0, regChar0, "1"); // Avança para o próximo caractere da primeira string
+			emit(OpCode.ADDiu, regChar1, regChar1, "1"); // Avança para o próximo caractere da segunda string
+			emit(OpCode.J, "compare_eq_loop");
+
+			emit("check_eq"); // é menor, true
+			emit(OpCode.BEQZ, regChar1, "str_equal"); // Se chegou ao final da segunda string, as strings são iguais
+			emit(OpCode.J, "not_equal"); // Se a primeira string terminou antes da segunda, as strings são diferentes
+
+			emit("str_equal");
+			emit(OpCode.LDIi, regResult, "1");
+			emit(OpCode.J, "end_compare_eq");
+			
+			emit("not_equal");
+			emit(OpCode.LDIi, regResult, "0");
+			emit(OpCode.J, "end_compare_eq");
+			emit("end_compare_eq");
+
+		} else if(node.type == Type.REAL) {
+			emit(OpCode.CEQS, regExpr0, regExpr1);
+			emit(OpCode.BC1T, "eq_floats");
+			emit(OpCode.LDIi, regResult, "0");
+			emit(OpCode.J, "end_compare_floats");
+			emit("eq_floats");
+			emit(OpCode.LDIi, regResult, "1");
+			emit("end_compare_floats");
+
+		} else if(node.type == Type.INTEGER) {
+			emit(OpCode.SEQ, regResult, regExpr0, regExpr1);
+			
+		} else if(node.type == Type.BOOLEAN) {
+			emit(OpCode.SEQ, regResult, regExpr0, regExpr1);
+		}
 		
-		return -1;
+		registers.freeTypeRegister(TypeRegister.t);
+		registers.freeTypeRegister(TypeRegister.t);
+		registers.freeTypeRegister(TypeRegister.t);
+		registers.freeTypeRegister(TypeRegister.t);
+		registers.freeTypeRegister(TypeRegister.t);
+		return regResult;
 	}
 
-	
 	@Override
 	protected Integer visit_less_than_node(AST node){
 		int regResult = registers.alocTypeRegister(TypeRegister.t);
@@ -309,7 +423,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 			emit(OpCode.LB, regChar0, regExpr0); // deve ter parênteses no toSring no segundo operando
 			emit(OpCode.LB, regChar1, regExpr1); // deve ter parênteses no toSring no segundo operando
 			emit(OpCode.BEQZ, regChar0, "str0_smaller"); // Se chegou ao final da primeira string, a primeira é menor
-			emit(OpCode.BEQZ, regChar1, "end_compare"); // Se chegou ao final da segunda string, finaliza a comparação
+			emit(OpCode.BEQZ, regChar1, "end_compare_lt_str"); // Se chegou ao final da segunda string, finaliza a comparação
 			emit(OpCode.SLT, regComp, regChar0, regChar1); // Compara os caracteres
 			emit(OpCode.BGTZ, regComp, "str0_smaller"); // Se o caractere da primeira string for menor, a primeira é menor
 			emit(OpCode.ADDiu, regExpr0, regExpr0, "1"); // Avança para o próximo caractere da primeira string
@@ -317,13 +431,18 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 			emit(OpCode.J, "compare_lt_loop");
 			emit("str0_smaller"); // é menor, true
 			emit(OpCode.LDIi, regResult, "1");
-			emit(OpCode.J, "end_compare");
+			emit(OpCode.J, "end_compare_lt_str");
 			emit(OpCode.LDIi, regResult, "0"); // não é menor, false
-			emit(OpCode.J, "end_compare");
-			emit("end_compare");
+			emit(OpCode.J, "end_compare_lt_str");
+			emit("end_compare_lt_str");
 		} else if(node.type == Type.REAL) {
 			emit(OpCode.CLTS, regExpr0, regExpr1);
-			emit(OpCode.MOVf, regResult, "$fcsr");
+			emit(OpCode.BC1T, "lt_floats");
+			emit(OpCode.LDIi, regResult, "0");
+			emit(OpCode.J, "end_compare_lt_floats");
+			emit("lt_floats");
+			emit(OpCode.LDIi, regResult, "1");
+			emit("end_compare_lt_floats");
 
 		} else if(node.type == Type.INTEGER) {
 			emit(OpCode.SLT, regResult, regExpr0, regExpr1);
@@ -340,7 +459,6 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 		return regResult;
 	}
 
-	// TODO
 	@Override
 	protected Integer visit_greater_than_node(AST node){
 		int regResult = registers.alocTypeRegister(TypeRegister.t);
@@ -357,7 +475,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 			emit(OpCode.LB, regChar0, regExpr0); // deve ter parênteses no toSring no segundo operando
 			emit(OpCode.LB, regChar1, regExpr1); // deve ter parênteses no toSring no segundo operando
 			emit(OpCode.BEQZ, regChar1, "str1_smaller"); // Se chegou ao final da primeira string, a primeira é menor
-			emit(OpCode.BEQZ, regChar0, "end_compare"); // Se chegou ao final da segunda string, finaliza a comparação
+			emit(OpCode.BEQZ, regChar0, "end_compare_gt_str"); // Se chegou ao final da segunda string, finaliza a comparação
 			emit(OpCode.SLT, regComp, regChar1, regChar0); // Compara os caracteres
 			emit(OpCode.BGTZ, regComp, "str1_smaller"); // Se o caractere da primeira string for menor, a primeira é menor
 			emit(OpCode.ADDiu, regExpr0, regExpr0, "1"); // Avança para o próximo caractere da primeira string
@@ -365,13 +483,19 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 			emit(OpCode.J, "compare_gt_loop");
 			emit("str1_smaller"); // é menor, true
 			emit(OpCode.LDIi, regResult, "1");
-			emit(OpCode.J, "end_compare");
+			emit(OpCode.J, "end_compare_gt_str");
 			emit(OpCode.LDIi, regResult, "0"); // não é menor, false
-			emit(OpCode.J, "end_compare");
-			emit("end_compare");
+			emit(OpCode.J, "end_compare_gt_str");
+			emit("end_compare_gt_str");
+			
 		} else if(node.type == Type.REAL) {
-			emit(OpCode.CLTS, regExpr1, regExpr0); // invertendo a desigualdade
-			emit(OpCode.MOVf, regResult, "$fcsr");
+			emit(OpCode.CLTS, regExpr1, regExpr0);
+			emit(OpCode.BC1T, "gt_floats");
+			emit(OpCode.LDIi, regResult, "0");
+			emit(OpCode.J, "end_compare_gt_floats");
+			emit("gt_floats");
+			emit(OpCode.LDIi, regResult, "1");
+			emit("end_compare_gt_floats");
 
 		} else if(node.type == Type.INTEGER) {
 			emit(OpCode.SLT, regResult, regExpr1, regExpr0); // invertendo a desigualdade
@@ -388,10 +512,58 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 		return regResult;
 	}
 
-	// TODO
+	// DOING RIGHT NOW  //LESS OR EQUAL
 	@Override
 	protected Integer visit_LEQ_node(AST node){
-		
+		// int regResult = registers.alocTypeRegister(TypeRegister.t);
+
+		// int regExpr0 = visit(node.getChild(0));
+		// int regExpr1 = visit(node.getChild(1));
+
+		// if(node.type == Type.INTEGER || node.type == Type.BOOLEAN) { //INTEGER OR BOOLEAN
+		// 	int regComp1 = registers.alocTypeRegister(TypeRegister.t);
+		// 	int regComp1 = registers.alocTypeRegister(TypeRegister.t);
+
+		// 	emit(OpCode.SLT, regComp1, regExpr0, regExpr1);
+		// 	emit(OpCode.SEQ, regComp2, regExpr0, regExpr1 );
+		// 	emit(OpCode.OR, regResult, regComp1, regComp2 );	
+
+		// 	registers.freeTypeRegister(TypeRegister.t);
+		// 	registers.freeTypeRegister(TypeRegister.t);
+			
+		// } else if(node.type == Type.REAL){
+		// 	int regComp1 = registers.alocTypeRegister(TypeRegister.f);
+		// 	int regComp1 = registers.alocTypeRegister(TypeRegister.f);
+
+		// 	emit(OpCode.SLT, regComp1, regExpr0, regExpr1);
+		// 	emit(OpCode.SEQ, regComp2, regExpr0, regExpr1 );
+		// 	emit(OpCode.OR, regResult, regComp1, regComp2 );
+
+		// 	registers.freeTypeRegister(TypeRegister.f);
+		// 	registers.freeTypeRegister(TypeRegister.f);
+			
+		// }else if(node.type == Type.STRING){
+		// 	emit("compare_leq_loop");
+		// 	emit(OpCode.LB, regChar0, regExpr0); // deve ter parênteses no toSring no segundo operando
+		// 	emit(OpCode.LB, regChar1, regExpr1); // deve ter parênteses no toSring no segundo operando
+		// 	emit(OpCode.BEQZ, regChar0, "str0_smaller"); // Se chegou ao final da primeira string, a primeira é menor
+		// 	emit(OpCode.BEQZ, regChar1, "end_compare_lt_str"); // Se chegou ao final da segunda string, finaliza a comparação
+		// 	emit(OpCode.SLT, regComp, regChar0, regChar1); // Compara os caracteres
+		// 	emit(OpCode.BGTZ, regComp, "str0_smaller"); // Se o caractere da primeira string for menor, a primeira é menor
+		// 	emit(OpCode.ADDiu, regExpr0, regExpr0, "1"); // Avança para o próximo caractere da primeira string
+		// 	emit(OpCode.ADDiu, regExpr1, regExpr1, "1"); // Avança para o próximo caractere da segunda string
+		// 	emit(OpCode.J, "compare_lt_loop");
+		// 	emit("str0_smaller"); // é menor, true
+		// 	emit(OpCode.LDIi, regResult, "1");
+		// 	emit(OpCode.J, "end_compare_lt_str");
+		// 	emit(OpCode.LDIi, regResult, "0"); // não é menor, false
+		// 	emit(OpCode.J, "end_compare_lt_str");
+		// 	emit("end_compare_lt_str");
+		// }
+
+		// registers.freeTypeRegister(TypeRegister.t); //expr1
+		// registers.freeTypeRegister(TypeRegister.t); //expr0
+		// return regResult;
 		return -1;
 	}
 
@@ -420,18 +592,22 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 		return register_value;
 	}
 
-	// TODO
 	@Override
 	protected Integer visit_if_node(AST node){
-		// visit(node.getChild(0));
-		// int result = currentFrame.popiDataStack();
+		int regExpr = visit(node.getChild(0));
+		int regTrue = registers.alocTypeRegister(TypeRegister.t);
+		emit(OpCode.LDIi, regTrue, 1);
+		emit(OpCode.BEQ, regExpr, regTrue, "then");
 
-		// if(result == 1) {
-		// 	visit(node.getChild(1));
+		if(node.getChildrenSize() == 3) { // tem else
+			visit(node.getChild(2));
+		}
+		emit(OpCode.J, "end_if");
 
-		// } else if(result == 0 && node.getChildrenSize() == 3) {
-		// 	visit(node.getChild(2));
-		// }
+		emit("then");
+		visit(node.getChild(1));
+
+		emit("end_if");
 		return -1;
 	}
 
@@ -612,9 +788,14 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	protected Integer visit_program_node(AST node){
 		 
 		// 0 var list
-		// 1 -  n-2 - functions and procedures
+		visit(node.getChild(0)); 
+
+		// 1 -  n-2 - functions and procedures - tratar no final
+		
 		// n-1 - main
-		//COLOCAR LABEL DA MAIN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//label main
+		emit("main:");
+		//visit block main
 		visit(node.getChild(node.getChildrenSize()-1));
 	
 		if(node.getChildrenSize() > 2){
@@ -630,16 +811,11 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	@Override
 	protected Integer visit_var_list_node(AST node){
 		
-		//colocar o .data nas intruções
-		emit(OpCode.DATA);
-
-		//se tiver declaração de variárveis
-		if(node.getChildrenSize() > 0){
-			// tem variável
-			for(int i=0; i< node.getChildrenSize(); i++){
+		// Percorre todas as declarações 
+		for(int i = 0; i < node.getChildrenSize(); i++) {
 			visit(node.getChild(i));
-			}
 		}
+
 		return -1;
 	}
 
@@ -707,8 +883,6 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 		return -1;
 	}
 
-
-
 	@Override
 	protected Integer visit_writeln_node(AST node){
 		int reg_newline = registers.alocTypeRegister(TypeRegister.t);
@@ -736,7 +910,6 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 		return -1;
        
 	}
-
 
 	@Override
 	protected Integer visit_real_val_node(AST node){
@@ -766,53 +939,37 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 		
 	@Override	
 	protected Integer visit_var_decl_node(AST node){
-
 		Boolean ehConst = it.getConst(node.intData); 
-			
-		if(node.getChild(0).type == Type.INTEGER || node.getChild(0).type == Type.BOOLEAN || node.getChild(0).type == Type.STRING) {
-				
-			if(node.getChild(0).type == Type.STRING){
-				if(ehConst == true){
-					// int register_value_const = visit(node.getChild(0));
-					// emit(OpCode.DATAa,register_value_const,it.getName(node.intData));
-					// registers.freeTypeRegister(TypeRegister.t);
-					// return -1;
-				}
-				else{
-					emit(OpCode.DATAa,it.getName(node.intData));
-					registers.freeTypeRegister(TypeRegister.t);
-					return -1;
-				}			
-			}else{
-				if(ehConst == true){
-					// int register_value_const = visit(node.getChild(0));
-					// emit(OpCode.DATAcw,register_value_const,it.getName(node.intData));
-					// registers.freeTypeRegister(TypeRegister.t);
-					// return -1;
-				}else{
-					emit(OpCode.DATAw,it.getName(node.intData));
-					registers.freeTypeRegister(TypeRegister.t);
-					return -1;
-				}
+		
+		if(node.type == Type.INTEGER || node.type == Type.BOOLEAN){
+			if(ehConst){
+				//pegar o valor da const
+				int value = node.getChild(0).intData;
+				data.addData(it.getName(node.intData),TypeData.WORD,Integer.toString(value));
+			}else{	
+				data.addData(it.getName(node.intData),TypeData.WORD,"0");
 			}
-
-		}else if(node.getChild(0).type == Type.REAL){
-			if(ehConst == true){
-				// int register_value_const = visit(node.getChild(0));
-				// emit(OpCode.DATAcf,register_value_const,it.getName(node.intData));
-				// registers.freeTypeRegister(TypeRegister.f);
-				// return -1;
+		}else if(node.type == Type.REAL) {
+			if(ehConst){
+				//pegar o valor da const
+				float value = node.getChild(0).floatData;
+				data.addData(it.getName(node.intData),TypeData.FLOAT,Float.toString(value));
 			}else{
-				emit(OpCode.DATAf,it.getName(node.intData));
-				registers.freeTypeRegister(TypeRegister.f);
-				return -1;
+				data.addData(it.getName(node.intData),TypeData.FLOAT,"0.0");				
 			}
-			
+		}else if(node.type == Type.STRING){
+			if(ehConst){
+				//pegar linha da string na tabela de strings
+				int line = node.getChild(0).intData;
+				data.addData(it.getName(node.intData),TypeData.ASCIIZ,st.get(line));
+			}else{
+				//pegar linha da string na tabela de strings
+				data.addData(it.getName(node.intData),TypeData.ASCIIZ,"");
+			}
 		}
 
 		return -1;
 	}
-
 	
 	@Override	
 	protected Integer visit_not_node(AST node){
@@ -921,7 +1078,10 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	// TODO
 	@Override	
 	protected Integer visit_array_decl_node(AST node){
-		// Nothing to do.
+		//tamanho do array
+		int size = at.getSize(node.intData) * 4; // tipos primitivos de array possuem 4 bytes
+			
+		data.addData(at.getName(node.intData),TypeData.SPACE,Integer.toString(size));
 		return -1;
 	}
 

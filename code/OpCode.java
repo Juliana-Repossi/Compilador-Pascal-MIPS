@@ -9,32 +9,9 @@ public enum OpCode {
 	// Basic ops ****
     HALT("syscall", 1),
     NOOP("NOOP", 0),
-
+    
     // ---------------------------------------------------
 
-    // ---------------------------------------------------
-	// Operações de declaração de data ****
-
-    //Para imprimir um .data no arq
-    DATA("DATA",0),
-    //int e boolean - word
-    DATAw("DATAw",1),
-    //float - float
-    DATAf("DATAf",1),
-    //ascii - valor da string - nome da string
-    DATAa("DATAa",2),
-    //vetor - passar o space já calculado
-    DATAv("DATAv",1),
-
-    //com constantes
-    //int e boolean - word
-    DATAcw("DATAcw",2),
-    //float - float
-    DATAcf("DATAcf",2),
-
-
-
-    // ---------------------------------------------------
     // Arith ops ******
 
     ADDi("add", 3),	// ADDi ix, iy, iz	; ix <- iy + iz *
@@ -57,17 +34,16 @@ public enum OpCode {
     // Logical OR
     OROR("or", 3), 	// OROR ix, iy, iz	; ix <- (bool) iy || (bool) iz
     // Equality
-    EQUi("EQUi", 3), 	// EQUi ix, iy, iz	; ix <- iy == iz ? 1 : 0
     EQUf("c.eq.s", 3),	// EQUf ix, fy, fz	; ix <- fy == fz ? 1 : 0
-    EQUs("EQUs", 3), 	// EQUs ix, iy, iz	; ix <- str_tab[iy] == str_tab[iz] ? 1 : 0
-    // Less than
-    LTHi("LTHi", 3), 	// LTHi ix, iy, iz	; ix <- iy < iz ? 1 : 0
-    LTHf("LTHf", 3), 	// LTHi ix, fy, fz	; ix <- iy < iz ? 1 : 0
-    LTHs("LTHs", 3), 	// LTHs ix, iy, iz	; ix <- str_tab[iy] < str_tab[iz] ? 1 : 0
-    
+
+
     SLT("slt", 3),  //** */
     SGT("sgt", 3),
+    SEQ("seq", 3),
     CLTS("c.lt.s", 2),  //** */
+    CEQS("c.eq.s", 2),  //** */
+    CLEs("c.le.s", 3), //CLEs ix, fy, fz ; fx <- fy <= fz **Real values Float
+    CLEd("c.le.d", 3), //CLEs ix, fy, fz ; fx <- fy <= fz **Real values Double
     AND("and", 3), // AND ix, iy, iz ; ix <- iy && iz BITWISE **
     OR("or", 3), // OR ix, iy, iz ; ix <- iy || iz BITWISE **
     NOR("nor", 3), // OR ix, iy, iz ; ix <- iy nor iz  ** It can be used to make NOT, just put zero on iz
@@ -75,17 +51,17 @@ public enum OpCode {
     // Branches and jumps
 
     // Absolute jump
-    JUMP("JUMP", 1),	// JUMP addr		; PC <- addr
     J("J", 1),
     // Branch on true
-    BOTb("beq", 3), 	// BOTb ix, off		; PC <- PC + off, if ix == 1
+    BEQ("beq", 3), 	// BOTb ix, off		; PC <- PC + off, if ix == 1
+    BNE("bne", 3),
     // Branch on false
     BOFb("BOFb", 2),	// BOFb ix, off		; PC <- PC + off, if ix == 0
 
     BEQZ("beqz", 2),
     BGTZ("bgtz", 2),
     BLTZ("bltz", 2),
-
+    BC1T("bc1t", 1),
     // ---------------------------------------------------
     // Loads and stores *****
 
